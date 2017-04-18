@@ -10,7 +10,9 @@
     "react": "16.0.0-alpha.6",
     "react-native": "0.43.3",
     "react-native-config": "^0.3.1",
-    "react-native-oauth": "fullstackreact/react-native-oauth#master"
+    "react-native-oauth": "fullstackreact/react-native-oauth#master",
+    "react-native-video": "^1.0.0",
+    "react-navigation": "git+https://github.com/react-community/react-navigation.git"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",

@@ -1,8 +1,11 @@
 import React from 'react'
+import Video from 'react-native-video'
+import _ from 'lodash'
 import {
   ActivityIndicator,
   CameraRoll,
   ListView,
+  StyleSheet,
   Text,
   View
 } from 'react-native'
@@ -35,7 +38,6 @@ export const VideoBrowserView = React.createClass({
     if (this.state.lastCursor) {
       fetchParams.after = this.state.lastCursor
     }
-
     CameraRoll.getPhotos(fetchParams)
       .then((response) => {
         var assets = response.edges
@@ -64,16 +66,19 @@ export const VideoBrowserView = React.createClass({
   },
 
   _renderRow (rowData, sectionID, rowID) {
-    rowData.map((video) => {
-      console.log('????? got video ', video)
-      return (
-        <Text>{video.type}</Text>
-      )
+    console.log('!!!!VIDEO: ', rowData)
+    let image = rowData.node.image
+    let style = _.merge(styles.video, {
+      aspectRatio: (image.height * 1.0) / image.width,
+      width: '100%'
     })
-
     return (
-      <View>
-        {rowData}
+      <View style={styles.videoContainer}>
+        <Video
+          source={{uri: image.uri}}
+          resizeMode='cover'
+          style={style}
+          />
       </View>
     )
   },
@@ -93,5 +98,20 @@ export const VideoBrowserView = React.createClass({
         onEndReached={this._onEndReached}
         dataSource={this.state.dataSource} />
     )
+  }
+})
+
+// Later on in your styles..
+var styles = StyleSheet.create({
+  videoContainer: {
+    flex: 1,
+    flexDirection: 'row'
+  },
+  video: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   }
 })
