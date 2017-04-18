@@ -1,0 +1,6 @@
+framework module Pods_replayappTests {
+  umbrella header "Pods-replayappTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
