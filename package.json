@@ -11,7 +11,8 @@
     "react-native": "0.43.3",
     "react-native-config": "^0.3.1",
     "react-native-oauth": "fullstackreact/react-native-oauth#master",
-    "react-native-video": "^1.0.0",
+    "react-native-photos-framework": "^1.0.7",
+    "react-native-video": "git://github.com/olofd/react-native-video.git#react-native-photos-framework",
     "react-navigation": "git+https://github.com/react-community/react-navigation.git"
   },
   "devDependencies": {

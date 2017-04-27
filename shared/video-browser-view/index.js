@@ -1,13 +1,13 @@
+import RNPhotosFramework from 'react-native-photos-framework'
 import React from 'react'
-import Video from 'react-native-video'
-import _ from 'lodash'
+import { VideoBrowserItem } from './video-browser-item'
+
 import {
   ActivityIndicator,
   CameraRoll,
   ListView,
   StyleSheet,
   Text,
-  View
 } from 'react-native'
 
 export const VideoBrowserView = React.createClass({
@@ -31,32 +31,63 @@ export const VideoBrowserView = React.createClass({
 
   fetch () {
     const fetchParams = {
-      first: 5,
+      first: 40,
       groupTypes: 'All',
-      assetType: 'Videos'
+      assetType: 'All' // assetType: 'Videos'
     }
     if (this.state.lastCursor) {
       fetchParams.after = this.state.lastCursor
     }
-    CameraRoll.getPhotos(fetchParams)
-      .then((response) => {
-        var assets = response.edges
+
+    RNPhotosFramework.getAssets({
+        //Example props below. Many optional.
+        // You can call this function multiple times providing startIndex and endIndex as
+        // pagination.
+        startIndex: 0,
+        endIndex: 10,
+
+        fetchOptions : {
+          // Media types you wish to display. See table below for possible options. Where
+          // is the image located? See table below for possible options.
+          sourceTypes: ['userLibrary'], // , 'cloudShared'
+          mediaTypes: ['video'],
+          sortDescriptors : [
+            {
+              key: 'creationDate',
+              ascending: false
+            }
+          ]
+        }
+      }).then((response) => {
         var newState = {}
-
-        if (!response.page_info.has_next_page) {
-          newState.noMore = true
-        }
-
-        if (assets.length > 0) {
-          newState.lastCursor = response.page_info.end_cursor
-          newState.assets = this.state.assets.concat(assets)
-          newState.dataSource = this.state.dataSource.cloneWithRows(
-            newState.assets
-          )
-        }
-
+        newState.assets = this.state.assets.concat(response.assets)
+        newState.dataSource = this.state.dataSource.cloneWithRows(
+          newState.assets
+        )
+        newState.noMore = true
         this.setState(newState)
       })
+
+    // CameraRoll.getPhotos(fetchParams)
+    //   .then((response) => {
+    //     console.log('RESPONSE: ', response)
+    //     var assets = _.filter(response.edges, (node) => node.type === 'ALAssetTypeVideo')
+    //     var newState = {}
+    //
+    //     if (!response.page_info.has_next_page) {
+    //       newState.noMore = true
+    //     }
+    //
+    //     if (assets.length > 0) {
+    //       newState.lastCursor = response.page_info.end_cursor
+    //       newState.assets = this.state.assets.concat(assets)
+    //       newState.dataSource = this.state.dataSource.cloneWithRows(
+    //         newState.assets
+    //       )
+    //     }
+    //
+    //     this.setState(newState)
+    //   })
   },
 
   _onEndReached () {
@@ -66,20 +97,9 @@ export const VideoBrowserView = React.createClass({
   },
 
   _renderRow (rowData, sectionID, rowID) {
-    console.log('!!!!VIDEO: ', rowData)
-    let image = rowData.node.image
-    let style = _.merge(styles.video, {
-      aspectRatio: (image.height * 1.0) / image.width,
-      width: '100%'
-    })
+    console.log('rowData: ', rowData)
     return (
-      <View style={styles.videoContainer}>
-        <Video
-          source={{uri: image.uri}}
-          resizeMode='cover'
-          style={style}
-          />
-      </View>
+      <VideoBrowserItem video={rowData.video} />
     )
   },
 
@@ -93,6 +113,7 @@ export const VideoBrowserView = React.createClass({
   render () {
     return (
       <ListView
+        style={styles.videoContainer}
         renderRow={this._renderRow}
         renderFooter={this._renderFooter}
         onEndReached={this._onEndReached}
