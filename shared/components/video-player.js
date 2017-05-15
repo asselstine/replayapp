@@ -6,7 +6,7 @@ import {
   TouchableOpacity
 } from 'react-native'
 
-export class VideoView extends Component {
+export class VideoPlayer extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -38,41 +38,28 @@ export class VideoView extends Component {
 
   render () {
     let aspectRatio = (this.state.width * 1.0) / this.state.height
-    console.log(aspectRatio)
     let videoStyle = {
       width: '100%',
-      // height: 100
       aspectRatio: aspectRatio,
       maxHeight: 200
     }
 
     return (
-      <View style={styles.videoView}>
-        <View style={styles.video}>
-          <TouchableOpacity onPress={this.onPressVideo}>
-            <Video
-              source={this.props.video}
-              onLoadStart={this.onLoadStart}
-              onLoad={this.onLoad}
-              ref={(ref) => { this.player = ref }}
-              paused={this.state.paused}
-              style={videoStyle}
-              resizeMode='fill'
-              />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <TouchableOpacity onPress={this.onPressVideo}>
+        <Video
+          source={this.props.video}
+          onLoadStart={this.onLoadStart}
+          onLoad={this.onLoad}
+          ref={(ref) => { this.player = ref }}
+          paused={this.state.paused}
+          style={videoStyle}
+          resizeMode='fill'
+          />
+      </TouchableOpacity>
     )
   }
 }
 
-const styles = {
-  videoView: {
-    flex: 1,
-    flexDirection: 'column'
-  }
-}
-
-VideoView.propTypes = {
+VideoPlayer.propTypes = {
   video: PropTypes.object.isRequired
 }

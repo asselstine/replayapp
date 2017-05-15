@@ -8,12 +8,16 @@
   },
   "dependencies": {
     "react": "16.0.0-alpha.6",
+    "react-addons-update": "^15.5.2",
     "react-native": "0.43.3",
     "react-native-config": "^0.3.1",
     "react-native-oauth": "fullstackreact/react-native-oauth#master",
     "react-native-photos-framework": "^1.0.7",
     "react-native-video": "git://github.com/olofd/react-native-video.git#react-native-photos-framework",
-    "react-navigation": "git+https://github.com/react-community/react-navigation.git"
+    "react-navigation": "git+https://github.com/react-community/react-navigation.git",
+    "react-redux": "^5.0.4",
+    "redux": "^3.6.0",
+    "redux-persist": "^4.8.0"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",
