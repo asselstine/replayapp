@@ -6,7 +6,12 @@ export const VideoBrowserScreen = React.createClass({
     title: 'Browse'
   },
 
+  onPressVideo (e, video) {
+    console.log('NAVIGATE')
+    this.props.navigation.navigate('Video', { video: video })
+  },
+
   render () {
-    return <VideoBrowserView />
+    return <VideoBrowserView onPressVideo={this.onPressVideo} />
   }
 })

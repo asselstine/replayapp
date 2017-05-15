@@ -1,5 +1,6 @@
 import RNPhotosFramework from 'react-native-photos-framework'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { VideoBrowserItem } from './video-browser-item'
 
 import {
@@ -97,9 +98,9 @@ export const VideoBrowserView = React.createClass({
   },
 
   _renderRow (rowData, sectionID, rowID) {
-    console.log('rowData: ', rowData)
+    // console.log('rowData: ', rowData)
     return (
-      <VideoBrowserItem video={rowData.video} />
+      <VideoBrowserItem video={rowData.video} onPress={this.props.onPressVideo} />
     )
   },
 
@@ -126,13 +127,11 @@ export const VideoBrowserView = React.createClass({
 var styles = StyleSheet.create({
   videoContainer: {
     flex: 1,
-    flexDirection: 'row'
-  },
-  video: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
+    flexDirection: 'column'
   }
 })
+
+
+VideoBrowserView.propTypes = {
+  onPressVideo: React.PropTypes.func.isRequired
+}

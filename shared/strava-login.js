@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
@@ -15,7 +14,7 @@ export const VideoView = React.createClass({
     manager.authorize('strava', { scopes: 'view_private' })
       .then(response => console.log('done!: ', response))
       .catch(response => console.log('could not authenticate'))
-  }
+  },
 
   render () {
     return (
