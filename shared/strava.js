@@ -1,16 +1,28 @@
-import { fetch } from 'react-native'
 import { store } from './store'
 import _ from 'lodash'
+
+/* global fetch */
 
 export const Strava = {
   baseUrl: 'https://www.strava.com/api/v3',
 
-  listActivities () {
+  headers () {
+    return {
+      'Authorization': _.get(store.getState(), 'strava.credentials.authorizationHeader')
+    }
+  },
+
+  listActivities (params) {
+    params = params || {}
+    params = _.merge({
+      page: 1,
+      per_page: 20
+    }, params)
     return (
-      fetch(`${this.baseUrl}/athlete/activities`, {
-        params: {
-          access_token: _.get(store.getState(), 'strava.credentials.accessToken')
-        }
+      fetch(`${this.baseUrl}/athlete/activities?page=${params.page}&per_page=${params.per_page}`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
       })
     )
   }
