@@ -25,14 +25,14 @@ export class SyncModal extends Component {
       orientation: 'landscape',
       width: 1,
       height: 1,
-      mapTimeOffset: 0,
-      videoTimeOffset: 0,
       mapCurrentLatLng: null
     }
+    this.mapTimeOffset = 0
+    this.videoTimeOffset = 0
     this.onLoad = this.onLoad.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
     this._onValueChangeVideo = this._onValueChangeVideo.bind(this)
-    this._onValueChangeMap = _.throttle(this._onValueChangeMap.bind(this), 100)
+    this._onValueChangeMap = _.throttle(this._onValueChangeMap.bind(this), 50)
     this._onSave = this._onSave.bind(this)
   }
 
@@ -53,7 +53,7 @@ export class SyncModal extends Component {
   }
 
   _onSave () {
-    var offset = this.state.mapTimeOffset - this.state.videoTimeOffset
+    var offset = this.mapTimeOffset - this.videoTimeOffset
     var activityStartAt = moment(this.props.activity.start_date)
     var videoStartAt = activityStartAt.clone().add(offset, 's')
     // var format = 'YYYY-MM-DDTHH:mm:ss.SSSZ'
@@ -64,15 +64,16 @@ export class SyncModal extends Component {
   _onValueChangeVideo (value) {
     var position = value * (this.state.duration || 0)
     this.player.seek(position)
-    this.setState({ videoTimeOffset: position })
+    this.videoTimeOffset = position
   }
 
   _onValueChangeMap (value) {
     var mapTimeOffset = this.timeOffsetFromFraction(value)
-    this.setState({
-      mapTimeOffset: mapTimeOffset,
-      mapCurrentLatLng: this.latLngAtTime(this.mapTime(mapTimeOffset))
-    })
+    var mapCurrentLatLng = this.latLngAtTime(this.mapTime(mapTimeOffset))
+    this.mapTimeOffset = mapTimeOffset
+    if (this.lastAnimation) { this.lastAnimation.stop() }
+    this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 50 }))
+    this.lastAnimation.start()
   }
 
   componentDidMount () {
@@ -168,17 +169,8 @@ export class SyncModal extends Component {
       maxHeight: 200
     }
 
-    if (latLngs.length) {
-      var polyLine =
-        <MapView.Polyline coordinates={latLngs} />
-    }
-
-    if (this.state.mapCurrentLatLng) {
-      var positionCircle =
-        <MapView.Marker
-          draggable
-          coordinate={this.state.mapCurrentLatLng}
-          onDragEnd={(e) => this.setState({ mapCurrentLatLng: e.nativeEvent.coordinate })} />
+    if (!this.positionCircleCoordinates) {
+      this.positionCircleCoordinates = new MapView.AnimatedRegion({ latitude: 90, longitude: 120 })
     }
 
     if (this.props.rawVideoData) {
@@ -201,8 +193,9 @@ export class SyncModal extends Component {
           region={this.state.region}
           onRegionChange={(region) => { this.setState({ region: region }) }}
         >
-          {polyLine}
-          {positionCircle}
+          <MapView.Polyline coordinates={latLngs} />
+          <MapView.Marker.Animated
+            coordinate={this.positionCircleCoordinates} />
         </MapView>
     }
 
