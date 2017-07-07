@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Video from 'react-native-video'
 import {
-  View,
   TouchableOpacity
 } from 'react-native'
 
@@ -48,7 +47,6 @@ export class VideoPlayer extends Component {
       <TouchableOpacity onPress={this.onPressVideo}>
         <Video
           source={this.props.video}
-          onLoadStart={this.onLoadStart}
           onLoad={this.onLoad}
           ref={(ref) => { this.player = ref }}
           paused={this.state.paused}

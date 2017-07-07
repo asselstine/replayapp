@@ -12,7 +12,7 @@ import { store } from '../../store'
 import { attachActivity } from '../../actions/video-actions'
 import { login } from '../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
-import { SyncModal } from './sync-modal'
+import { SyncModalContainer } from './sync-modal-container'
 
 export const VideoView = connect(
   (state, ownProps) => {
@@ -83,6 +83,17 @@ export const VideoView = connect(
           color='#fc4c02' />
     }
 
+    var activity = _.get(this.props, 'video.activity')
+    if (activity && this.props.rawVideoData) {
+      var syncModal =
+        <SyncModalContainer
+          isOpen={this.state.syncModalIsOpen}
+          onClose={this._onCloseSyncModal}
+          onSet={this._onSetSyncModal}
+          rawVideoData={this.props.rawVideoData}
+          activity={activity} />
+    }
+
     return (
       <View style={styles.videoView}>
         <VideoPlayer video={this.props.rawVideoData} />
@@ -91,12 +102,7 @@ export const VideoView = connect(
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}
           onClose={this._onCloseStravaActivityModal} />
-        <SyncModal
-          isOpen={this.state.syncModalIsOpen}
-          onClose={this._onCloseSyncModal}
-          onSet={this._onSetSyncModal}
-          rawVideoData={this.props.rawVideoData}
-          activity={_.get(this.props, 'video.activity')} />
+        {syncModal}
       </View>
     )
   }

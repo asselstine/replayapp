@@ -25,5 +25,15 @@ export const Strava = {
         console.error(error)
       })
     )
+  },
+
+  retrieveStream (activityId) {
+    return (
+      fetch(`${this.baseUrl}/activities/${activityId}/streams/latlng,time`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
   }
 }

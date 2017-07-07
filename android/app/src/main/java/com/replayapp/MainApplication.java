@@ -3,6 +3,7 @@ package com.replayapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.airbnb.android.react.maps.MapsPackage;
 import com.brentvatne.react.ReactVideoPackage;
 import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 import io.fullstack.oauth.OAuthManagerPackage;
@@ -26,6 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new MapsPackage(),
             new ReactVideoPackage(),
             new ReactNativeConfigPackage(),
             new OAuthManagerPackage()
