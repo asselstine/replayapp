@@ -19,7 +19,7 @@ export class StravaActivityList extends Component {
   }
 
   componentDidMount () {
-    this.getNextPage()
+    // this.getNextPage()
   }
 
   getNextPage () {
@@ -36,10 +36,14 @@ export class StravaActivityList extends Component {
           }
         })
       })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   _renderItem ({item, index}) {
-    return <ActivityItem activity={item} onPress={this.props.onPress} />
+    console.debug('loaded ', item.id)
+    return <ActivityItem activity={item} onPress={this.props.onPress} key={item.id} />
   }
 
   _onEndReached () {
