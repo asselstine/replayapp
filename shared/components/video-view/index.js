@@ -7,9 +7,10 @@ import {
 } from 'react-native'
 import { connect } from 'react-redux'
 import _ from 'lodash'
+import moment from 'moment'
 import { manager } from '../../oauth'
 import { store } from '../../store'
-import { attachActivity } from '../../actions/video-actions'
+import { attachActivity, setVideoStartAt } from '../../actions/video-actions'
 import { login } from '../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { SyncModalContainer } from './sync-modal-container'
@@ -31,7 +32,7 @@ export const VideoView = connect(
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
     this._onCloseSyncModal = this._onCloseSyncModal.bind(this)
-    this._onSetSyncModal = this._onSetSyncModal.bind(this)
+    this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
   }
 
   onPressStravaConnect () {
@@ -56,8 +57,9 @@ export const VideoView = connect(
     this.setState({ syncModalIsOpen: false })
   }
 
-  _onSetSyncModal () {
-    console.debug('set')
+  _onSaveSyncModal (videoStartAt) {
+    store.dispatch(setVideoStartAt(this.props.rawVideoData, videoStartAt))
+    this._onCloseSyncModal()
   }
 
   componentDidMount () {
@@ -75,21 +77,32 @@ export const VideoView = connect(
   }
 
   render () {
-    if (!_.get(this.props, 'video.activity')) {
+    var activity = _.get(this.props, 'video.activity')
+    if (activity) {
       var connectStravaButton =
+        <Button title={activity.name} onPress={this.onPressStravaConnect} />
+
+      var startAt = _.get(this.props, 'video.startAt')
+      var label = 'Sync to Activity'
+      if (startAt) {
+        label = moment(startAt).format()
+      }
+      var timeButton =
+        <Button title={label} onPress={() => this.setState({ syncModalIsOpen: true })} />
+    } else {
+      connectStravaButton =
         <Button
           onPress={this.onPressStravaConnect}
           title='Connect Strava'
           color='#fc4c02' />
     }
 
-    var activity = _.get(this.props, 'video.activity')
     if (activity && this.props.rawVideoData) {
       var syncModal =
         <SyncModalContainer
           isOpen={this.state.syncModalIsOpen}
           onClose={this._onCloseSyncModal}
-          onSet={this._onSetSyncModal}
+          onSave={this._onSaveSyncModal}
           rawVideoData={this.props.rawVideoData}
           activity={activity} />
     }
@@ -98,6 +111,7 @@ export const VideoView = connect(
       <View style={styles.videoView}>
         <VideoPlayer video={this.props.rawVideoData} />
         {connectStravaButton}
+        {timeButton}
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}

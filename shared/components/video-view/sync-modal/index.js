@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import {
   Modal,
-  TouchableHighlight,
-  Text,
+  Button,
   View,
   Slider,
   StyleSheet
@@ -14,6 +13,8 @@ import { Strava } from '../../../strava'
 import _ from 'lodash'
 import { receiveStream } from '../../../actions/streams-actions'
 import { store } from '../../../store'
+import { linear } from '../../../interp'
+import moment from 'moment'
 
 export class SyncModal extends Component {
   constructor (props) {
@@ -23,11 +24,16 @@ export class SyncModal extends Component {
       duration: 0,
       orientation: 'landscape',
       width: 1,
-      height: 1
+      height: 1,
+      mapTimeOffset: 0,
+      videoTimeOffset: 0,
+      mapCurrentLatLng: null
     }
     this.onLoad = this.onLoad.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
     this._onValueChangeVideo = this._onValueChangeVideo.bind(this)
+    this._onValueChangeMap = _.throttle(this._onValueChangeMap.bind(this), 100)
+    this._onSave = this._onSave.bind(this)
   }
 
   onLoad (e) {
@@ -46,8 +52,27 @@ export class SyncModal extends Component {
     this.setState({ paused: !this.state.paused })
   }
 
+  _onSave () {
+    var offset = this.state.mapTimeOffset - this.state.videoTimeOffset
+    var activityStartAt = moment(this.props.activity.start_date)
+    var videoStartAt = activityStartAt.clone().add(offset, 's')
+    // var format = 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+    // console.debug('Activity start: ', activityStartAt.format(format), ' videoStartAt: ', videoStartAt.format(format))
+    this.props.onSave(videoStartAt)
+  }
+
   _onValueChangeVideo (value) {
-    this.player.seek(value * (this.state.duration || 0))
+    var position = value * (this.state.duration || 0)
+    this.player.seek(position)
+    this.setState({ videoTimeOffset: position })
+  }
+
+  _onValueChangeMap (value) {
+    var mapTimeOffset = this.timeOffsetFromFraction(value)
+    this.setState({
+      mapTimeOffset: mapTimeOffset,
+      mapCurrentLatLng: this.latLngAtTime(this.mapTime(mapTimeOffset))
+    })
   }
 
   componentDidMount () {
@@ -77,6 +102,35 @@ export class SyncModal extends Component {
       var region = this.region(props)
       this.setState({ region: region })
     }
+  }
+
+  latLngAtTime (time) {
+    var data = _.get(this.props, 'latlngStream.data', [])
+    var timeData = _.get(this.props, 'timeStream.data', [])
+    var lats = _.map(data, (pair) => pair[0])
+    var longs = _.map(data, (pair) => pair[1])
+    return {
+      latitude: linear(time, timeData, lats),
+      longitude: linear(time, timeData, longs)
+    }
+  }
+
+  timeOffsetFromFraction (fraction) {
+    var timeData = _.get(this.props, 'timeStream.data', [])
+    if (!timeData.length) {
+      return 0
+    }
+    var timeSpan = timeData[timeData.length - 1] - timeData[0]
+    var time = timeSpan * fraction
+    return time
+  }
+
+  mapTime (mapTimeOffset) {
+    var timeData = _.get(this.props, 'timeStream.data', [])
+    if (!timeData.length) {
+      return 0
+    }
+    return timeData[0] + mapTimeOffset
   }
 
   latLngs () {
@@ -119,6 +173,14 @@ export class SyncModal extends Component {
         <MapView.Polyline coordinates={latLngs} />
     }
 
+    if (this.state.mapCurrentLatLng) {
+      var positionCircle =
+        <MapView.Marker
+          draggable
+          coordinate={this.state.mapCurrentLatLng}
+          onDragEnd={(e) => this.setState({ mapCurrentLatLng: e.nativeEvent.coordinate })} />
+    }
+
     if (this.props.rawVideoData) {
       var video =
         <Video
@@ -133,11 +195,14 @@ export class SyncModal extends Component {
     if (this.state.region) {
       var mapView =
         <MapView
+          ref={(ref) => { this.mapRef = ref }}
+          onLayout={() => { this.mapRef.fitToElements(true) }}
           style={styles.map}
           region={this.state.region}
           onRegionChange={(region) => { this.setState({ region: region }) }}
         >
           {polyLine}
+          {positionCircle}
         </MapView>
     }
 
@@ -150,10 +215,18 @@ export class SyncModal extends Component {
         {video}
         <Slider onValueChange={this._onValueChangeVideo} />
         {mapView}
-        <View style={{marginTop: 22}}>
-          <TouchableHighlight onPress={this.props.onClose}>
-            <Text>Cancel</Text>
-          </TouchableHighlight>
+        <Slider onValueChange={this._onValueChangeMap} />
+        <View style={{marginTop: 22, flexDirection: 'row', flex: 1, justifyContent: 'space-between'}}>
+          <Button
+            style={{padding: 20}}
+            onPress={this.props.onClose}
+            title='Cancel'
+            color='#FF0000' />
+          <Button
+            style={{padding: 20}}
+            onPress={this._onSave}
+            title='Save'
+            color='#00FF00' />
         </View>
       </Modal>
     )
@@ -163,7 +236,7 @@ export class SyncModal extends Component {
 SyncModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onSet: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
   rawVideoData: PropTypes.object.isRequired,
   activity: PropTypes.object.isRequired,
   latlngStream: PropTypes.object,

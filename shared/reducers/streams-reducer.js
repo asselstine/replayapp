@@ -10,7 +10,6 @@ export default function (state, action) {
       var cmd = {}
       cmd[action.activityId] = {
         '$set': _.reduce(action.streams, (hash, stream) => {
-          console.debug('stream type: ', stream.type)
           hash[stream.type] = stream
           return hash
         }, {})

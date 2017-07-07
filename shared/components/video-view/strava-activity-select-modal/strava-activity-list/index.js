@@ -24,7 +24,6 @@ export class StravaActivityList extends Component {
 
   getNextPage () {
     var nextPage = this.state.page + 1
-    console.debug('getNextPage: ', nextPage)
     Strava
       .listActivities({ page: nextPage })
       .then((response) => {
@@ -42,7 +41,6 @@ export class StravaActivityList extends Component {
   }
 
   _renderItem ({item, index}) {
-    console.debug('loaded ', item.id)
     return <ActivityItem activity={item} onPress={this.props.onPress} key={item.id} />
   }
 
