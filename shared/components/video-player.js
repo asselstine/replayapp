@@ -39,8 +39,7 @@ export class VideoPlayer extends Component {
     let aspectRatio = (this.state.width * 1.0) / this.state.height
     let videoStyle = {
       width: '100%',
-      aspectRatio: aspectRatio,
-      maxHeight: 200
+      aspectRatio: aspectRatio
     }
 
     return (
