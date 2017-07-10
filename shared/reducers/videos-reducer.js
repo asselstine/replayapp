@@ -9,7 +9,8 @@ export default function (state, action) {
       var cmd = {}
       cmd[action.rawVideoData.uri] = {
         '$set': {
-          activity: action.activity
+          activity: action.activity,
+          rawVideoData: action.rawVideoData
         }
       }
       state = update(state, cmd)

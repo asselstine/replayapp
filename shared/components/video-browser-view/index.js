@@ -65,27 +65,6 @@ export const VideoBrowserView = React.createClass({
       newState.noMore = true
       this.setState(newState)
     })
-
-    // CameraRoll.getPhotos(fetchParams)
-    //   .then((response) => {
-    //     console.log('RESPONSE: ', response)
-    //     var assets = _.filter(response.edges, (node) => node.type === 'ALAssetTypeVideo')
-    //     var newState = {}
-    //
-    //     if (!response.page_info.has_next_page) {
-    //       newState.noMore = true
-    //     }
-    //
-    //     if (assets.length > 0) {
-    //       newState.lastCursor = response.page_info.end_cursor
-    //       newState.assets = this.state.assets.concat(assets)
-    //       newState.dataSource = this.state.dataSource.cloneWithRows(
-    //         newState.assets
-    //       )
-    //     }
-    //
-    //     this.setState(newState)
-    //   })
   },
 
   _onEndReached () {
