@@ -1,14 +1,11 @@
 import RNPhotosFramework from 'react-native-photos-framework'
 import React from 'react'
-import PropTypes from 'prop-types'
 import { VideoBrowserItem } from './video-browser-item'
 
 import {
   ActivityIndicator,
-  CameraRoll,
   ListView,
-  StyleSheet,
-  Text,
+  StyleSheet
 } from 'react-native'
 
 export const VideoBrowserView = React.createClass({
@@ -41,33 +38,33 @@ export const VideoBrowserView = React.createClass({
     }
 
     RNPhotosFramework.getAssets({
-        //Example props below. Many optional.
-        // You can call this function multiple times providing startIndex and endIndex as
-        // pagination.
-        startIndex: 0,
-        endIndex: 10,
+      // Example props below. Many optional.
+      // You can call this function multiple times providing startIndex and endIndex as
+      // pagination.
+      startIndex: 0,
+      endIndex: 10,
 
-        fetchOptions : {
-          // Media types you wish to display. See table below for possible options. Where
-          // is the image located? See table below for possible options.
-          sourceTypes: ['userLibrary'], // , 'cloudShared'
-          mediaTypes: ['video'],
-          sortDescriptors : [
-            {
-              key: 'creationDate',
-              ascending: false
-            }
-          ]
-        }
-      }).then((response) => {
-        var newState = {}
-        newState.assets = this.state.assets.concat(response.assets)
-        newState.dataSource = this.state.dataSource.cloneWithRows(
-          newState.assets
-        )
-        newState.noMore = true
-        this.setState(newState)
-      })
+      fetchOptions: {
+        // Media types you wish to display. See table below for possible options. Where
+        // is the image located? See table below for possible options.
+        sourceTypes: ['userLibrary'], // , 'cloudShared'
+        mediaTypes: ['video'],
+        sortDescriptors: [
+          {
+            key: 'creationDate',
+            ascending: false
+          }
+        ]
+      }
+    }).then((response) => {
+      var newState = {}
+      newState.assets = this.state.assets.concat(response.assets)
+      newState.dataSource = this.state.dataSource.cloneWithRows(
+        newState.assets
+      )
+      newState.noMore = true
+      this.setState(newState)
+    })
 
     // CameraRoll.getPhotos(fetchParams)
     //   .then((response) => {
@@ -130,7 +127,6 @@ var styles = StyleSheet.create({
     flexDirection: 'column'
   }
 })
-
 
 VideoBrowserView.propTypes = {
   onPressVideo: React.PropTypes.func.isRequired
