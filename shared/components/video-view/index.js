@@ -18,7 +18,7 @@ import { SyncModalContainer } from './sync-modal-container'
 export const VideoView = connect(
   (state, ownProps) => {
     return {
-      video: _.get(state, `videos[${ownProps.rawVideoData.uri}]`)
+      video: _.get(state, `videos[${ownProps.rawVideoData.video.uri}]`)
     }
   }
 )(class extends Component {

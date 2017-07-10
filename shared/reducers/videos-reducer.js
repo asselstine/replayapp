@@ -7,7 +7,7 @@ export default function (state, action) {
   switch (action.type) {
     case 'ATTACH_ACTIVITY':
       var cmd = {}
-      cmd[action.rawVideoData.uri] = {
+      cmd[action.rawVideoData.video.uri] = {
         '$set': {
           activity: action.activity,
           rawVideoData: action.rawVideoData
@@ -17,7 +17,7 @@ export default function (state, action) {
       break
     case 'SET_VIDEO_START_AT':
       cmd = {}
-      cmd[action.rawVideoData.uri] = {
+      cmd[action.rawVideoData.video.uri] = {
         startAt: {
           '$set': action.startAt.toDate()
         }

@@ -1,31 +1,24 @@
 import RNPhotosFramework from 'react-native-photos-framework'
-import React from 'react'
-import { VideoBrowserItem } from './video-browser-item'
+import React, { PureComponent } from 'react'
+import Video from 'react-native-video'
 
 import {
   ActivityIndicator,
-  ListView,
-  StyleSheet
+  FlatList,
+  TouchableHighlight
 } from 'react-native'
 
-export const VideoBrowserView = React.createClass({
-  getInitialState () {
-    var dataSource = new ListView.DataSource({rowHasChanged: this._rowHasChanged})
-    return {
+export class VideoBrowserView extends PureComponent {
+  constructor (props) {
+    super(props)
+    this.state = {
       assets: [],
       lastCursor: null,
-      noMore: false,
-      loadingMore: false,
-      dataSource: dataSource
+      noMore: false
     }
-  },
-
-  componentDidMount () {
-    this.fetch()
-  },
-
-  _rowHasChanged () {
-  },
+    this._renderItem = this._renderItem.bind(this)
+    this._onEndReached = this._onEndReached.bind(this)
+  }
 
   fetch () {
     const fetchParams = {
@@ -38,16 +31,10 @@ export const VideoBrowserView = React.createClass({
     }
 
     RNPhotosFramework.getAssets({
-      // Example props below. Many optional.
-      // You can call this function multiple times providing startIndex and endIndex as
-      // pagination.
       startIndex: 0,
       endIndex: 10,
-
       fetchOptions: {
-        // Media types you wish to display. See table below for possible options. Where
-        // is the image located? See table below for possible options.
-        sourceTypes: ['userLibrary'], // , 'cloudShared'
+        sourceTypes: ['userLibrary'],
         mediaTypes: ['video'],
         sortDescriptors: [
           {
@@ -59,53 +46,66 @@ export const VideoBrowserView = React.createClass({
     }).then((response) => {
       var newState = {}
       newState.assets = this.state.assets.concat(response.assets)
-      newState.dataSource = this.state.dataSource.cloneWithRows(
-        newState.assets
-      )
       newState.noMore = true
       this.setState(newState)
     })
-  },
+  }
+
+  _keyExtractor (item, index) {
+    return item.video.uri
+  }
 
   _onEndReached () {
     if (!this.state.noMore) {
       this.fetch()
     }
-  },
+  }
 
-  _renderRow (rowData, sectionID, rowID) {
-    // console.log('rowData: ', rowData)
+  _renderItem ({item, index, separators}) {
     return (
-      <VideoBrowserItem video={rowData.video} onPress={this.props.onPressVideo} />
+      <TouchableHighlight
+        onPress={() => this.props.onPressVideo(item)}
+        style={styles.videoContainer}>
+        <Video
+          source={item.video}
+          paused
+          resizeMode='cover'
+          style={styles.video}
+          />
+      </TouchableHighlight>
     )
-  },
+  }
 
   _renderFooter () {
     if (!this.state.noMore) {
       return <ActivityIndicator />
     }
     return null
-  },
+  }
 
   render () {
     return (
-      <ListView
-        style={styles.videoContainer}
-        renderRow={this._renderRow}
-        renderFooter={this._renderFooter}
-        onEndReached={this._onEndReached}
-        dataSource={this.state.dataSource} />
+      <FlatList
+        data={this.state.assets}
+        numColumns={2}
+        renderItem={this._renderItem}
+        keyExtractor={this._keyExtractor}
+        onEndReached={this._onEndReached} />
     )
   }
-})
+}
 
-// Later on in your styles..
-var styles = StyleSheet.create({
+const styles = {
   videoContainer: {
-    flex: 1,
-    flexDirection: 'column'
+    width: '50%',
+    aspectRatio: 1.0
+  },
+
+  video: {
+    width: '100%',
+    height: '100%'
   }
-})
+}
 
 VideoBrowserView.propTypes = {
   onPressVideo: React.PropTypes.func.isRequired

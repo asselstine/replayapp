@@ -8,7 +8,7 @@ export const VideoBrowserScreen = React.createClass({
     title: 'Browse'
   },
 
-  onPressVideo (e, video) {
+  onPressVideo (video) {
     this.props.navigation.navigate('Video', { rawVideoData: video })
   },
 

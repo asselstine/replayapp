@@ -9,6 +9,7 @@ export const Navigator = StackNavigator(
     Video: { screen: VideoScreen }
   },
   {
-    initialRouteName: 'VideoBrowser'
+    initialRouteName: 'VideoBrowser',
+    headerMode: 'none'
   }
 )
