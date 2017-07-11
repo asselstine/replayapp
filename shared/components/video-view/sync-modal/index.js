@@ -78,11 +78,15 @@ export class SyncModal extends Component {
 
   componentDidMount () {
     this.retrieveStream(this.props)
-    this.checkRegion(this.props)
   }
 
   componentWillReceiveProps (nextProps) {
-    this.checkRegion(nextProps)
+    if (_.get(this.props, 'activity.id') !== _.get(nextProps, 'activity.id')) {
+      this.polyLine = null
+      this.positionCircleCoordinates = null
+      this.marker = null
+      this.retrieveStream(nextProps)
+    }
   }
 
   retrieveStream (props) {
@@ -93,16 +97,10 @@ export class SyncModal extends Component {
       .retrieveStream(props.activity.id)
       .then((response) => {
         response.json().then((data) => {
+          console.log(`retrieveStream for ${props.activity.name} is: `, data[0].data.length)
           store.dispatch(receiveStream(props.activity.id, data))
         })
       })
-  }
-
-  checkRegion (props) {
-    if (props.latlngStream && !this.state.region) {
-      var region = this.region(props)
-      this.setState({ region: region })
-    }
   }
 
   latLngAtTime (time) {
@@ -143,34 +141,12 @@ export class SyncModal extends Component {
     })
   }
 
-  region (props) {
-    var data = _.get(props, 'latlngStream.data', [])
-    var lats = _.map(data, (pair) => pair[0])
-    var longs = _.map(data, (pair) => pair[1])
-    var minLat = _.min(lats)
-    var minLong = _.min(longs)
-    var maxLat = _.max(lats)
-    var maxLong = _.max(longs)
-    var region = {
-      latitude: minLat,
-      longitude: minLong,
-      latitudeDelta: maxLat - minLat,
-      longitudeDelta: maxLong - minLong
-    }
-    return region
-  }
-
   render () {
-    let latLngs = this.latLngs()
     let aspectRatio = (this.state.width * 1.0) / this.state.height
     let videoStyle = {
       width: '100%',
       aspectRatio: aspectRatio,
       maxHeight: 200
-    }
-
-    if (!this.positionCircleCoordinates) {
-      this.positionCircleCoordinates = new MapView.AnimatedRegion({ latitude: 90, longitude: 120 })
     }
 
     if (this.props.rawVideoData) {
@@ -184,20 +160,34 @@ export class SyncModal extends Component {
           resizeMode='fill'
           />
     }
-    if (this.state.region) {
-      var mapView =
-        <MapView
-          ref={(ref) => { this.mapRef = ref }}
-          onLayout={() => { this.mapRef.fitToElements(true) }}
-          style={styles.map}
-          region={this.state.region}
-          onRegionChange={(region) => { this.setState({ region: region }) }}
-        >
+
+    let latLngs = this.latLngs()
+    if (latLngs.length) {
+      if (!this.positionCircleCoordinates) {
+        this.positionCircleCoordinates = new MapView.AnimatedRegion({ latitude: latLngs[0].latitude, longitude: latLngs[0].longitude })
+      }
+
+      if (!this.polyLine) {
+        this.polyLine =
           <MapView.Polyline coordinates={latLngs} />
-          <MapView.Marker.Animated
-            coordinate={this.positionCircleCoordinates} />
-        </MapView>
+      }
     }
+
+    if (this.positionCircleCoordinates && !this.marker) {
+      this.marker =
+        <MapView.Marker.Animated
+          coordinate={this.positionCircleCoordinates} />
+    }
+
+    var mapView =
+      <MapView
+        ref={(ref) => { this.mapRef = ref }}
+        onLayout={() => { this.mapRef.fitToElements(false) }}
+        style={styles.map}
+      >
+        {this.polyLine}
+        {this.marker}
+      </MapView>
 
     return (
       <Modal
