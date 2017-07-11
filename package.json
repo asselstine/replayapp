@@ -16,6 +16,7 @@
     "react-native-maps": "^0.15.3",
     "react-native-oauth": "fullstackreact/react-native-oauth#master",
     "react-native-photos-framework": "git://github.com/olofd/react-native-photos-framework.git",
+    "react-native-svg": "^5.3.0",
     "react-native-video": "git://github.com/olofd/react-native-video.git#react-native-photos-framework",
     "react-navigation": "git+https://github.com/react-community/react-navigation.git",
     "react-redux": "^5.0.4",
