@@ -29,7 +29,7 @@ export const Strava = {
 
   retrieveStream (activityId) {
     return (
-      fetch(`${this.baseUrl}/activities/${activityId}/streams/latlng,time`, {
+      fetch(`${this.baseUrl}/activities/${activityId}/streams/latlng,time,velocity_smooth,altitude`, {
         headers: this.headers()
       }).catch((error) => {
         console.error(error)

@@ -14,6 +14,7 @@ import { attachActivity, setVideoStartAt } from '../../actions/video-actions'
 import { login } from '../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { SyncModalContainer } from './sync-modal-container'
+import { ActivityStreamsContainer } from './activity-streams-container'
 
 export const VideoView = connect(
   (state, ownProps) => {
@@ -107,10 +108,16 @@ export const VideoView = connect(
           activity={activity} />
     }
 
+    if (activity) {
+      var activityStreams =
+        <ActivityStreamsContainer activity={activity} />
+    }
+
     return (
       <View style={styles.videoView}>
         <VideoPlayer video={this.props.rawVideoData} />
         {connectStravaButton}
+        {activityStreams}
         {timeButton}
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}

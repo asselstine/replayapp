@@ -13,7 +13,7 @@ import { Strava } from '../../../strava'
 import _ from 'lodash'
 import { receiveStream } from '../../../actions/streams-actions'
 import { store } from '../../../store'
-import { linear } from '../../../interp'
+import { linear } from '../../../streams'
 import moment from 'moment'
 
 export class SyncModal extends Component {
