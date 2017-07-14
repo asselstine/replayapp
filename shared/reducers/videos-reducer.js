@@ -1,4 +1,5 @@
 import update from 'react-addons-update'
+import moment from 'moment'
 
 export default function (state, action) {
   if (typeof state === 'undefined') {
@@ -10,7 +11,8 @@ export default function (state, action) {
       cmd[action.rawVideoData.video.uri] = {
         '$set': {
           activity: action.activity,
-          rawVideoData: action.rawVideoData
+          rawVideoData: action.rawVideoData,
+          startAt: moment(action.rawVideoData.creationDateUTCSeconds * 1000)
         }
       }
       state = update(state, cmd)
