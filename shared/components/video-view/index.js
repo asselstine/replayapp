@@ -15,6 +15,7 @@ import { login } from '../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { SyncModalContainer } from './sync-modal-container'
 import { ActivityStreamsContainer } from './activity-streams-container'
+import Orientation from 'react-native-orientation'
 
 export const VideoView = connect(
   (state, ownProps) => {
@@ -34,6 +35,7 @@ export const VideoView = connect(
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
     this._onCloseSyncModal = this._onCloseSyncModal.bind(this)
     this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
+    this._onOrientationChange = this._onOrientationChange.bind(this)
   }
 
   onPressStravaConnect () {
@@ -63,8 +65,17 @@ export const VideoView = connect(
     this._onCloseSyncModal()
   }
 
+  _onOrientationChange (event) {
+    console.log(event)
+  }
+
   componentDidMount () {
     this.checkSyncModal(this.props)
+    Orientation.addOrientationListener(this._onOrientationChange)
+  }
+
+  componentWillUnmount () {
+    Orientation.removeOrientationListener(this._onOrientationChange)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -79,11 +90,12 @@ export const VideoView = connect(
 
   render () {
     var activity = _.get(this.props, 'video.activity')
+    var startAt = _.get(this.props, 'video.startAt')
+
     if (activity) {
       var connectStravaButton =
         <Button title={activity.name} onPress={this.onPressStravaConnect} />
 
-      var startAt = _.get(this.props, 'video.startAt')
       var label = 'Sync to Activity'
       if (startAt) {
         label = moment(startAt).format()
@@ -108,17 +120,20 @@ export const VideoView = connect(
           activity={activity} />
     }
 
-    if (activity) {
+    if (activity && this.props.rawVideoData) {
       var activityStreams =
-        <ActivityStreamsContainer activity={activity} />
+        <ActivityStreamsContainer
+          activity={activity}
+          videoDuration={this.props.rawVideoData.duration}
+          videoStartAt={startAt} />
     }
 
     return (
       <View style={styles.videoView}>
         <VideoPlayer video={this.props.rawVideoData} />
         {connectStravaButton}
-        {activityStreams}
         {timeButton}
+        {activityStreams}
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}

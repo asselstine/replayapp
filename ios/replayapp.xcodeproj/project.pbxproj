@@ -32,6 +32,7 @@
 		C64CC63D1EA5E20B009840F4 /* libRCTCameraRoll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C64CC6251EA5E1FD009840F4 /* libRCTCameraRoll.a */; };
 		C6B14CC71EB1CA1D001BD503 /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C64CC6621EA5E6DC009840F4 /* libRCTVideo.a */; };
 		C6F997711EA0B5770051D1E3 /* libOAuthManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C631D5FA1EA0A0DA00977098 /* libOAuthManager.a */; };
+		E291C61D6B2A40E3B22178C0 /* libRCTOrientation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A39CBC57C35E44949C6CA994 /* libRCTOrientation.a */; };
 		EC1CE5B5E4285F8237B73FE0 /* Pods_replayappTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B275DE6427C6050F457BDD0 /* Pods_replayappTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -246,6 +247,13 @@
 			remoteGlobalIDString = 134814201AA4EA6300B7C361;
 			remoteInfo = RCTVideo;
 		};
+		C65BFC6A1F19493600870444 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FDA4E2A2F525492F8321DB1B /* RCTOrientation.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RCTOrientation;
+		};
 		C6B14CB11EB1B8C2001BD503 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D9F8680B04224AAFAB156985 /* RNPhotosFramework.xcodeproj */;
@@ -348,9 +356,11 @@
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		8AFC6F46C6D74FF7B89F6544 /* libRNSVG.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSVG.a; sourceTree = "<group>"; };
 		9A054E5FF75CA4C7346C85C7 /* Pods-replayappTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-replayappTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-replayappTests/Pods-replayappTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A39CBC57C35E44949C6CA994 /* libRCTOrientation.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTOrientation.a; sourceTree = "<group>"; };
 		AA9C5B29AF497DCC7ABB2F9D /* Pods-replayappTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-replayappTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-replayappTests/Pods-replayappTests.release.xcconfig"; sourceTree = "<group>"; };
 		C64CC61C1EA5E1FD009840F4 /* RCTCameraRoll.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTCameraRoll.xcodeproj; path = "../node_modules/react-native/Libraries/CameraRoll/RCTCameraRoll.xcodeproj"; sourceTree = "<group>"; };
 		D9F8680B04224AAFAB156985 /* RNPhotosFramework.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNPhotosFramework.xcodeproj; path = "../node_modules/react-native-photos-framework/ios/RNPhotosFramework.xcodeproj"; sourceTree = "<group>"; };
+		FDA4E2A2F525492F8321DB1B /* RCTOrientation.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTOrientation.xcodeproj; path = "../node_modules/react-native-orientation/iOS/RCTOrientation.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -386,6 +396,7 @@
 				90B0AD229528492A9674EEB6 /* libRNPhotosFramework.a in Frameworks */,
 				BF42F44E628841A28D919A9C /* libAirMaps.a in Frameworks */,
 				4DE6D1F72E324B0C9ADF5642 /* libRNSVG.a in Frameworks */,
+				E291C61D6B2A40E3B22178C0 /* libRCTOrientation.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,6 +552,7 @@
 				D9F8680B04224AAFAB156985 /* RNPhotosFramework.xcodeproj */,
 				3DC97FB8C95A4C2FADFF12B2 /* AirMaps.xcodeproj */,
 				5B417B72AF8946139A324979 /* RNSVG.xcodeproj */,
+				FDA4E2A2F525492F8321DB1B /* RCTOrientation.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -625,6 +637,14 @@
 			isa = PBXGroup;
 			children = (
 				C64CC6621EA5E6DC009840F4 /* libRCTVideo.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C65BFC5A1F19493600870444 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C65BFC6B1F19493600870444 /* libRCTOrientation.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -767,6 +787,10 @@
 				{
 					ProductGroup = 00C302D41ABCB9D200DB3ED1 /* Products */;
 					ProjectRef = 00C302D31ABCB9D200DB3ED1 /* RCTNetwork.xcodeproj */;
+				},
+				{
+					ProductGroup = C65BFC5A1F19493600870444 /* Products */;
+					ProjectRef = FDA4E2A2F525492F8321DB1B /* RCTOrientation.xcodeproj */;
 				},
 				{
 					ProductGroup = 139105B71AF99BAD00B5F7CC /* Products */;
@@ -1017,6 +1041,13 @@
 			remoteRef = C64CC6611EA5E6DC009840F4 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		C65BFC6B1F19493600870444 /* libRCTOrientation.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTOrientation.a;
+			remoteRef = C65BFC6A1F19493600870444 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		C6B14CB21EB1B8C2001BD503 /* libRNPhotosFramework.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1265,12 +1296,15 @@
 					"$(SRCROOT)/../node_modules/react-native-photos-framework/ios/RNPhotosFramework/**",
 					"$(SRCROOT)/../node_modules/react-native-maps/lib/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 				);
 				INFOPLIST_FILE = replayappTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1303,16 +1337,13 @@
 					"$(SRCROOT)/../node_modules/react-native-photos-framework/ios/RNPhotosFramework/**",
 					"$(SRCROOT)/../node_modules/react-native-maps/lib/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 				);
 				INFOPLIST_FILE = replayappTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1343,10 +1374,7 @@
 					"$(SRCROOT)/../node_modules/react-native-photos-framework/ios/RNPhotosFramework/**",
 					"$(SRCROOT)/../node_modules/react-native-maps/lib/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
-				);
-				"HEADER_SEARCH_PATHS[arch=*]" = (
-					"$(SRCROOT)/../node_modules/react-native-oauth/ios/OAuthManager",
-					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
+					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 				);
 				INFOPLIST_FILE = replayapp/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
@@ -1382,10 +1410,7 @@
 					"$(SRCROOT)/../node_modules/react-native-photos-framework/ios/RNPhotosFramework/**",
 					"$(SRCROOT)/../node_modules/react-native-maps/lib/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
-				);
-				"HEADER_SEARCH_PATHS[arch=*]" = (
-					"$(SRCROOT)/../node_modules/react-native-oauth/ios/OAuthManager",
-					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
+					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 				);
 				INFOPLIST_FILE = replayapp/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";

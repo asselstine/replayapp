@@ -4,7 +4,8 @@ import _ from 'lodash'
 import Svg, {
   Polyline
 } from 'react-native-svg'
-import { timeToIndex, linearIndex } from '../../../streams'
+import { streamPoints } from '../../../svg'
+import { timeToIndex } from '../../../streams'
 
 export class StreamTimeGraph extends PureComponent {
   constructor (props) {
@@ -27,22 +28,17 @@ export class StreamTimeGraph extends PureComponent {
     var height = this.state.height || 1
     var width = this.state.width || 1
 
-    var timeMin = this.props.timeStream[0]
-    var timeMax = this.props.timeStream[this.props.timeStream.length - 1]
-    var maxValue = Math.max(...this.props.dataStream)
-    var index = -1
+    var startIndex = Math.floor(timeToIndex(this.props.startTime, this.props.timeStream))
+    var endIndex = Math.ceil(timeToIndex(this.props.endTime, this.props.timeStream))
+
+    var timeSubStream = _.slice(this.props.timeStream, startIndex, endIndex)
+    var dataSubStream = _.slice(this.props.dataStream, startIndex, endIndex)
+
     var points = ''
-    var time, value, xFraction
-
-    var numPoints = 100.0
-
-    for (var i = 0; i <= numPoints; i++) {
-      xFraction = (i / numPoints)
-      time = timeMin + xFraction * (timeMax - timeMin)
-      index = timeToIndex(time, this.props.timeStream, index)
-      value = linearIndex(index, this.props.dataStream)
-      points += `${xFraction * width},${-(value / maxValue) * (height - 1)} `
-    }
+    var sPoints = streamPoints(height, width, timeSubStream, dataSubStream)
+    _.each(sPoints, (point) => {
+      points += `${point[0]},${point[1]} `
+    })
 
     return (
       <Svg
@@ -62,5 +58,7 @@ export class StreamTimeGraph extends PureComponent {
 
 StreamTimeGraph.propTypes = {
   dataStream: PropTypes.array.isRequired,
-  timeStream: PropTypes.array.isRequired
+  timeStream: PropTypes.array.isRequired,
+  startTime: PropTypes.number.isRequired,
+  endTime: PropTypes.number.isRequired
 }

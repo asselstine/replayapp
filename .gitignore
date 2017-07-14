@@ -32,6 +32,7 @@ local.properties
 
 # node.js
 #
+third-party/
 node_modules/
 npm-debug.log
 yarn-error.log
@@ -39,7 +40,7 @@ yarn-error.log
 # BUCK
 buck-out/
 \.buckd/
-  *.keystore
+*.keystore
 
 # fastlane
 #
@@ -51,4 +52,3 @@ buck-out/
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
-.env

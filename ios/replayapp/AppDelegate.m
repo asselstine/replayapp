@@ -15,6 +15,7 @@
 #import <AVFoundation/AVFoundation.h>  // import
 
 #import "OAuthManager.h"
+#import "Orientation.h"
 
 @implementation AppDelegate
 
@@ -46,6 +47,10 @@
                              openURL:url
                    sourceApplication:sourceApplication
                           annotation:annotation];
+}
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+  return [Orientation getOrientation];
 }
 
 @end

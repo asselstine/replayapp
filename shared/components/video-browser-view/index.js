@@ -1,6 +1,7 @@
 import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
 import Video from 'react-native-video'
+import Orientation from 'react-native-orientation'
 
 import {
   ActivityIndicator,
@@ -33,6 +34,7 @@ export class VideoBrowserView extends PureComponent {
     RNPhotosFramework.getAssets({
       startIndex: 0,
       endIndex: 10,
+      includeMetadata: true,
       fetchOptions: {
         sourceTypes: ['userLibrary'],
         mediaTypes: ['video'],
@@ -74,6 +76,10 @@ export class VideoBrowserView extends PureComponent {
           />
       </TouchableHighlight>
     )
+  }
+
+  componentWillMount () {
+    Orientation.lockToPortrait()
   }
 
   _renderFooter () {
