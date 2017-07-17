@@ -35,6 +35,16 @@ export class VideoPlayer extends Component {
     this.setState({ paused: !this.state.paused })
   }
 
+  _onProgress (arg) {
+    if (this.props.onProgress) {
+      this.props.onProgress(arg)
+    }
+  }
+
+  _onEnd (arg) {
+    this.setState({ paused: true })
+  }
+
   render () {
     let aspectRatio = (this.state.width * 1.0) / this.state.height
     let videoStyle = {
@@ -48,6 +58,8 @@ export class VideoPlayer extends Component {
           source={this.props.video}
           onLoad={this.onLoad}
           ref={(ref) => { this.player = ref }}
+          onProgress={(arg) => { this._onProgress(arg) }}
+          onEnd={(arg) => { this._onEnd(arg) }}
           paused={this.state.paused}
           style={videoStyle}
           resizeMode='fill'
@@ -58,5 +70,6 @@ export class VideoPlayer extends Component {
 }
 
 VideoPlayer.propTypes = {
-  video: PropTypes.object.isRequired
+  video: PropTypes.object.isRequired,
+  onProgress: PropTypes.func
 }

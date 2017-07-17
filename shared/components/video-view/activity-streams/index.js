@@ -6,8 +6,6 @@ import {
 } from 'react-native'
 import _ from 'lodash'
 import { StreamTimeGraph } from './stream-time-graph'
-import { videoStreamTimes } from '../../../sync'
-import { timeToIndex } from '../../../streams'
 
 export class ActivityStreams extends PureComponent {
   componentWillMount () {
@@ -23,17 +21,6 @@ export class ActivityStreams extends PureComponent {
   }
 
   render () {
-    // var streamTimes = videoStreamTimes(this.props.activity, this.props.videoDuration, this.props.videoStartAt)
-    //
-    // console.log('stream times: ', streamTimes)
-    //
-    // var startIndex = Math.floor(timeToIndex(streamTimes.startTime, this.props.streams.time))
-    // var endIndex = Math.ceil(timeToIndex(streamTimes.endTime, this.props.streams.time))
-    //
-    // var timeSubStream = _.slice(this.props.streams.time, startIndex, endIndex)
-    // var velocitySubStream = _.slice(this.props.streams.velocity_smooth, startIndex, endIndex)
-    // var altitudeSubStream = _.slice(this.props.streams.altitude, startIndex, endIndex)
-
     if (_.get(this.props, 'streams.velocity_smooth')) {
       var velocityStreamTimeGraph =
         <StreamTimeGraph
@@ -49,7 +36,7 @@ export class ActivityStreams extends PureComponent {
     }
 
     return (
-      <View {...this._panResponder.panHandlers}>
+      <View {...this._panResponder.panHandlers} style={this.props.style}>
         {velocityStreamTimeGraph}
         {altitudeStreamTimeGraph}
       </View>
@@ -58,8 +45,17 @@ export class ActivityStreams extends PureComponent {
 }
 
 ActivityStreams.propTypes = {
+  style: PropTypes.object,
+  time: PropTypes.any.isRequired,
+  streamTime: PropTypes.number,
   streams: PropTypes.object,
   activity: PropTypes.object.isRequired,
   videoDuration: PropTypes.number.isRequired,
   videoStartAt: PropTypes.any.isRequired
+}
+
+ActivityStreams.defaultProps = {
+  style: {
+    flex: 1
+  }
 }

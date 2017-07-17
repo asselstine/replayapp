@@ -6,8 +6,10 @@ import {
   ScrollView,
   Button
 } from 'react-native'
+import EventEmitter from 'EventEmitter'
 import { connect } from 'react-redux'
 import _ from 'lodash'
+import moment from 'moment'
 import { manager } from '../../oauth'
 import { store } from '../../store'
 import { attachActivity, setVideoStartAt } from '../../actions/video-actions'
@@ -35,14 +37,18 @@ export const VideoView = connect(
     super(props)
     this.state = {
       stravaActivityModalIsOpen: false,
-      syncModalIsOpen: false
+      syncModalIsOpen: false,
+      locked: true
     }
+    this.onProgress = this.onProgress.bind(this)
+    this.onToggleLock = this.onToggleLock.bind(this)
     this.onPressStravaConnect = this.onPressStravaConnect.bind(this)
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
     this._onCloseSyncModal = this._onCloseSyncModal.bind(this)
     this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
     this._onOrientationChange = this._onOrientationChange.bind(this)
+    this.eventEmitter = new EventEmitter()
   }
 
   onPressStravaConnect () {
@@ -54,9 +60,21 @@ export const VideoView = connect(
       .catch(response => console.log('could not authenticate: ', response))
   }
 
+  onToggleLock () {
+    this.setState({locked: !this.state.locked})
+  }
+
+  onProgress (event) {
+    var streamStartAt = _.get(this.props, 'video.activity.start_date')
+    var videoStartAt = _.get(this.props, 'video.startAt')
+    var currentVideoTime = moment(videoStartAt).add(event.currentTime, 's')
+    var currentStreamTime = moment(currentVideoTime).diff(moment(streamStartAt))
+    // console.log('stream time: ', currentStreamTime)
+    this.eventEmitter.emit('onStreamTimeProgress', currentStreamTime)
+  }
+
   _onSelectStravaActivity (activity) {
     store.dispatch(attachActivity(this.props.video.rawVideoData, activity))
-
     this._onCloseStravaActivityModal()
   }
 
@@ -108,23 +126,41 @@ export const VideoView = connect(
 
     if (this.props.video) {
       var videoPlayer =
-        <VideoPlayer video={this.props.video.rawVideoData._videoRef} styles={styles.videoPlayer} />
+        <VideoPlayer
+          onProgress={this.onProgress}
+          video={this.props.video.rawVideoData._videoRef}
+          styles={styles.videoPlayer} />
     }
 
     if (activity) {
       var connectStravaButton =
-        <Button title={activity.name} onPress={this.onPressStravaConnect} />
+        <Button
+          title={activity.name}
+          onPress={this.onPressStravaConnect}
+          style={styles.titleHeaderButton} />
+
+      var lockTitle = 'Unlock'
+      if (!this.state.locked) {
+        lockTitle = 'Lock'
+      }
+      var lockToggle =
+        <Button
+          title={lockTitle}
+          onPress={this.onToggleLock}
+          style={styles.titleHeaderButton} />
     } else {
       connectStravaButton =
         <Button
           onPress={this.onPressStravaConnect}
           title='Connect Strava'
+          style={styles.titleHeaderButton}
           color='#fc4c02' />
     }
 
     if (activity) {
       var activityMap =
         <ActivityMap
+          eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams} />
     }
@@ -132,6 +168,7 @@ export const VideoView = connect(
     if (activity && this.props.streams) {
       var activityStreams =
         <ActivityStreams
+          eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams}
           videoDuration={this.props.video.rawVideoData.duration}
@@ -141,8 +178,11 @@ export const VideoView = connect(
     return (
       <View style={styles.videoView}>
         {videoPlayer}
-        <ScrollView styles={styles.streamsContainer}>
+        <View style={styles.titleHeader}>
           {connectStravaButton}
+          {lockToggle}
+        </View>
+        <ScrollView style={styles.streamsContainer}>
           {activityStreams}
           {activityMap}
         </ScrollView>
@@ -157,11 +197,28 @@ export const VideoView = connect(
 
 const styles = {
   videoView: {
-    flex: 1,
-    flexDirection: 'column'
+    flex: 1
   },
 
   videoPlayer: {
+    flex: 1
+  },
+
+  titleHeader: {
+    flex: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+
+  titleHeaderButton: {
+    flex: 1
+  },
+
+  connectButton: {
+    flex: 1
+  },
+
+  lockButton: {
     flex: 1
   },
 

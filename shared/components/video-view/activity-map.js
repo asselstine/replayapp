@@ -11,10 +11,25 @@ import PropTypes from 'prop-types'
 import { linear } from '../../streams'
 
 export class ActivityMap extends PureComponent {
+  constructor (props) {
+    super(props)
+    this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
+  }
+
   componentDidMount () {
     if (this.props.time) {
       this.setCoordinates(this.props.time)
     }
+    this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
+  }
+
+  componentWillUnmount () {
+    this.onStreamTimeProgressSubscriber.remove()
+  }
+
+  onStreamTimeProgress (streamTime) {
+    console.log('stream time: ', streamTime)
+    this.setCoordinates(streamTime)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -23,16 +38,14 @@ export class ActivityMap extends PureComponent {
       this.positionCircleCoordinates = null
       this.marker = null
     }
-    if (this.props.time !== nextProps.time) {
-      this.setCoordinates(nextProps.time)
+    if (this.props.streamTime !== nextProps.streamTime) {
+      this.setCoordinates(nextProps.streamTime)
     }
   }
 
-  setCoordinates (time) {
+  setCoordinates (streamTime) {
     if (this.positionCircleCoordinates) {
-      var mapTimeOffset = this.timeOffsetFromFraction(time)
-      var mapCurrentLatLng = this.latLngAtTime(this.mapTime(mapTimeOffset))
-      this.mapTimeOffset = mapTimeOffset
+      var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(streamTime))
       if (this.lastAnimation) { this.lastAnimation.stop() }
       this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 50 }))
       this.lastAnimation.start()
@@ -48,6 +61,11 @@ export class ActivityMap extends PureComponent {
       latitude: linear(time, timeData, lats),
       longitude: linear(time, timeData, longs)
     }
+  }
+
+  boundStreamTime (streamTime) {
+    var timeData = _.get(this.props, 'streams.time.data', [])
+    return Math.max(timeData[0], Math.min(streamTime, timeData[timeData.length - 1]))
   }
 
   timeOffsetFromFraction (fraction) {
@@ -97,7 +115,7 @@ export class ActivityMap extends PureComponent {
     }
 
     return (
-      <View style={{flex: 1}}>
+      <View style={this.props.style}>
         <MapView
           pitchEnabled={false}
           ref={(ref) => { this.mapRef = ref }}
@@ -115,7 +133,14 @@ export class ActivityMap extends PureComponent {
 ActivityMap.propTypes = {
   activity: PropTypes.object.isRequired,
   streams: PropTypes.object,
-  time: PropTypes.number
+  time: PropTypes.number,
+  streamTime: PropTypes.number
+}
+
+ActivityMap.defaultProps = {
+  style: {
+    flex: 1
+  }
 }
 
 const styles = StyleSheet.create({
