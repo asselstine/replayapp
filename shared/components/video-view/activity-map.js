@@ -49,6 +49,7 @@ export class ActivityMap extends PureComponent {
   setCoordinates (streamTime) {
     if (this.positionCircleCoordinates) {
       var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(streamTime))
+      console.log('updated latlng to ', mapCurrentLatLng)
       if (this.lastAnimation) { this.lastAnimation.stop() }
       this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 50 }))
       this.lastAnimation.start()
@@ -103,7 +104,9 @@ export class ActivityMap extends PureComponent {
   onPressMapView (event) {
     var closest = closestPoint(event.nativeEvent.coordinate, this.latLngs())
     var streamTime = linearIndex(closest.startIndex + closest.fraction, _.get(this.props, 'streams.time.data', []))
+    console.log('streamTime: ', streamTime)
     if (this.props.onStreamTimeChange) {
+      console.log('calling ')
       this.props.onStreamTimeChange(streamTime)
     }
   }
@@ -150,6 +153,7 @@ ActivityMap.propTypes = {
   activity: PropTypes.object.isRequired,
   streams: PropTypes.object,
   streamTime: PropTypes.number,
+  eventEmitter: PropTypes.object.isRequired,
   onStreamTimeChange: PropTypes.func
 }
 

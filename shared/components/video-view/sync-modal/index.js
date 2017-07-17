@@ -86,10 +86,12 @@ export class SyncModal extends Component {
   }
 
   _onStreamTimeChange (streamTime) {
+    console.log('YAAAAS: ', streamTime)
     if (this.state.locked) {
       // otherwise, update the video current time and stream time
     } else {
       // update the video start at
+      console.log('update: ', streamTime, this.player.currentTime)
     }
   }
 
@@ -118,7 +120,7 @@ export class SyncModal extends Component {
         activity={this.props.activity}
         latlngStream={this.props.latlngStream}
         timeStream={this.props.timeStream}
-        onStreamTimeChange={(streamTime) => this._onStreamTimeChange(streamTime)}
+        onStreamTimeChange={(streamTime) => { console.log('whhoooo', streamTime) }}
         streamTime={this.state.time} />
 
     return (

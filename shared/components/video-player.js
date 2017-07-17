@@ -39,6 +39,25 @@ export class VideoPlayer extends Component {
     if (this.props.onProgress) {
       this.props.onProgress(arg)
     }
+    this.lastOnProgress = {
+      videoTime: arg.currentTime,
+      realTime: new Date().valueOf()
+    }
+  }
+
+  getCurrentTime () {
+    if (!this.state.paused) {
+      return this.lastOnProgress.videoTime +
+        (new Date().valueOf() - this.lastOnProgress.realTime) / 1000.0
+    } else if (this.lastOnProgress) {
+      return this.lastOnProgress.videoTime
+    } else {
+      return 0
+    }
+  }
+
+  seek (time) {
+    this.player.seek(time)
   }
 
   _onEnd (arg) {

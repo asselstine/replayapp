@@ -65,12 +65,7 @@ export const VideoView = connect(
   }
 
   onProgress (event) {
-    var streamStartAt = _.get(this.props, 'video.activity.start_date')
-    var videoStartAt = _.get(this.props, 'video.startAt')
-    var currentVideoTime = moment(videoStartAt).add(event.currentTime, 's')
-    var currentStreamTime = moment(currentVideoTime).diff(moment(streamStartAt))
-    // console.log('stream time: ', currentStreamTime)
-    this.eventEmitter.emit('onStreamTimeProgress', currentStreamTime)
+    this.eventEmitter.emit('onStreamTimeProgress', this.videoTimeToStreamTime(event.currentTime))
   }
 
   _onSelectStravaActivity (activity) {
@@ -120,6 +115,42 @@ export const VideoView = connect(
     }
   }
 
+  onStreamTimeChange (streamTime) {
+    this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
+    if (!this.state.locked) {
+      store.dispatch(
+        setVideoStartAt(this.props.video.rawVideoData, this.calculateVideoStartAt(streamTime))
+      )
+    }
+  }
+
+  calculateVideoStartAt (streamTime) {
+    var activityStartAt = moment(_.get(this.props, 'video.activity.start_date'))
+    var videoTime = this._videoPlayer.getCurrentTime()
+    var offset = streamTime - videoTime
+    return activityStartAt.clone().add(offset, 's')
+  }
+
+  streamTimeToVideoTime (streamTime) {
+    var activityStartAt = moment(_.get(this.props, 'video.activity.start_date'))
+    var videoStartAt = moment(_.get(this.props, 'video.startAt'))
+    return streamTime - (videoStartAt.diff(activityStartAt) / 1000.0)
+  }
+
+  videoTimeToStreamTime (videoTime) {
+    var streamStartAt = _.get(this.props, 'video.activity.start_date')
+    var videoStartAt = _.get(this.props, 'video.startAt')
+    var currentVideoTime = moment(videoStartAt).add(videoTime, 's')
+    var result = moment(currentVideoTime).diff(moment(streamStartAt)) / 1000.0
+    // console.log(
+    //   `streamStartAt: ${streamStartAt}`,
+    //   `videoStartAt: ${videoStartAt}`,
+    //   `currentVideoTime: ${currentVideoTime}`,
+    //   `result: ${result}`
+    // )
+    return result
+  }
+
   render () {
     var activity = _.get(this.props, 'video.activity')
     var startAt = _.get(this.props, 'video.startAt')
@@ -127,6 +158,7 @@ export const VideoView = connect(
     if (this.props.video) {
       var videoPlayer =
         <VideoPlayer
+          ref={(ref) => { this._videoPlayer = ref }}
           onProgress={this.onProgress}
           video={this.props.video.rawVideoData._videoRef}
           styles={styles.videoPlayer} />
@@ -160,6 +192,7 @@ export const VideoView = connect(
     if (activity) {
       var activityMap =
         <ActivityMap
+          onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
           eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams} />
