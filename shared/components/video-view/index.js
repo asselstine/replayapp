@@ -3,25 +3,32 @@ import PropTypes from 'prop-types'
 import { VideoPlayer } from '../video-player'
 import {
   View,
+  ScrollView,
   Button
 } from 'react-native'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-import moment from 'moment'
 import { manager } from '../../oauth'
 import { store } from '../../store'
 import { attachActivity, setVideoStartAt } from '../../actions/video-actions'
 import { login } from '../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
-import { SyncModalContainer } from './sync-modal-container'
-import { ActivityStreamsContainer } from './activity-streams-container'
+import { ActivityStreams } from './activity-streams'
 import Orientation from 'react-native-orientation'
+import { ActivityMap } from './activity-map'
+import { StreamsService } from '../../services/streams-service'
 
 export const VideoView = connect(
   (state, ownProps) => {
-    return {
-      video: _.get(state, `videos[${ownProps.rawVideoData.video.uri}]`)
+    var video = _.get(state, `videos[${ownProps.videoUri}]`)
+    var result = {
+      video: video
     }
+    var activity = _.get(video, 'activity')
+    if (activity) {
+      result['streams'] = _.get(state, `streams['${activity.id}']`)
+    }
+    return result
   }
 )(class extends Component {
   constructor (props) {
@@ -48,7 +55,8 @@ export const VideoView = connect(
   }
 
   _onSelectStravaActivity (activity) {
-    store.dispatch(attachActivity(this.props.rawVideoData, activity))
+    store.dispatch(attachActivity(this.props.video.rawVideoData, activity))
+
     this._onCloseStravaActivityModal()
   }
 
@@ -61,7 +69,7 @@ export const VideoView = connect(
   }
 
   _onSaveSyncModal (videoStartAt) {
-    store.dispatch(setVideoStartAt(this.props.rawVideoData, videoStartAt))
+    store.dispatch(setVideoStartAt(this.props.video.rawVideoData, videoStartAt))
     this._onCloseSyncModal()
   }
 
@@ -72,6 +80,9 @@ export const VideoView = connect(
   componentDidMount () {
     this.checkSyncModal(this.props)
     Orientation.addOrientationListener(this._onOrientationChange)
+    if (_.get(this.props, 'video.activity')) {
+      StreamsService.retrieveStreams(this.props.video.activity.id)
+    }
   }
 
   componentWillUnmount () {
@@ -80,6 +91,9 @@ export const VideoView = connect(
 
   componentWillReceiveProps (nextProps) {
     this.checkSyncModal(nextProps)
+    if (_.get(this.props, 'video.activity.id') !== _.get(nextProps, 'video.activity.id') && !this.props.streams) {
+      StreamsService.retrieveStreams(_.get(nextProps, 'video.activity.id'))
+    }
   }
 
   checkSyncModal (props) {
@@ -92,16 +106,14 @@ export const VideoView = connect(
     var activity = _.get(this.props, 'video.activity')
     var startAt = _.get(this.props, 'video.startAt')
 
+    if (this.props.video) {
+      var videoPlayer =
+        <VideoPlayer video={this.props.video.rawVideoData._videoRef} styles={styles.videoPlayer} />
+    }
+
     if (activity) {
       var connectStravaButton =
         <Button title={activity.name} onPress={this.onPressStravaConnect} />
-
-      var label = 'Sync to Activity'
-      if (startAt) {
-        label = moment(startAt).format()
-      }
-      var timeButton =
-        <Button title={label} onPress={() => this.setState({ syncModalIsOpen: true })} />
     } else {
       connectStravaButton =
         <Button
@@ -110,35 +122,34 @@ export const VideoView = connect(
           color='#fc4c02' />
     }
 
-    if (activity && this.props.rawVideoData) {
-      var syncModal =
-        <SyncModalContainer
-          isOpen={this.state.syncModalIsOpen}
-          onClose={this._onCloseSyncModal}
-          onSave={this._onSaveSyncModal}
-          rawVideoData={this.props.rawVideoData}
-          activity={activity} />
+    if (activity) {
+      var activityMap =
+        <ActivityMap
+          activity={activity}
+          streams={this.props.streams} />
     }
 
-    if (activity && this.props.rawVideoData) {
+    if (activity && this.props.streams) {
       var activityStreams =
-        <ActivityStreamsContainer
+        <ActivityStreams
           activity={activity}
-          videoDuration={this.props.rawVideoData.duration}
+          streams={this.props.streams}
+          videoDuration={this.props.video.rawVideoData.duration}
           videoStartAt={startAt} />
     }
 
     return (
       <View style={styles.videoView}>
-        <VideoPlayer video={this.props.rawVideoData} />
-        {connectStravaButton}
-        {timeButton}
-        {activityStreams}
+        {videoPlayer}
+        <ScrollView styles={styles.streamsContainer}>
+          {connectStravaButton}
+          {activityStreams}
+          {activityMap}
+        </ScrollView>
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}
           onClose={this._onCloseStravaActivityModal} />
-        {syncModal}
       </View>
     )
   }
@@ -148,10 +159,20 @@ const styles = {
   videoView: {
     flex: 1,
     flexDirection: 'column'
+  },
+
+  videoPlayer: {
+    flex: 1
+  },
+
+  streamsContainer: {
+    flex: 1
   }
 }
 
 VideoView.propTypes = {
-  rawVideoData: PropTypes.object.isRequired,
-  video: PropTypes.object
+  videoUri: PropTypes.string.isRequired,
+  video: PropTypes.object,
+  latlngStream: PropTypes.object,
+  timeStream: PropTypes.object
 }

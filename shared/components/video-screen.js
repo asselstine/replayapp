@@ -11,7 +11,7 @@ export class VideoScreen extends Component {
     return (
       <Provider store={store}>
         <VideoView
-          rawVideoData={params.rawVideoData} />
+          videoUri={params.videoUri} />
       </Provider>
     )
   }

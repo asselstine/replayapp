@@ -2,6 +2,7 @@ import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
 import Video from 'react-native-video'
 import Orientation from 'react-native-orientation'
+import _ from 'lodash'
 
 import {
   ActivityIndicator,
@@ -69,7 +70,7 @@ export class VideoBrowserView extends PureComponent {
         onPress={() => this.props.onPressVideo(item)}
         style={styles.videoContainer}>
         <Video
-          source={item.video}
+          source={item._videoRef}
           paused
           resizeMode='cover'
           style={styles.video}

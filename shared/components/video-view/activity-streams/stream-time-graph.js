@@ -5,7 +5,6 @@ import Svg, {
   Polyline
 } from 'react-native-svg'
 import { streamPoints } from '../../../svg'
-import { timeToIndex } from '../../../streams'
 
 export class StreamTimeGraph extends PureComponent {
   constructor (props) {
@@ -28,14 +27,8 @@ export class StreamTimeGraph extends PureComponent {
     var height = this.state.height || 1
     var width = this.state.width || 1
 
-    var startIndex = Math.floor(timeToIndex(this.props.startTime, this.props.timeStream))
-    var endIndex = Math.ceil(timeToIndex(this.props.endTime, this.props.timeStream))
-
-    var timeSubStream = _.slice(this.props.timeStream, startIndex, endIndex)
-    var dataSubStream = _.slice(this.props.dataStream, startIndex, endIndex)
-
     var points = ''
-    var sPoints = streamPoints(height, width, timeSubStream, dataSubStream)
+    var sPoints = streamPoints(height, width, this.props.timeStream, this.props.dataStream, this.props.zoom)
     _.each(sPoints, (point) => {
       points += `${point[0]},${point[1]} `
     })
@@ -46,7 +39,7 @@ export class StreamTimeGraph extends PureComponent {
         width='100%'
         onLayout={this._onLayout}>
         <Polyline
-          y={height - 1}
+          y={0}
           points={points}
           fill='none'
           stroke='black'
@@ -58,7 +51,9 @@ export class StreamTimeGraph extends PureComponent {
 
 StreamTimeGraph.propTypes = {
   dataStream: PropTypes.array.isRequired,
-  timeStream: PropTypes.array.isRequired,
-  startTime: PropTypes.number.isRequired,
-  endTime: PropTypes.number.isRequired
+  timeStream: PropTypes.array.isRequired
+}
+
+StreamTimeGraph.defaultProps = {
+  zoom: 1
 }

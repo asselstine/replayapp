@@ -1,3 +1,10 @@
+export const newVideo = function (rawVideoData) {
+  return {
+    type: 'NEW_VIDEO',
+    rawVideoData: rawVideoData
+  }
+}
+
 export const attachActivity = function (rawVideoData, activity) {
   return {
     type: 'ATTACH_ACTIVITY',

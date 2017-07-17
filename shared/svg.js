@@ -1,6 +1,6 @@
 import { timeToIndex, linearIndex } from './streams'
 
-export const streamPoints = function (height, width, timeStream, dataStream) {
+export const streamPoints = function (height, width, timeStream, dataStream, zoom) {
   var timeMin = timeStream[0]
   var timeMax = timeStream[timeStream.length - 1]
 
@@ -19,7 +19,7 @@ export const streamPoints = function (height, width, timeStream, dataStream) {
     index = timeToIndex(time, timeStream, index)
     value = linearIndex(index, dataStream)
     yFraction = (maxValue - value) / (maxValue - minValue)
-    points.push([xFraction * width, -(yFraction * (height - 2))])
+    points.push([xFraction * width * zoom, (yFraction * (height - 2))])
   }
 
   return points

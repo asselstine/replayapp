@@ -6,20 +6,30 @@ export default function (state, action) {
     state = {}
   }
   switch (action.type) {
+    case 'NEW_VIDEO':
+      if (!state[action.rawVideoData._uri]) {
+        var cmd = {}
+        cmd[action.rawVideoData._uri] = {
+          '$set': {
+            rawVideoData: action.rawVideoData,
+            startAt: moment(action.rawVideoData.creationDateUTCSeconds * 1000)
+          }
+        }
+        state = update(state, cmd)
+      }
+      break
     case 'ATTACH_ACTIVITY':
-      var cmd = {}
-      cmd[action.rawVideoData.video.uri] = {
-        '$set': {
-          activity: action.activity,
-          rawVideoData: action.rawVideoData,
-          startAt: moment(action.rawVideoData.creationDateUTCSeconds * 1000)
+      cmd = {}
+      cmd[action.rawVideoData._uri] = {
+        activity: {
+          '$set': action.activity
         }
       }
       state = update(state, cmd)
       break
     case 'SET_VIDEO_START_AT':
       cmd = {}
-      cmd[action.rawVideoData.video.uri] = {
+      cmd[action.rawVideoData._uri] = {
         startAt: {
           '$set': action.startAt.toDate()
         }
