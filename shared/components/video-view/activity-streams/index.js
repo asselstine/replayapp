@@ -46,7 +46,6 @@ export class ActivityStreams extends PureComponent {
 
 ActivityStreams.propTypes = {
   style: PropTypes.object,
-  time: PropTypes.any.isRequired,
   streamTime: PropTypes.number,
   streams: PropTypes.object,
   activity: PropTypes.object.isRequired,

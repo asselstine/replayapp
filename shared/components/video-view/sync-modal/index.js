@@ -85,6 +85,14 @@ export class SyncModal extends Component {
     StreamsService.retrieveStreams(props.activity.id)
   }
 
+  _onStreamTimeChange (streamTime) {
+    if (this.state.locked) {
+      // otherwise, update the video current time and stream time
+    } else {
+      // update the video start at
+    }
+  }
+
   render () {
     let aspectRatio = (this.state.width * 1.0) / this.state.height
     let videoStyle = {
@@ -110,7 +118,8 @@ export class SyncModal extends Component {
         activity={this.props.activity}
         latlngStream={this.props.latlngStream}
         timeStream={this.props.timeStream}
-        time={this.state.time} />
+        onStreamTimeChange={(streamTime) => this._onStreamTimeChange(streamTime)}
+        streamTime={this.state.time} />
 
     return (
       <Modal

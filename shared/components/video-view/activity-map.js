@@ -8,17 +8,20 @@ import {
 import MapView from 'react-native-maps'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { linear } from '../../streams'
+import { linear, linearIndex } from '../../streams'
+import { closestPoint } from '../../closest-point'
 
 export class ActivityMap extends PureComponent {
   constructor (props) {
     super(props)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
+    this.lastPolyPressTime = 0
+    this.state = {}
   }
 
   componentDidMount () {
-    if (this.props.time) {
-      this.setCoordinates(this.props.time)
+    if (this.props.streamTime) {
+      this.setCoordinates(this.props.streamTime)
     }
     this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
   }
@@ -87,12 +90,22 @@ export class ActivityMap extends PureComponent {
   }
 
   latLngs () {
-    return _.map(_.get(this.props, 'streams.latlng.data', []), (pair) => {
-      return {
-        latitude: pair[0],
-        longitude: pair[1]
-      }
-    })
+    this._latLngs = this._latLngs ||
+      _.map(_.get(this.props, 'streams.latlng.data', []), (pair) => {
+        return {
+          latitude: pair[0],
+          longitude: pair[1]
+        }
+      })
+    return this._latLngs
+  }
+
+  onPressMapView (event) {
+    var closest = closestPoint(event.nativeEvent.coordinate, this.latLngs())
+    var streamTime = linearIndex(closest.startIndex + closest.fraction, _.get(this.props, 'streams.time.data', []))
+    if (this.props.onStreamTimeChange) {
+      this.props.onStreamTimeChange(streamTime)
+    }
   }
 
   render () {
@@ -104,7 +117,9 @@ export class ActivityMap extends PureComponent {
 
       if (!this.polyLine) {
         this.polyLine =
-          <MapView.Polyline coordinates={latLngs} />
+          <MapView.Polyline
+            ref={(ref) => { this.polylineRef = ref }}
+            coordinates={latLngs} />
       }
     }
 
@@ -117,6 +132,7 @@ export class ActivityMap extends PureComponent {
     return (
       <View style={this.props.style}>
         <MapView
+          onPress={(event) => { this.onPressMapView(event) }}
           pitchEnabled={false}
           ref={(ref) => { this.mapRef = ref }}
           onLayout={() => { this.mapRef.fitToElements(false) }}
@@ -133,8 +149,8 @@ export class ActivityMap extends PureComponent {
 ActivityMap.propTypes = {
   activity: PropTypes.object.isRequired,
   streams: PropTypes.object,
-  time: PropTypes.number,
-  streamTime: PropTypes.number
+  streamTime: PropTypes.number,
+  onStreamTimeChange: PropTypes.func
 }
 
 ActivityMap.defaultProps = {
