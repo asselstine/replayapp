@@ -44,6 +44,7 @@ export const VideoView = connect(
       videoRotate: new Animated.Value(0)
     }
     this.onProgress = this.onProgress.bind(this)
+    this.onPlay = this.onPlay.bind(this)
     this.onToggleLock = this.onToggleLock.bind(this)
     this.onPressStravaConnect = this.onPressStravaConnect.bind(this)
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
@@ -76,6 +77,12 @@ export const VideoView = connect(
 
   onProgress (event) {
     this.eventEmitter.emit('onStreamTimeProgress', this.videoTimeToStreamTime(event.currentTime))
+  }
+
+  onPlay (event) {
+    console.log('play')
+    this._activityMap.recenter()
+    this.eventEmitter.emit('onStreamPlay', this.videoTimeToStreamTime(event.currentTime))
   }
 
   _onSelectStravaActivity (activity) {
@@ -127,6 +134,7 @@ export const VideoView = connect(
   }
 
   onStreamTimeChange (streamTime) {
+    // console.log('onStreamTimeChange: ', streamTime)
     if (this.state.locked) {
       this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
     } else {
@@ -147,7 +155,15 @@ export const VideoView = connect(
   streamTimeToVideoTime (streamTime) {
     var activityStartAt = moment(_.get(this.props, 'video.activity.start_date'))
     var videoStartAt = moment(_.get(this.props, 'video.startAt'))
-    return streamTime - (videoStartAt.diff(activityStartAt) / 1000.0)
+    var deltaMs = videoStartAt.diff(activityStartAt)
+    var videoTime = streamTime - (deltaMs / 1000.0)
+    console.log('streamTimeToVideoTime:')
+    console.log(activityStartAt.format())
+    console.log(videoStartAt.format())
+    console.log(deltaMs)
+    console.log(streamTime)
+    console.log(videoTime)
+    return videoTime
   }
 
   videoTimeToStreamTime (videoTime) {
@@ -167,6 +183,7 @@ export const VideoView = connect(
         <VideoPlayer
           ref={(ref) => { this._videoPlayer = ref }}
           onProgress={this.onProgress}
+          onPlay={this.onPlay}
           video={this.props.video.rawVideoData._videoRef}
           styles={styles.videoPlayer} />
     }
@@ -199,6 +216,7 @@ export const VideoView = connect(
     if (activity) {
       var activityMap =
         <ActivityMap
+          ref={(ref) => { this._activityMap = ref }}
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
           eventEmitter={this.eventEmitter}
           activity={activity}

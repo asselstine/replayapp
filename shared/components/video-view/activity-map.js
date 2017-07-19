@@ -102,11 +102,15 @@ export class ActivityMap extends PureComponent {
   onPressMapView (event) {
     var closest = closestPoint(event.nativeEvent.coordinate, this.latLngs())
     var streamTime = linearIndex(closest.startIndex + closest.fraction, _.get(this.props, 'streams.time.data', []))
-    console.log('streamTime: ', streamTime)
+    // console.log('streamTime: ', streamTime)
     if (this.props.onStreamTimeChange) {
-      console.log('calling ')
+      // console.log('calling ')
       this.props.onStreamTimeChange(streamTime)
     }
+  }
+
+  recenter () {
+    this.mapRef.fitToElements(false)
   }
 
   render () {

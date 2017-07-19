@@ -31,8 +31,15 @@ export class VideoPlayer extends Component {
   onPressVideo (e) {
     if (this.state.paused) {
       this.player.seek(0)
+      this._onPlay({currentTime: 0})
     }
     this.setState({ paused: !this.state.paused })
+  }
+
+  _onPlay (arg) {
+    if (this.props.onPlay) {
+      this.props.onPlay(arg)
+    }
   }
 
   _onProgress (arg) {
@@ -90,5 +97,6 @@ export class VideoPlayer extends Component {
 
 VideoPlayer.propTypes = {
   video: PropTypes.object.isRequired,
-  onProgress: PropTypes.func
+  onProgress: PropTypes.func,
+  onPlay: PropTypes.func
 }

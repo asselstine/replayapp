@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import {
   View,
-  Responder,
   Animated
 } from 'react-native'
 import Svg, {
@@ -26,6 +25,8 @@ export class ActivityStreams extends PureComponent {
     this.transform = MatrixMath.createIdentityMatrix()
     this.command = MatrixMath.createIdentityMatrix()
     this.translate = MatrixMath.createIdentityMatrix()
+    this.moveCursor = _.throttle(this.moveCursor.bind(this), 50)
+    this.setTransform = _.throttle(this.setTransform.bind(this), 50)
 
     this._onLayout = this._onLayout.bind(this)
     this.touches = {}
@@ -58,30 +59,47 @@ export class ActivityStreams extends PureComponent {
     touches.forEach((touch) => {
       if (!this.touches[touch.identifier]) {
         this.touches[touch.identifier] = touch
-        console.log(`set ${touch.identifier}`)
+        // console.log(`set ${touch.identifier}`)
       }
       if (!touch.touches) { return }
       touch.touches.forEach((secondaryTouch) => {
         if (secondaryTouch.identifier !== touch.identifier &&
             !this.touches[secondaryTouch.identifier]) {
           this.touches[secondaryTouch.identifier] = secondaryTouch
-          console.log(`set ${secondaryTouch.identifier}`)
+          // console.log(`set ${secondaryTouch.identifier}`)
         }
       })
+    })
+  }
+
+  clearOldTouches (touches) {
+    _.keys(this.touches).forEach((key) => {
+      // console.log(`checking ${key} against ${_.map(touches, 'identifier')}`)
+      if (_.findIndex(touches, {'identifier': +key}) === -1) {
+        delete this.touches[key]
+        // console.log(`cleared ${key}`)
+      }
     })
   }
 
   handleResponderGrant (e, gestureState) {
     console.log(`grant ${e.nativeEvent.identifier}`)
     this.storeOriginalTouches(e.nativeEvent.touches)
+    if (e.nativeEvent.touches.length === 1) {
+      this.moveCursor(e.nativeEvent.touches[0].locationX)
+    }
   }
 
   handleResponderMove (e, gestureState) {
-    console.log(`move ${e.nativeEvent.identifier}`)
+    // console.log(`move ${e.nativeEvent.identifier}`)
+    this.clearOldTouches(e.nativeEvent.touches)
     if (e.nativeEvent.touches.length === 2) {
       this.storeOriginalTouches(e.nativeEvent.touches)
       this.command = MatrixMath.createIdentityMatrix()
       this.setTransform(this.translateAndScale(this.command, e, gestureState))
+      // this.onStreamTimeProgress(this.streamTime) // update cursor
+    } else {
+      this.moveCursor(e.nativeEvent.touches[0].locationX)
     }
   }
 
@@ -101,8 +119,6 @@ export class ActivityStreams extends PureComponent {
     var scale = this.scale(e.nativeEvent)
     var dx = this.deltaX(e.nativeEvent)
     var centerX = this.centerX(e.nativeEvent)
-
-    centerX -= (this.state.width / 2.0)
 
     translate = MatrixMath.createTranslate2d(dx, 0)
     MatrixMath.multiplyInto(command, translate, this.transform)
@@ -160,7 +176,17 @@ export class ActivityStreams extends PureComponent {
   }
 
   setTransform (matrix) {
-    this.viewRef.setNativeProps({ style: { transform: [{perspective: 1000}, { matrix: matrix.slice() }] } })
+    this.transformView.setNativeProps({ style: { transform: [{perspective: 1000}, { matrix: this.applyTransformOrigin(matrix) }] } })
+  }
+
+  applyTransformOrigin (matrix) {
+    var translate = MatrixMath.createIdentityMatrix()
+    var copy = matrix.slice()
+    MatrixMath.reuseTranslate2dCommand(translate, (this.state.width / 2.0), 0)
+    MatrixMath.multiplyInto(copy, matrix, translate)
+    MatrixMath.reuseTranslate2dCommand(translate, -(this.state.width / 2.0), 0)
+    MatrixMath.multiplyInto(copy, translate, copy)
+    return copy
   }
 
   _onLayout (event) {
@@ -170,25 +196,39 @@ export class ActivityStreams extends PureComponent {
     })
   }
 
+  moveCursor (locationX) {
+    if (this.props.onStreamTimeChange) {
+      this.props.onStreamTimeChange(this.locationXToStreamTime(locationX))
+    }
+  }
+
   onStreamTimeProgress (streamTime) {
+    this.streamTime = streamTime
     if (this.lastAnimation) { this.lastAnimation.stop() }
     this.lastAnimation = Animated.timing(
       this.state.lineXPos,
       {
-        toValue: this.streamTimeToX(streamTime),
+        toValue: this.streamTimeToLocationX(streamTime),
         duration: 20
       }
     )
     this.lastAnimation.start()
   }
 
-  streamTimeToX (streamTime) {
+  streamTimeToLocationX (streamTime) {
     var fraction = streamTime / this.lastTime()
-    return this.state.width * fraction
+    var worldX = fraction * this.state.width
+    var v = [worldX, 0, 0, 1]
+    var newV = MatrixMath.multiplyVectorByMatrix(v, this.transform)
+    return newV[0]
   }
 
-  xToStreamTime (x) {
-    return (x / this.state.width) * this.lastTime()
+  locationXToStreamTime (locationX) {
+    var v = [locationX, 0, 0, 1]
+    var newV = MatrixMath.multiplyVectorByMatrix(v, MatrixMath.inverse(this.command))
+    var fraction = Math.max(0, Math.min(1, newV[0] / this.state.width))
+    var streamTime = fraction * this.lastTime()
+    return streamTime
   }
 
   lastTime () {
@@ -232,19 +272,26 @@ export class ActivityStreams extends PureComponent {
 
     return (
       <View
-        ref={(ref) => { this.viewRef = ref }}
         {...this.responders}
-        style={this.props.style}>
+        style={this.props.style}
+        onLayout={this._onLayout}>
+        <View
+          ref={(ref) => { this.transformView = ref }}>
+          <Svg
+            height='200'
+            width='100%'>
+            <CustomAnimated.G
+              x={this.state.translateX}>
+              {velocityStreamPolyline}
+              {altitudeStreamPolyline}
+            </CustomAnimated.G>
+          </Svg>
+        </View>
         <Svg
+          style={{position: 'absolute', left: 0, top: 0, bottom: 0, right: 0}}
           height='200'
-          width='100%'
-          onLayout={this._onLayout}>
-          <CustomAnimated.G
-            x={this.state.translateX}>
-            {velocityStreamPolyline}
-            {altitudeStreamPolyline}
-            {currentTimeLine}
-          </CustomAnimated.G>
+          width='100%'>
+          {currentTimeLine}
         </Svg>
       </View>
     )
