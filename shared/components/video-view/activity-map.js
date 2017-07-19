@@ -31,7 +31,6 @@ export class ActivityMap extends PureComponent {
   }
 
   onStreamTimeProgress (streamTime) {
-    console.log('stream time: ', streamTime)
     this.setCoordinates(streamTime)
   }
 
@@ -49,7 +48,6 @@ export class ActivityMap extends PureComponent {
   setCoordinates (streamTime) {
     if (this.positionCircleCoordinates) {
       var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(streamTime))
-      console.log('updated latlng to ', mapCurrentLatLng)
       if (this.lastAnimation) { this.lastAnimation.stop() }
       this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 50 }))
       this.lastAnimation.start()

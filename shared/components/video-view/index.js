@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { VideoPlayer } from '../video-player'
 import {
+  Animated,
   View,
   ScrollView,
   Button
@@ -38,7 +39,9 @@ export const VideoView = connect(
     this.state = {
       stravaActivityModalIsOpen: false,
       syncModalIsOpen: false,
-      locked: true
+      locked: true,
+      landscape: false,
+      videoRotate: new Animated.Value(0)
     }
     this.onProgress = this.onProgress.bind(this)
     this.onToggleLock = this.onToggleLock.bind(this)
@@ -49,6 +52,13 @@ export const VideoView = connect(
     this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
     this._onOrientationChange = this._onOrientationChange.bind(this)
     this.eventEmitter = new EventEmitter()
+    Orientation.getOrientation((err, orientation) => {
+      if (err) {
+        console.error(err)
+      } else {
+        this._onOrientationChange(orientation)
+      }
+    })
   }
 
   onPressStravaConnect () {
@@ -86,8 +96,9 @@ export const VideoView = connect(
     this._onCloseSyncModal()
   }
 
-  _onOrientationChange (event) {
-    console.log(event)
+  _onOrientationChange (orientation) {
+    console.log(orientation)
+    this.setState({ landscape: orientation === 'LANDSCAPE' })
   }
 
   componentDidMount () {
@@ -116,8 +127,10 @@ export const VideoView = connect(
   }
 
   onStreamTimeChange (streamTime) {
-    this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
-    if (!this.state.locked) {
+    if (this.state.locked) {
+      this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
+    } else {
+      this.eventEmitter.emit('onStreamTimeProgress', streamTime)
       store.dispatch(
         setVideoStartAt(this.props.video.rawVideoData, this.calculateVideoStartAt(streamTime))
       )
@@ -142,12 +155,6 @@ export const VideoView = connect(
     var videoStartAt = _.get(this.props, 'video.startAt')
     var currentVideoTime = moment(videoStartAt).add(videoTime, 's')
     var result = moment(currentVideoTime).diff(moment(streamStartAt)) / 1000.0
-    // console.log(
-    //   `streamStartAt: ${streamStartAt}`,
-    //   `videoStartAt: ${videoStartAt}`,
-    //   `currentVideoTime: ${currentVideoTime}`,
-    //   `result: ${result}`
-    // )
     return result
   }
 
@@ -201,6 +208,7 @@ export const VideoView = connect(
     if (activity && this.props.streams) {
       var activityStreams =
         <ActivityStreams
+          onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
           eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams}
@@ -209,7 +217,7 @@ export const VideoView = connect(
     }
 
     return (
-      <View style={styles.videoView}>
+      <View style={styles.videoView} ref={(ref) => { this.viewRef = ref }}>
         {videoPlayer}
         <View style={styles.titleHeader}>
           {connectStravaButton}
