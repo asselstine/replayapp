@@ -54,6 +54,14 @@ export class VideoBrowserView extends PureComponent {
     })
   }
 
+  refetch () {
+    this.setState({
+      assets: [],
+      noMore: false,
+      lastCursor: null
+    }, () => { this.fetch() })
+  }
+
   _keyExtractor (item, index) {
     return item.video.uri
   }
@@ -81,6 +89,10 @@ export class VideoBrowserView extends PureComponent {
 
   componentWillMount () {
     Orientation.lockToPortrait()
+  }
+
+  componentDidMount () {
+    RNPhotosFramework.onLibraryChange(() => this.refetch())
   }
 
   _renderFooter () {
