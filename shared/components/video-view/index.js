@@ -80,8 +80,10 @@ export const VideoView = connect(
   }
 
   onPlay (event) {
-    console.log('play')
-    this._activityMap.recenter()
+    // console.log('play')
+    if (this._activityMap) {
+      this._activityMap.recenter()
+    }
     this.eventEmitter.emit('onStreamPlay', this.videoTimeToStreamTime(event.currentTime))
   }
 
@@ -169,6 +171,7 @@ export const VideoView = connect(
   videoTimeToStreamTime (videoTime) {
     var streamStartAt = _.get(this.props, 'video.activity.start_date')
     var videoStartAt = _.get(this.props, 'video.startAt')
+    if (!streamStartAt || !videoStartAt) { return null }
     var currentVideoTime = moment(videoStartAt).add(videoTime, 's')
     var result = moment(currentVideoTime).diff(moment(streamStartAt)) / 1000.0
     return result
