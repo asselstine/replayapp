@@ -2,12 +2,12 @@ import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
 import Video from 'react-native-video'
 import Orientation from 'react-native-orientation'
-import _ from 'lodash'
-
+import Permissions from 'react-native-permissions'
 import {
   ActivityIndicator,
   FlatList,
-  TouchableHighlight
+  TouchableHighlight,
+  Alert
 } from 'react-native'
 
 export class VideoBrowserView extends PureComponent {
@@ -92,7 +92,45 @@ export class VideoBrowserView extends PureComponent {
   }
 
   componentDidMount () {
-    RNPhotosFramework.onLibraryChange(() => this.refetch())
+    this.authorize()
+  }
+
+  authorize () {
+    Permissions
+      .request('photo')
+      .then((response) => {
+        if (response === 'authorized') {
+          this.init()
+        } else {
+          console.log('not authorized')
+          Permissions
+            .request('photo')
+            .then((response) => {
+              if (response === 'authorized') {
+                this.init()
+                console.log('authorized!')
+              } else {
+                console.log('requesting auth')
+                Alert.alert(
+                  'We need to see your videos!',
+                  'Please allow access in your settings',
+                  [
+                    { text: 'OK', onPress: this.authorize.bind(this) }
+                  ]
+                )
+              }
+            })
+        }
+      })
+  }
+
+  init () {
+    RNPhotosFramework.requestAuthorization().then((statusObj) => {
+      if (statusObj.isAuthorized) {
+        this.refetch()
+        RNPhotosFramework.onLibraryChange(() => this.refetch())
+      }
+    })
   }
 
   _renderFooter () {

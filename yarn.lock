@@ -3148,6 +3148,10 @@ react-native-orientation@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/react-native-orientation/-/react-native-orientation-2.0.0.tgz#d415910d3496c57e9fc57c899cb4c8beb8be4a49"
 
+react-native-permissions@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-1.0.0.tgz#96a79c8fe525d9d4813febdcbb3d35dc66268956"
+
 "react-native-photos-framework@git://github.com/olofd/react-native-photos-framework.git":
   version "1.0.5"
   resolved "git://github.com/olofd/react-native-photos-framework.git#c1b5d2e13f599f8dc062eba06f897129bc74cf86"
