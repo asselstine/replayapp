@@ -95,6 +95,13 @@ export class VideoBrowserView extends PureComponent {
     this.authorize()
   }
 
+  componentWillUnmount () {
+    if (this._libraryUnsubscribe) {
+      this._libraryUnsubscribe()
+      this._libraryUnsubscribe = null
+    }
+  }
+
   authorize () {
     Permissions
       .request('photo')
@@ -102,22 +109,14 @@ export class VideoBrowserView extends PureComponent {
         if (response === 'authorized') {
           this.init()
         } else {
-          console.log('not authorized')
+          // console.log('not authorized')
           Permissions
             .request('photo')
             .then((response) => {
               if (response === 'authorized') {
                 this.init()
-                console.log('authorized!')
               } else {
-                console.log('requesting auth')
-                Alert.alert(
-                  'We need to see your videos!',
-                  'Please allow access in your settings',
-                  [
-                    { text: 'OK', onPress: this.authorize.bind(this) }
-                  ]
-                )
+                this.alertUnauthorized()
               }
             })
         }
@@ -125,12 +124,18 @@ export class VideoBrowserView extends PureComponent {
   }
 
   init () {
-    RNPhotosFramework.requestAuthorization().then((statusObj) => {
-      if (statusObj.isAuthorized) {
-        this.refetch()
-        RNPhotosFramework.onLibraryChange(() => this.refetch())
-      }
-    })
+    this.refetch()
+    this._libraryUnsubscribe = RNPhotosFramework.onLibraryChange(() => this.refetch())
+  }
+
+  alertUnauthorized () {
+    Alert.alert(
+      'We need to see your videos!',
+      'Please allow access in your settings',
+      [
+        { text: 'OK', onPress: this.authorize.bind(this) }
+      ]
+    )
   }
 
   _renderFooter () {
