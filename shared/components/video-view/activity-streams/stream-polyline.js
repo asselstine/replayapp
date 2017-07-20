@@ -9,7 +9,7 @@ import { streamPoints } from '../../../svg'
 export class StreamPolyline extends PureComponent {
   render () {
     var points = ''
-    var sPoints = streamPoints(this.props.height, this.props.width, this.props.timeStream, this.props.dataStream, this.props.zoom)
+    var sPoints = streamPoints(this.props.height, this.props.width, this.props.timeStream, this.props.dataStream, this.props.transform)
     _.each(sPoints, (point) => {
       points += `${point[0]},${point[1]} `
     })
@@ -29,11 +29,11 @@ StreamPolyline.propTypes = {
   width: PropTypes.any.isRequired,
   height: PropTypes.any.isRequired,
   dataStream: PropTypes.array.isRequired,
-  timeStream: PropTypes.array.isRequired
+  timeStream: PropTypes.array.isRequired,
+  transform: PropTypes.array
 }
 
 StreamPolyline.defaultProps = {
-  zoom: 1,
   x: 0,
   y: 0
 }

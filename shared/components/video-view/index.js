@@ -159,12 +159,12 @@ export const VideoView = connect(
     var videoStartAt = moment(_.get(this.props, 'video.startAt'))
     var deltaMs = videoStartAt.diff(activityStartAt)
     var videoTime = streamTime - (deltaMs / 1000.0)
-    console.log('streamTimeToVideoTime:')
-    console.log(activityStartAt.format())
-    console.log(videoStartAt.format())
-    console.log(deltaMs)
-    console.log(streamTime)
-    console.log(videoTime)
+    // console.log('streamTimeToVideoTime:')
+    // console.log(activityStartAt.format())
+    // console.log(videoStartAt.format())
+    // console.log(deltaMs)
+    // console.log(streamTime)
+    // console.log(videoTime)
     return videoTime
   }
 
