@@ -85,25 +85,35 @@ export class ActivityStreams extends PureComponent {
   handleResponderGrant (e, gestureState) {
     console.log(`grant ${e.nativeEvent.identifier}`)
     this.storeOriginalTouches(e.nativeEvent.touches)
-    if (e.nativeEvent.touches.length === 1) {
-      this.moveCursor(e.nativeEvent.touches[0].locationX)
-    }
   }
 
   handleResponderMove (e, gestureState) {
-    // console.log(`move ${e.nativeEvent.identifier}`)
+    // console.log(`move ${e.nativeEvent.identifier} ${e.nativeEvent.touches.length}`)
+    var oldTouchKeys = _.keys(this.touches)
     this.clearOldTouches(e.nativeEvent.touches)
+    var touchKeys = _.keys(this.touches)
+    if (oldTouchKeys.length > touchKeys.length) {
+      this.applyTransform()
+    } else { // => oldTouchKeys <= touchKeys.length (recenter on change to 2)
+      this.scaleCenterX = this.centerX(e.nativeEvent)
+    }
     if (e.nativeEvent.touches.length === 2) {
       this.storeOriginalTouches(e.nativeEvent.touches)
       this.command = MatrixMath.createIdentityMatrix()
       this.setTransform(this.translateAndScale(this.command, e, gestureState))
       // this.onStreamTimeProgress(this.streamTime) // update cursor
-    } else {
+    } else if (touchKeys.length === 1) {
       this.moveCursor(e.nativeEvent.touches[0].locationX)
     }
   }
 
   handleResponderRelease (e, gestureState) {
+    this.applyTransform()
+    this.touches = {}
+    console.log(`release ${e.nativeEvent.touches.length}`)
+  }
+
+  applyTransform () {
     var identity = MatrixMath.createIdentityMatrix()
     this.setTransform(identity)
     var newTransform = this.state.transform.slice()
@@ -113,7 +123,6 @@ export class ActivityStreams extends PureComponent {
       transform: newTransform
     })
     this.touches = {}
-    console.log(`release ${e.nativeEvent.touches.length}`)
   }
 
   handleResponderTerminate (e, gestureState) {
@@ -125,13 +134,11 @@ export class ActivityStreams extends PureComponent {
 
     var scale = this.scale(e.nativeEvent)
     var dx = this.deltaX(e.nativeEvent)
-    var centerX = this.centerX(e.nativeEvent)
 
     translate = MatrixMath.createTranslate2d(dx, 0)
     MatrixMath.multiplyInto(command, translate, command)
-    // console.log(e.nativeEvent)
 
-    translate = MatrixMath.createTranslate2d(-centerX, 0)
+    translate = MatrixMath.createTranslate2d(-this.scaleCenterX, 0)
     MatrixMath.multiplyInto(command, translate, command)
 
     translate = MatrixMath.createIdentityMatrix()
@@ -139,34 +146,33 @@ export class ActivityStreams extends PureComponent {
     MatrixMath.multiplyInto(command, translate, command)
 
     translate = MatrixMath.createIdentityMatrix()
-    MatrixMath.reuseTranslate2dCommand(translate, centerX, 0)
+    MatrixMath.reuseTranslate2dCommand(translate, this.scaleCenterX, 0)
     MatrixMath.multiplyInto(command, translate, command)
 
     return command
   }
 
-  startCenterX (nativeEvent) {
-    var totalPageX = nativeEvent.touches.reduce((centerX, touch) => centerX + this.touches[touch.identifier].pageX, 0)
-    return totalPageX / nativeEvent.touches.length
-  }
-
-  centerX (nativeEvent) {
-    var totalPageX = nativeEvent.touches.reduce((centerX, touch) => centerX + touch.pageX, 0)
+  centerX (nativeEvent, identifierSet) {
+    var totalPageX = nativeEvent.touches.reduce((centerX, touch) => {
+      return centerX + touch.locationX
+    }, 0)
     return totalPageX / nativeEvent.touches.length
   }
 
   startSpreadX (nativeEvent) {
-    var pageXs = _.map(nativeEvent.touches, (touch) => this.touches[touch.identifier].pageX)
-    return Math.max(...pageXs) - Math.min(...pageXs)
+    var locationXs = _.map(nativeEvent.touches, (touch) => this.touches[touch.identifier].locationX)
+    return Math.max(...locationXs) - Math.min(...locationXs)
   }
 
   spreadX (nativeEvent) {
-    var pageXs = _.map(nativeEvent.touches, (touch) => touch.pageX)
-    return Math.max(...pageXs) - Math.min(...pageXs)
+    var locationXs = _.map(nativeEvent.touches, (touch) => touch.locationX)
+    return Math.max(...locationXs) - Math.min(...locationXs)
   }
 
   deltaX (nativeEvent) {
-    return this.centerX(nativeEvent) - this.startCenterX(nativeEvent)
+    return _.reduce(nativeEvent.touches, (totalDeltaX, touch) => {
+      return totalDeltaX + (touch.locationX - this.touches[touch.identifier].locationX)
+    }, 0) / nativeEvent.touches.length
   }
 
   scale (nativeEvent) {
