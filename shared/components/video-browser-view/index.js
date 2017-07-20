@@ -2,12 +2,13 @@ import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
 import Video from 'react-native-video'
 import Orientation from 'react-native-orientation'
-import _ from 'lodash'
+import { PhotosFramework } from '../../services/photos-framework'
 
 import {
   ActivityIndicator,
   FlatList,
-  TouchableHighlight
+  TouchableHighlight,
+  Alert
 } from 'react-native'
 
 export class VideoBrowserView extends PureComponent {
@@ -16,7 +17,8 @@ export class VideoBrowserView extends PureComponent {
     this.state = {
       assets: [],
       lastCursor: null,
-      noMore: false
+      noMore: false,
+      loaded: false
     }
     this._renderItem = this._renderItem.bind(this)
     this._onEndReached = this._onEndReached.bind(this)
@@ -67,7 +69,7 @@ export class VideoBrowserView extends PureComponent {
   }
 
   _onEndReached () {
-    if (!this.state.noMore) {
+    if (!this.state.noMore && this.state.loaded) {
       this.fetch()
     }
   }
@@ -91,8 +93,36 @@ export class VideoBrowserView extends PureComponent {
     Orientation.lockToPortrait()
   }
 
+  componentWillUnmount () {
+    if (this._subscription) {
+      this._subscription.remove()
+    }
+  }
+
   componentDidMount () {
-    RNPhotosFramework.onLibraryChange(() => this.refetch())
+    this.authorize()
+  }
+
+  authorize () {
+    RNPhotosFramework.requestAuthorization().then((response) => {
+      if (response.isAuthorized) {
+        PhotosFramework.init()
+        this._subscription = PhotosFramework.emitter().addListener('onLibraryChange', this.refetch.bind(this))
+        this.setState({ loaded: true }, this.fetch.bind(this))
+      } else {
+        this.requestAuthorization()
+      }
+    })
+  }
+
+  requestAuthorization () {
+    Alert.alert(
+      'We need to access your videos',
+      'Please update your settings!',
+      [
+        { text: 'OK', onPress: this.authorize.bind(this) }
+      ]
+    )
   }
 
   _renderFooter () {
