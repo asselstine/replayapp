@@ -22,7 +22,7 @@ export class ActivityStreams extends PureComponent {
     super(props)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
 
-    this.command = MatrixMath.createIdentityMatrix()
+    this.newTransform = MatrixMath.createIdentityMatrix()
     this.translate = MatrixMath.createIdentityMatrix()
     this.moveCursor = _.throttle(this.moveCursor.bind(this), 20)
     this.setTransform = _.throttle(this.setTransform.bind(this), 20)
@@ -38,7 +38,7 @@ export class ActivityStreams extends PureComponent {
       transform: MatrixMath.createIdentityMatrix()
     }
     this.state.lineXPos.addListener((x) => {
-      this._line.setNativeProps({ x1: x.value.toString(), x2: x.value.toString() })
+      this.setCursorLocationX(x.value)
     })
   }
 
@@ -99,9 +99,9 @@ export class ActivityStreams extends PureComponent {
     }
     if (e.nativeEvent.touches.length === 2) {
       this.storeOriginalTouches(e.nativeEvent.touches)
-      this.command = MatrixMath.createIdentityMatrix()
-      this.setTransform(this.translateAndScale(this.command, e, gestureState))
-      // this.onStreamTimeProgress(this.streamTime) // update cursor
+      this.newTransform = MatrixMath.createIdentityMatrix()
+      this.setTransform(this.translateAndScale(this.newTransform, e, gestureState))
+      this.setCursorLocationX(this.streamTimeToLocationX(this.streamTime)) // update cursor
     } else if (touchKeys.length === 1) {
       this.moveCursor(e.nativeEvent.touches[0].locationX)
     }
@@ -117,12 +117,19 @@ export class ActivityStreams extends PureComponent {
     var identity = MatrixMath.createIdentityMatrix()
     this.setTransform(identity)
     var newTransform = this.state.transform.slice()
-    MatrixMath.multiplyInto(newTransform, this.command, this.state.transform)
-    this.command = identity
+    MatrixMath.multiplyInto(newTransform, this.newTransform, this.state.transform)
+    this.newTransform = identity
     this.setState({
       transform: newTransform
     })
     this.touches = {}
+  }
+
+  combinedTransforms () {
+    var matrix = this.state.transform.slice()
+    // console.log(matrix, this.newTransform, this.state.transform)
+    MatrixMath.multiplyInto(matrix, this.newTransform, this.state.transform)
+    return matrix
   }
 
   handleResponderTerminate (e, gestureState) {
@@ -228,11 +235,17 @@ export class ActivityStreams extends PureComponent {
     this.lastAnimation.start()
   }
 
+  setCursorLocationX (locationX) {
+    if (this._line) {
+      this._line.setNativeProps({ x1: locationX.toString(), x2: locationX.toString() })
+    }
+  }
+
   streamTimeToLocationX (streamTime) {
     var fraction = streamTime / this.lastTime()
     var worldX = fraction * this.state.width
     var v = [worldX, 0, 0, 1]
-    var newV = MatrixMath.multiplyVectorByMatrix(v, this.state.transform)
+    var newV = MatrixMath.multiplyVectorByMatrix(v, this.combinedTransforms())
     return newV[0]
   }
 
