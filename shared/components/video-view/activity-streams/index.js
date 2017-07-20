@@ -85,19 +85,19 @@ export class ActivityStreams extends PureComponent {
   handleResponderGrant (e, gestureState) {
     console.log(`grant ${e.nativeEvent.identifier}`)
     this.storeOriginalTouches(e.nativeEvent.touches)
-    if (e.nativeEvent.touches.length === 2) {
-      this.scaleCenterX = this.centerX(e.nativeEvent)
-    }
   }
 
   handleResponderMove (e, gestureState) {
-    // console.log(`move ${e.nativeEvent.identifier}`)
+    // console.log(`move ${e.nativeEvent.identifier} ${e.nativeEvent.touches.length}`)
+    var oldTouchKeys = _.keys(this.touches)
     this.clearOldTouches(e.nativeEvent.touches)
     var touchKeys = _.keys(this.touches)
+    if (oldTouchKeys.length > touchKeys.length) {
+      this.applyTransform()
+    } else { // => oldTouchKeys <= touchKeys.length (recenter on change to 2)
+      this.scaleCenterX = this.centerX(e.nativeEvent)
+    }
     if (e.nativeEvent.touches.length === 2) {
-      if (touchKeys.length === 1) {
-        this.scaleCenterX = this.centerX(e.nativeEvent)
-      }
       this.storeOriginalTouches(e.nativeEvent.touches)
       this.command = MatrixMath.createIdentityMatrix()
       this.setTransform(this.translateAndScale(this.command, e, gestureState))
@@ -108,6 +108,12 @@ export class ActivityStreams extends PureComponent {
   }
 
   handleResponderRelease (e, gestureState) {
+    this.applyTransform()
+    this.touches = {}
+    console.log(`release ${e.nativeEvent.touches.length}`)
+  }
+
+  applyTransform () {
     var identity = MatrixMath.createIdentityMatrix()
     this.setTransform(identity)
     var newTransform = this.state.transform.slice()
@@ -117,7 +123,6 @@ export class ActivityStreams extends PureComponent {
       transform: newTransform
     })
     this.touches = {}
-    console.log(`release ${e.nativeEvent.touches.length}`)
   }
 
   handleResponderTerminate (e, gestureState) {

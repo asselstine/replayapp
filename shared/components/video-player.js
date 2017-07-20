@@ -30,8 +30,7 @@ export class VideoPlayer extends Component {
 
   onPressVideo (e) {
     if (this.state.paused) {
-      this.player.seek(0)
-      this._onPlay({currentTime: 0})
+      this._onPlay({currentTime: this.getCurrentTime()})
     }
     this.setState({ paused: !this.state.paused })
   }
