@@ -24,8 +24,8 @@ export class ActivityStreams extends PureComponent {
 
     this.command = MatrixMath.createIdentityMatrix()
     this.translate = MatrixMath.createIdentityMatrix()
-    this.moveCursor = _.throttle(this.moveCursor.bind(this), 50)
-    this.setTransform = _.throttle(this.setTransform.bind(this), 50)
+    this.moveCursor = _.throttle(this.moveCursor.bind(this), 20)
+    this.setTransform = _.throttle(this.setTransform.bind(this), 20)
 
     this._onLayout = this._onLayout.bind(this)
     this.touches = {}
@@ -104,9 +104,11 @@ export class ActivityStreams extends PureComponent {
   }
 
   handleResponderRelease (e, gestureState) {
-    this.setTransform(MatrixMath.createIdentityMatrix())
+    var identity = MatrixMath.createIdentityMatrix()
+    this.setTransform(identity)
     var newTransform = this.state.transform.slice()
     MatrixMath.multiplyInto(newTransform, this.command, this.state.transform)
+    this.command = identity
     this.setState({
       transform: newTransform
     })
@@ -230,7 +232,7 @@ export class ActivityStreams extends PureComponent {
 
   locationXToStreamTime (locationX) {
     var v = [locationX, 0, 0, 1]
-    var newV = MatrixMath.multiplyVectorByMatrix(v, MatrixMath.inverse(this.command))
+    var newV = MatrixMath.multiplyVectorByMatrix(v, MatrixMath.inverse(this.state.transform))
     var fraction = Math.max(0, Math.min(1, newV[0] / this.state.width))
     var streamTime = fraction * this.lastTime()
     return streamTime
