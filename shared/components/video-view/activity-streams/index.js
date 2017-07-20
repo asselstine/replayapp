@@ -38,7 +38,9 @@ export class ActivityStreams extends PureComponent {
       transform: MatrixMath.createIdentityMatrix()
     }
     this.state.lineXPos.addListener((x) => {
-      this._line.setNativeProps({ x1: x.value.toString(), x2: x.value.toString() })
+      if (this._line) {
+        this._line.setNativeProps({ x1: x.value.toString(), x2: x.value.toString() })
+      }
     })
   }
 
