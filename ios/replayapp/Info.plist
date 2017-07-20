@@ -3,9 +3,17 @@
 <plist version="1.0">
   <dict>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>$(PRODUCT_NAME) would like to see your videos</string>
+    <string>Using photo library to select pictures</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
-    <string/>
+    <string>Permission description</string>
+    <key>NSCalendarsUsageDescription</key>
+    <string>Permission description</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Permission description</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Permission description</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Permission description</string>
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
@@ -49,8 +57,6 @@
         <string/>
       </dict>
     </dict>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string/>
     <key>UILaunchStoryboardName</key>
     <string>LaunchScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
