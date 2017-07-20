@@ -22,7 +22,6 @@ export class ActivityStreams extends PureComponent {
     super(props)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
 
-    this.transform = MatrixMath.createIdentityMatrix()
     this.command = MatrixMath.createIdentityMatrix()
     this.translate = MatrixMath.createIdentityMatrix()
     this.moveCursor = _.throttle(this.moveCursor.bind(this), 50)
@@ -35,7 +34,8 @@ export class ActivityStreams extends PureComponent {
       height: 1,
       lineXPos: new Animated.Value(0),
       scaleX: new Animated.Value(1),
-      translateX: new Animated.Value(0)
+      translateX: new Animated.Value(0),
+      transform: MatrixMath.createIdentityMatrix()
     }
     this.state.lineXPos.addListener((x) => {
       this._line.setNativeProps({ x1: x.value.toString(), x2: x.value.toString() })
@@ -104,7 +104,12 @@ export class ActivityStreams extends PureComponent {
   }
 
   handleResponderRelease (e, gestureState) {
-    this.transform = this.command
+    this.setTransform(MatrixMath.createIdentityMatrix())
+    var newTransform = this.state.transform.slice()
+    MatrixMath.multiplyInto(newTransform, this.command, this.state.transform)
+    this.setState({
+      transform: newTransform
+    })
     this.touches = {}
     console.log(`release ${e.nativeEvent.touches.length}`)
   }
@@ -121,7 +126,7 @@ export class ActivityStreams extends PureComponent {
     var centerX = this.centerX(e.nativeEvent)
 
     translate = MatrixMath.createTranslate2d(dx, 0)
-    MatrixMath.multiplyInto(command, translate, this.transform)
+    MatrixMath.multiplyInto(command, translate, command)
     // console.log(e.nativeEvent)
 
     translate = MatrixMath.createTranslate2d(-centerX, 0)
@@ -219,7 +224,7 @@ export class ActivityStreams extends PureComponent {
     var fraction = streamTime / this.lastTime()
     var worldX = fraction * this.state.width
     var v = [worldX, 0, 0, 1]
-    var newV = MatrixMath.multiplyVectorByMatrix(v, this.transform)
+    var newV = MatrixMath.multiplyVectorByMatrix(v, this.state.transform)
     return newV[0]
   }
 
@@ -246,7 +251,8 @@ export class ActivityStreams extends PureComponent {
           y={y}
           height={100}
           timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.velocity_smooth.data} />
+          dataStream={this.props.streams.velocity_smooth.data}
+          transform={this.state.transform} />
       y += 100
     }
 
@@ -257,7 +263,8 @@ export class ActivityStreams extends PureComponent {
           y={y}
           height={100}
           timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.altitude.data} />
+          dataStream={this.props.streams.altitude.data}
+          transform={this.state.transform} />
     }
 
     var currentTimeLine =
