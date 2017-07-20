@@ -1,5 +1,5 @@
 import React, {
-  PureComponent
+  Component
 } from 'react'
 import {
   StyleSheet,
@@ -11,7 +11,7 @@ import PropTypes from 'prop-types'
 import { linear, linearIndex } from '../../streams'
 import { closestPoint } from '../../closest-point'
 
-export class ActivityMap extends PureComponent {
+export class ActivityMap extends Component {
   constructor (props) {
     super(props)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
@@ -39,6 +39,9 @@ export class ActivityMap extends PureComponent {
       this.polyLine = null
       this.positionCircleCoordinates = null
       this.marker = null
+    }
+    if (_.get(this.props, 'streams') !== _.get(nextProps, 'streams')) {
+      this._latLngs = null
     }
     if (this.props.streamTime !== nextProps.streamTime) {
       this.setCoordinates(nextProps.streamTime)
@@ -102,15 +105,17 @@ export class ActivityMap extends PureComponent {
   onPressMapView (event) {
     var closest = closestPoint(event.nativeEvent.coordinate, this.latLngs())
     var streamTime = linearIndex(closest.startIndex + closest.fraction, _.get(this.props, 'streams.time.data', []))
-    // console.log('streamTime: ', streamTime)
     if (this.props.onStreamTimeChange) {
-      // console.log('calling ')
       this.props.onStreamTimeChange(streamTime)
     }
   }
 
   recenter () {
     this.mapRef.fitToElements(false)
+  }
+
+  onLayout () {
+    this.recenter()
   }
 
   render () {
@@ -126,26 +131,31 @@ export class ActivityMap extends PureComponent {
             ref={(ref) => { this.polylineRef = ref }}
             coordinates={latLngs} />
       }
+
+      if (this.positionCircleCoordinates && !this.marker) {
+        this.marker =
+          <MapView.Marker.Animated
+            coordinate={this.positionCircleCoordinates} />
+      }
     }
 
-    if (this.positionCircleCoordinates && !this.marker) {
-      this.marker =
-        <MapView.Marker.Animated
-          coordinate={this.positionCircleCoordinates} />
-    }
-
-    return (
-      <View style={this.props.style}>
+    if (this.polyLine && this.marker) {
+      var mapView =
         <MapView
           onPress={(event) => { this.onPressMapView(event) }}
           pitchEnabled={false}
           ref={(ref) => { this.mapRef = ref }}
-          onLayout={() => { this.mapRef.fitToElements(false) }}
+          onLayout={this.onLayout.bind(this)}
           style={styles.map}
         >
           {this.polyLine}
           {this.marker}
         </MapView>
+    }
+
+    return (
+      <View style={this.props.style}>
+        {mapView}
       </View>
     )
   }

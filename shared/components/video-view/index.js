@@ -80,7 +80,6 @@ export const VideoView = connect(
   }
 
   onPlay (event) {
-    // console.log('play')
     if (this._activityMap) {
       this._activityMap.recenter()
     }
@@ -116,6 +115,7 @@ export const VideoView = connect(
     if (_.get(this.props, 'video.activity')) {
       StreamsService.retrieveStreams(this.props.video.activity.id)
     }
+    this.checkStreams(this.props)
   }
 
   componentWillUnmount () {
@@ -124,8 +124,12 @@ export const VideoView = connect(
 
   componentWillReceiveProps (nextProps) {
     this.checkSyncModal(nextProps)
-    if (_.get(this.props, 'video.activity.id') !== _.get(nextProps, 'video.activity.id') && !this.props.streams) {
-      StreamsService.retrieveStreams(_.get(nextProps, 'video.activity.id'))
+    this.checkStreams(nextProps)
+  }
+
+  checkStreams (props) {
+    if (_.get(props, 'video.activity.id') && !props.streams) {
+      StreamsService.retrieveStreams(_.get(props, 'video.activity.id'))
     }
   }
 
@@ -136,7 +140,6 @@ export const VideoView = connect(
   }
 
   onStreamTimeChange (streamTime) {
-    // console.log('onStreamTimeChange: ', streamTime)
     if (this.state.locked) {
       this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
     } else {
@@ -159,12 +162,6 @@ export const VideoView = connect(
     var videoStartAt = moment(_.get(this.props, 'video.startAt'))
     var deltaMs = videoStartAt.diff(activityStartAt)
     var videoTime = streamTime - (deltaMs / 1000.0)
-    // console.log('streamTimeToVideoTime:')
-    // console.log(activityStartAt.format())
-    // console.log(videoStartAt.format())
-    // console.log(deltaMs)
-    // console.log(streamTime)
-    // console.log(videoTime)
     return videoTime
   }
 
