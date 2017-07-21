@@ -17,9 +17,9 @@ import { attachActivity, setVideoStartAt } from '../../actions/video-actions'
 import { login } from '../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
-import Orientation from 'react-native-orientation'
 import { ActivityMap } from './activity-map'
 import { StreamsService } from '../../services/streams-service'
+import { Rotator } from './rotator'
 
 export const VideoView = connect(
   (state, ownProps) => {
@@ -41,7 +41,9 @@ export const VideoView = connect(
       syncModalIsOpen: false,
       locked: true,
       landscape: false,
-      videoRotate: new Animated.Value(0)
+      videoRotate: new Animated.Value(0),
+      videoPlayerWidth: 1,
+      videoPlayerHeight: 1
     }
     this.onProgress = this.onProgress.bind(this)
     this.onPlay = this.onPlay.bind(this)
@@ -51,15 +53,7 @@ export const VideoView = connect(
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
     this._onCloseSyncModal = this._onCloseSyncModal.bind(this)
     this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
-    this._onOrientationChange = this._onOrientationChange.bind(this)
     this.eventEmitter = new EventEmitter()
-    Orientation.getOrientation((err, orientation) => {
-      if (err) {
-        console.error(err)
-      } else {
-        this._onOrientationChange(orientation)
-      }
-    })
   }
 
   onPressStravaConnect () {
@@ -104,22 +98,12 @@ export const VideoView = connect(
     this._onCloseSyncModal()
   }
 
-  _onOrientationChange (orientation) {
-    console.log(orientation)
-    this.setState({ landscape: orientation === 'LANDSCAPE' })
-  }
-
   componentDidMount () {
     this.checkSyncModal(this.props)
-    Orientation.addOrientationListener(this._onOrientationChange)
     if (_.get(this.props, 'video.activity')) {
       StreamsService.retrieveStreams(this.props.video.activity.id)
     }
     this.checkStreams(this.props)
-  }
-
-  componentWillUnmount () {
-    Orientation.removeOrientationListener(this._onOrientationChange)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -180,12 +164,14 @@ export const VideoView = connect(
 
     if (this.props.video) {
       var videoPlayer =
-        <VideoPlayer
-          ref={(ref) => { this._videoPlayer = ref }}
-          onProgress={this.onProgress}
-          onPlay={this.onPlay}
-          video={this.props.video.rawVideoData._videoRef}
-          styles={styles.videoPlayer} />
+        <Rotator>
+          <VideoPlayer
+            ref={(ref) => { this._videoPlayer = ref }}
+            onProgress={this.onProgress}
+            onPlay={this.onPlay}
+            video={this.props.video.rawVideoData._videoRef}
+            style={styles.videoPlayer} />
+        </Rotator>
     }
 
     if (activity) {
@@ -259,14 +245,11 @@ const styles = {
     flex: 1
   },
 
-  videoPlayer: {
-    flex: 1
-  },
-
   titleHeader: {
     flex: 0,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    zIndex: 1000
   },
 
   titleHeaderButton: {
@@ -282,7 +265,8 @@ const styles = {
   },
 
   streamsContainer: {
-    flex: 1
+    flex: 1,
+    zIndex: 1000
   }
 }
 
