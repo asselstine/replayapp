@@ -6,6 +6,7 @@ import _ from 'lodash'
 import {
   View,
   Dimensions,
+  Animated,
   StatusBar
 } from 'react-native'
 
@@ -14,7 +15,8 @@ export class Rotator extends Component {
     super(props)
     this._onOrientationChange = this._onOrientationChange.bind(this)
     this.state = {
-      landscape: false
+      landscape: false,
+      progress: new Animated.Value(0)
     }
     Orientation.getOrientation((err, orientation) => {
       if (err) {
@@ -35,7 +37,21 @@ export class Rotator extends Component {
 
   _onOrientationChange (orientation) {
     console.log(orientation)
-    this.setState({ landscape: orientation === 'LANDSCAPE' })
+    var landscape = orientation === 'LANDSCAPE'
+    this.setState({ landscape: landscape }, () => {
+      if (landscape) {
+        var toValue = 1
+      } else {
+        toValue = 0
+      }
+      Animated.timing(
+        this.state.progress,
+        {
+          toValue: toValue,
+          duration: 200
+        }
+      ).start()
+    })
   }
 
   onLayout (event) {
@@ -46,23 +62,58 @@ export class Rotator extends Component {
   }
 
   render () {
-    const { height, width } =  Dimensions.get('window')
+    const window = Dimensions.get('window')
     if (this.state.landscape) {
       var style = {
         position: 'absolute',
+        backgroundColor: 'white',
         zIndex: 9999,
         overflow: 'hidden',
-        width: height,
-        height: width,
+        width: this.state.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [this.state.width, window.height]
+        }),
+        height: this.state.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [this.state.height, window.width]
+        }),
         transform: [
-          { translateX: width },
-          { translateX: height * -0.5 },
-          { translateY: width * -0.5 },
           {
-            rotate: '90deg'
+            translateX: this.state.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, window.width]
+            })
           },
-          { translateX: height * 0.5 },
-          { translateY: width * 0.5 }
+          {
+            translateX: this.state.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, window.height * -0.5]
+            })
+          },
+          {
+            translateY: this.state.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, window.width * -0.5]
+            })
+          },
+          {
+            rotate: this.state.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0deg', '90deg']
+            })
+          },
+          {
+            translateX: this.state.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, window.height * 0.5]
+            })
+          },
+          {
+            translateY: this.state.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, window.width * 0.5]
+            })
+          }
         ]
       }
       var placeholder =
@@ -78,9 +129,9 @@ export class Rotator extends Component {
         onLayout={this.onLayout.bind(this)}
         style={{zIndex: 9999}}>
         {placeholder}
-        <View style={style}>
+        <Animated.View style={style}>
           {this.props.children}
-        </View>
+        </Animated.View>
       </View>
     )
   }
