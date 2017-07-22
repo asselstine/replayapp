@@ -6,35 +6,36 @@ import {
 } from 'react-native'
 import Svg, {
   Line,
+  ClipPath,
+  Rect,
   G
 } from 'react-native-svg'
 import _ from 'lodash'
-import { StreamPolyline } from './stream-polyline'
+import { StreamPath } from './stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 
+const STRAVA_BRAND_COLOUR = '#fc4c02'
+const STRAVA_BRAND_COLOUR_LIGHT = '#ffa078'
+const IDENTITY = MatrixMath.createIdentityMatrix()
+
 const CustomAnimated = {
-  Line: Animated.createAnimatedComponent(Line),
-  G: Animated.createAnimatedComponent(G)
+  Line: Animated.createAnimatedComponent(Line)
 }
 
 export class ActivityStreams extends PureComponent {
   constructor (props) {
     super(props)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
-
+    this.streamTime = 0
     this.newTransform = MatrixMath.createIdentityMatrix()
-    this.translate = MatrixMath.createIdentityMatrix()
     this.moveCursor = _.throttle(this.moveCursor.bind(this), 20)
     this.setTransform = _.throttle(this.setTransform.bind(this), 20)
-
     this._onLayout = this._onLayout.bind(this)
     this.touches = {}
     this.state = {
       width: 1,
       height: 1,
       lineXPos: new Animated.Value(0),
-      scaleX: new Animated.Value(1),
-      translateX: new Animated.Value(0),
       transform: MatrixMath.createIdentityMatrix()
     }
     this.state.lineXPos.addListener((x) => {
@@ -45,50 +46,47 @@ export class ActivityStreams extends PureComponent {
   componentWillMount () {
     this._subscription = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
     this.responders = {
-      onStartShouldSetResponder: () => { console.log('start'); return true },
-      onMoveShouldSetResponder: () => { console.log('move'); return true },
+      onStartShouldSetResponder: () => { return true },
+      onMoveShouldSetResponder: () => { return true },
       onResponderGrant: this.handleResponderGrant.bind(this),
       onResponderMove: this.handleResponderMove.bind(this),
       onResponderRelease: this.handleResponderRelease.bind(this),
       onResponderTerminate: this.handleResponderTerminate.bind(this),
-      onResponderTerminationRequest: () => { console.log('terminate request'); return false }
+      onResponderTerminationRequest: () => { return false }
     }
+  }
+
+  componentDidMount () {
+    this.updateCursorLocation()
   }
 
   storeOriginalTouches (touches) {
     touches.forEach((touch) => {
       if (!this.touches[touch.identifier]) {
         this.touches[touch.identifier] = touch
-        // console.log(`set ${touch.identifier}`)
       }
       if (!touch.touches) { return }
       touch.touches.forEach((secondaryTouch) => {
         if (secondaryTouch.identifier !== touch.identifier &&
             !this.touches[secondaryTouch.identifier]) {
-          this.touches[secondaryTouch.identifier] = secondaryTouch
-          // console.log(`set ${secondaryTouch.identifier}`)
-        }
+          this.touches[secondaryTouch.identifier] = secondaryTouch        }
       })
     })
   }
 
   clearOldTouches (touches) {
     _.keys(this.touches).forEach((key) => {
-      // console.log(`checking ${key} against ${_.map(touches, 'identifier')}`)
       if (_.findIndex(touches, {'identifier': +key}) === -1) {
         delete this.touches[key]
-        // console.log(`cleared ${key}`)
       }
     })
   }
 
   handleResponderGrant (e, gestureState) {
-    console.log(`grant ${e.nativeEvent.identifier}`)
     this.storeOriginalTouches(e.nativeEvent.touches)
   }
 
   handleResponderMove (e, gestureState) {
-    // console.log(`move ${e.nativeEvent.identifier} ${e.nativeEvent.touches.length}`)
     var oldTouchKeys = _.keys(this.touches)
     this.clearOldTouches(e.nativeEvent.touches)
     var touchKeys = _.keys(this.touches)
@@ -101,16 +99,21 @@ export class ActivityStreams extends PureComponent {
       this.storeOriginalTouches(e.nativeEvent.touches)
       this.newTransform = MatrixMath.createIdentityMatrix()
       this.setTransform(this.translateAndScale(this.newTransform, e, gestureState))
-      this.setCursorLocationX(this.streamTimeToLocationX(this.streamTime)) // update cursor
+      // NOTE: should only update if it's not playing
+      this.updateCursorLocation()
     } else if (touchKeys.length === 1) {
-      this.moveCursor(e.nativeEvent.touches[0].locationX)
+      var locationX = e.nativeEvent.touches[0].locationX
+      var start = this.streamTimeToLocationX(this.props.videoStreamStartTime)
+      var end = this.streamTimeToLocationX(this.props.videoStreamEndTime)
+      if (locationX >= start && locationX <= end) {
+        this.moveCursor(locationX)
+      }
     }
   }
 
   handleResponderRelease (e, gestureState) {
     this.applyTransform()
     this.touches = {}
-    console.log(`release ${e.nativeEvent.touches.length}`)
   }
 
   applyTransform () {
@@ -125,15 +128,39 @@ export class ActivityStreams extends PureComponent {
     this.touches = {}
   }
 
+  moveCursor (locationX) {
+    if (this.props.onStreamTimeChange) {
+      var streamTime = this.locationXToStreamTime(locationX)
+      this.props.onStreamTimeChange(streamTime)
+    }
+  }
+
+  onStreamTimeProgress (streamTime) {
+    this.streamTime = streamTime
+    var locationX = this.streamTimeToLocationX(streamTime)
+    this.setCursorLocationX(this._line, locationX)
+    this.moveClippingRectToLocationX(streamTime)
+  }
+
+  moveClippingRectToLocationX (streamTime) {
+    if (!this._timeClippingRect) { return }
+    var originalEnd = this.streamTimeToOriginalX(streamTime)
+    var transform = this.state.transform
+    var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], transform)[0]
+    var clipEnd = MatrixMath.multiplyVectorByMatrix([originalEnd, 0, 0, 1], transform)[0]
+    this._timeClippingRect.setNativeProps({
+      x: clipOrigin.toString(),
+      width: (clipEnd - clipOrigin).toString()
+    })
+  }
+
   combinedTransforms () {
     var matrix = this.state.transform.slice()
-    // console.log(matrix, this.newTransform, this.state.transform)
-    MatrixMath.multiplyInto(matrix, this.newTransform, this.state.transform)
+    MatrixMath.multiplyInto(matrix, this.newTransform || IDENTITY, this.state.transform)
     return matrix
   }
 
   handleResponderTerminate (e, gestureState) {
-    console.log(`terminate ${e.nativeEvent.identifier}`)
   }
 
   translateAndScale (command, e, gestureState) {
@@ -185,13 +212,11 @@ export class ActivityStreams extends PureComponent {
   scale (nativeEvent) {
     var spreadX = this.spreadX(nativeEvent)
     var startSpreadX = this.startSpreadX(nativeEvent)
-
     if (startSpreadX === 0) {
       var _scale = 1
     } else {
       _scale = spreadX / (this.startSpreadX(nativeEvent) * 1.0)
     }
-
     return _scale
   }
 
@@ -216,36 +241,39 @@ export class ActivityStreams extends PureComponent {
     })
   }
 
-  moveCursor (locationX) {
-    if (this.props.onStreamTimeChange) {
-      this.props.onStreamTimeChange(this.locationXToStreamTime(locationX))
-    }
-  }
-
-  onStreamTimeProgress (streamTime) {
-    this.streamTime = streamTime
+  animateCursorToLocationX (locationX) {
     if (this.lastAnimation) { this.lastAnimation.stop() }
     this.lastAnimation = Animated.timing(
       this.state.lineXPos,
       {
-        toValue: this.streamTimeToLocationX(streamTime),
+        toValue: locationX,
         duration: 20
       }
     )
     this.lastAnimation.start()
   }
 
-  setCursorLocationX (locationX) {
-    if (this._line) {
-      this._line.setNativeProps({ x1: locationX.toString(), x2: locationX.toString() })
+  updateCursorLocation () {
+    this.setCursorLocationX(this._line, this.streamTimeToLocationX(this.streamTime))
+    this.setCursorLocationX(this._videoStartTime, this.streamTimeToLocationX(this.props.videoStreamStartTime))
+    this.setCursorLocationX(this._videoEndTime, this.streamTimeToLocationX(this.props.videoStreamEndTime))
+  }
+
+  setCursorLocationX (cursor, locationX) {
+    if (cursor) {
+      cursor.setNativeProps({ x1: locationX.toString(), x2: locationX.toString() })
     }
   }
 
-  streamTimeToLocationX (streamTime) {
+  streamTimeToOriginalX (streamTime) {
     var fraction = streamTime / this.lastTime()
-    var worldX = fraction * this.state.width
-    var v = [worldX, 0, 0, 1]
-    var newV = MatrixMath.multiplyVectorByMatrix(v, this.combinedTransforms())
+    return fraction * this.state.width
+  }
+
+  streamTimeToLocationX (streamTime, transform) {
+    var originalX = this.streamTimeToOriginalX(streamTime)
+    var v = [originalX, 0, 0, 1]
+    var newV = MatrixMath.multiplyVectorByMatrix(v, transform || this.combinedTransforms())
     return newV[0]
   }
 
@@ -266,38 +294,84 @@ export class ActivityStreams extends PureComponent {
     var y = 0
 
     if (_.get(this.props, 'streams.velocity_smooth')) {
-      var velocityStreamPolyline =
-        <StreamPolyline
+      var velocityStreamPath =
+        <StreamPath
           width={this.state.width}
           y={y}
           height={100}
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.velocity_smooth.data}
-          transform={this.state.transform} />
+          transform={this.state.transform}
+          fill={STRAVA_BRAND_COLOUR_LIGHT} />
+      var velocityStreamCurrentTimePath =
+        <StreamPath
+          width={this.state.width}
+          y={y}
+          height={100}
+          timeStream={this.props.streams.time.data}
+          dataStream={this.props.streams.velocity_smooth.data}
+          transform={this.state.transform}
+          fill={STRAVA_BRAND_COLOUR} />
       y += 100
     }
 
     if (_.get(this.props, 'streams.altitude')) {
-      var altitudeStreamPolyline =
-        <StreamPolyline
+      var altitudeStreamPath =
+        <StreamPath
           width={this.state.width}
           y={y}
           height={100}
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.altitude.data}
-          transform={this.state.transform} />
+          transform={this.state.transform}
+          fill={STRAVA_BRAND_COLOUR_LIGHT} />
+      var altitudeStreamCurrentTimePath =
+        <StreamPath
+          width={this.state.width}
+          y={y}
+          height={100}
+          timeStream={this.props.streams.time.data}
+          dataStream={this.props.streams.altitude.data}
+          transform={this.state.transform}
+          fill={STRAVA_BRAND_COLOUR} />
     }
 
     var currentTimeLine =
       <CustomAnimated.Line
         ref={(ref) => { this._line = ref }}
-        x1={0}
+        x1={this.streamTimeToLocationX(this.streamTime)}
         y1={0}
-        x2={0}
+        x2={this.streamTimeToLocationX(this.streamTime)}
         y2={this.state.height}
-        stroke='red'
-        strokeWidth='4' />
+        stroke={STRAVA_BRAND_COLOUR}
+        strokeDasharray={[5, 5]}
+        strokeWidth='1' />
 
+    var videoStartTime =
+      <CustomAnimated.Line
+        ref={(ref) => { this._videoStartTime = ref }}
+        x1={this.streamTimeToLocationX(this.props.videoStreamStartTime)}
+        y1={0}
+        x2={this.streamTimeToLocationX(this.props.videoStreamStartTime)}
+        y2={this.state.height}
+        stroke={'black'}
+        strokeDasharray={[5, 5]}
+        strokeWidth='1' />
+
+    var videoEndTime =
+      <CustomAnimated.Line
+        ref={(ref) => { this._videoEndTime = ref }}
+        x1={this.streamTimeToLocationX(this.props.videoStreamEndTime)}
+        y1={0}
+        x2={this.streamTimeToLocationX(this.props.videoStreamEndTime)}
+        y2={this.state.height}
+        stroke={'black'}
+        strokeDasharray={[5, 5]}
+        strokeWidth='1' />
+
+    var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], this.state.transform)
+    var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipOrigin[0]
+    console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
     return (
       <View
         {...this.responders}
@@ -308,17 +382,30 @@ export class ActivityStreams extends PureComponent {
           <Svg
             height='200'
             width='100%'>
-            <CustomAnimated.G
-              x={this.state.translateX}>
-              {velocityStreamPolyline}
-              {altitudeStreamPolyline}
-            </CustomAnimated.G>
+            <ClipPath id='timeClip'>
+              <Rect
+                ref={(ref) => { this._timeClippingRect = ref }}
+                x={clipOrigin.toString()}
+                y={0}
+                width={clipWidth}
+                height='200' />
+            </ClipPath>
+            <G>
+              {velocityStreamPath}
+              {altitudeStreamPath}
+            </G>
+            <G clipPath='url(#timeClip)'>
+              {velocityStreamCurrentTimePath}
+              {altitudeStreamCurrentTimePath}
+            </G>
           </Svg>
         </View>
         <Svg
           style={{position: 'absolute', left: 0, top: 0, bottom: 0, right: 0}}
           height='200'
           width='100%'>
+          {videoStartTime}
+          {videoEndTime}
           {currentTimeLine}
         </Svg>
       </View>
@@ -329,12 +416,11 @@ export class ActivityStreams extends PureComponent {
 ActivityStreams.propTypes = {
   eventEmitter: PropTypes.object.isRequired,
   style: PropTypes.object,
-  streamTime: PropTypes.number,
   onStreamTimeChange: PropTypes.func,
   streams: PropTypes.object,
   activity: PropTypes.object.isRequired,
-  videoDuration: PropTypes.number.isRequired,
-  videoStartAt: PropTypes.any.isRequired
+  videoStreamStartTime: PropTypes.any,
+  videoStreamEndTime: PropTypes.any
 }
 
 ActivityStreams.defaultProps = {
