@@ -2,39 +2,48 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
-  Polyline
+  Path
 } from 'react-native-svg'
 import { streamPoints, transformPoints } from '../../../svg'
 
-export class StreamPolyline extends PureComponent {
+export class StreamPath extends PureComponent {
   render () {
     var points = ''
     var sPoints = streamPoints(this.props.height, this.props.width, this.props.timeStream, this.props.dataStream)
+    sPoints.unshift([0, this.props.height])
+    sPoints.push([this.props.width, this.props.height])
     sPoints = transformPoints(sPoints, this.props.transform)
-    _.each(sPoints, (point) => {
-      points += `${point[0]},${point[1]} `
+    _.each(sPoints, (point, index) => {
+      if (index === 0) {
+        points += `M${point[0]} ${point[1]} `
+      } else {
+        points += `L${point[0]} ${point[1]} `
+      }
     })
+    points += 'Z'
     return (
-      <Polyline
+      <Path
         x={this.props.x}
         y={this.props.y}
-        points={points}
-        fill='none'
-        stroke='black'
-        strokeWidth='1' />
+        d={points}
+        fill={this.props.fill}
+        clipPath={this.props.clipPath} />
     )
   }
 }
 
-StreamPolyline.propTypes = {
+StreamPath.propTypes = {
   width: PropTypes.any.isRequired,
   height: PropTypes.any.isRequired,
   dataStream: PropTypes.array.isRequired,
   timeStream: PropTypes.array.isRequired,
-  transform: PropTypes.array
+  transform: PropTypes.array,
+  fill: PropTypes.any,
+  clipPath: PropTypes.any
 }
 
-StreamPolyline.defaultProps = {
+StreamPath.defaultProps = {
   x: 0,
-  y: 0
+  y: 0,
+  fill: 'red'
 }
