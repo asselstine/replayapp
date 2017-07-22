@@ -28,7 +28,6 @@ export class ActivityStreams extends PureComponent {
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
     this.streamTime = 0
     this.newTransform = MatrixMath.createIdentityMatrix()
-    this.translate = MatrixMath.createIdentityMatrix()
     this.moveCursor = _.throttle(this.moveCursor.bind(this), 20)
     this.setTransform = _.throttle(this.setTransform.bind(this), 20)
     this._onLayout = this._onLayout.bind(this)
@@ -57,60 +56,58 @@ export class ActivityStreams extends PureComponent {
     }
   }
 
+  componentDidMount () {
+    this.updateCursorLocation()
+  }
+
   storeOriginalTouches (touches) {
     touches.forEach((touch) => {
       if (!this.touches[touch.identifier]) {
         this.touches[touch.identifier] = touch
-        // console.log(`set ${touch.identifier}`)
       }
       if (!touch.touches) { return }
       touch.touches.forEach((secondaryTouch) => {
         if (secondaryTouch.identifier !== touch.identifier &&
             !this.touches[secondaryTouch.identifier]) {
-          this.touches[secondaryTouch.identifier] = secondaryTouch
-          // console.log(`set ${secondaryTouch.identifier}`)
-        }
+          this.touches[secondaryTouch.identifier] = secondaryTouch        }
       })
     })
   }
 
   clearOldTouches (touches) {
     _.keys(this.touches).forEach((key) => {
-      // console.log(`checking ${key} against ${_.map(touches, 'identifier')}`)
       if (_.findIndex(touches, {'identifier': +key}) === -1) {
         delete this.touches[key]
-        // console.log(`cleared ${key}`)
       }
     })
   }
 
   handleResponderGrant (e, gestureState) {
-    // console.log(`grant ${e.nativeEvent.identifier}`)
     this.storeOriginalTouches(e.nativeEvent.touches)
-    this.allowMoveCursor = true
   }
 
   handleResponderMove (e, gestureState) {
-    // console.log(`move ${e.nativeEvent.identifier} ${e.nativeEvent.touches.length}`)
     var oldTouchKeys = _.keys(this.touches)
     this.clearOldTouches(e.nativeEvent.touches)
     var touchKeys = _.keys(this.touches)
     if (oldTouchKeys.length > touchKeys.length) {
-      // console.log('APPLY TRANSFORM')
       this.applyTransform()
     } else { // => oldTouchKeys <= touchKeys.length (recenter on change to 2)
       this.scaleCenterX = this.centerX(e.nativeEvent)
     }
     if (e.nativeEvent.touches.length === 2) {
-      this.allowMoveCursor = false
       this.storeOriginalTouches(e.nativeEvent.touches)
       this.newTransform = MatrixMath.createIdentityMatrix()
       this.setTransform(this.translateAndScale(this.newTransform, e, gestureState))
       // NOTE: should only update if it's not playing
-      var locationX = this.streamTimeToLocationX(this.streamTime)
-      this.setCursorLocationX(locationX) // update cursor
-    } else if (touchKeys.length === 1 && this.allowMoveCursor) {
-      this.moveCursor(e.nativeEvent.touches[0].locationX)
+      this.updateCursorLocation()
+    } else if (touchKeys.length === 1) {
+      var locationX = e.nativeEvent.touches[0].locationX
+      var start = this.streamTimeToLocationX(this.props.videoStreamStartTime)
+      var end = this.streamTimeToLocationX(this.props.videoStreamEndTime)
+      if (locationX >= start && locationX <= end) {
+        this.moveCursor(locationX)
+      }
     }
   }
 
@@ -120,7 +117,6 @@ export class ActivityStreams extends PureComponent {
   }
 
   applyTransform () {
-    // console.log('apply transform start >>>>>>>>>>>')
     var identity = MatrixMath.createIdentityMatrix()
     this.setTransform(identity)
     var newTransform = this.state.transform.slice()
@@ -130,7 +126,6 @@ export class ActivityStreams extends PureComponent {
       transform: newTransform
     })
     this.touches = {}
-    // console.log('apply transform stop __________________')
   }
 
   moveCursor (locationX) {
@@ -143,8 +138,7 @@ export class ActivityStreams extends PureComponent {
   onStreamTimeProgress (streamTime) {
     this.streamTime = streamTime
     var locationX = this.streamTimeToLocationX(streamTime)
-    console.log(`cursor location: ${locationX}`)
-    this.setCursorLocationX(locationX)
+    this.setCursorLocationX(this._line, locationX)
     this.moveClippingRectToLocationX(streamTime)
   }
 
@@ -158,21 +152,15 @@ export class ActivityStreams extends PureComponent {
       x: clipOrigin.toString(),
       width: (clipEnd - clipOrigin).toString()
     })
-    console.log('moveClippingRectToLocationX')
-    console.log(this.newTransform)
-    console.log(this.state.transform)
-    console.log(`rect x/width: ${clipOrigin}/${clipEnd}`)
   }
 
   combinedTransforms () {
     var matrix = this.state.transform.slice()
-    // console.log(matrix, this.newTransform, this.state.transform)
     MatrixMath.multiplyInto(matrix, this.newTransform || IDENTITY, this.state.transform)
     return matrix
   }
 
   handleResponderTerminate (e, gestureState) {
-    // console.log(`terminate ${e.nativeEvent.identifier}`)
   }
 
   translateAndScale (command, e, gestureState) {
@@ -265,9 +253,15 @@ export class ActivityStreams extends PureComponent {
     this.lastAnimation.start()
   }
 
-  setCursorLocationX (locationX) {
-    if (this._line) {
-      this._line.setNativeProps({ x1: locationX.toString(), x2: locationX.toString() })
+  updateCursorLocation () {
+    this.setCursorLocationX(this._line, this.streamTimeToLocationX(this.streamTime))
+    this.setCursorLocationX(this._videoStartTime, this.streamTimeToLocationX(this.props.videoStreamStartTime))
+    this.setCursorLocationX(this._videoEndTime, this.streamTimeToLocationX(this.props.videoStreamEndTime))
+  }
+
+  setCursorLocationX (cursor, locationX) {
+    if (cursor) {
+      cursor.setNativeProps({ x1: locationX.toString(), x2: locationX.toString() })
     }
   }
 
@@ -297,7 +291,6 @@ export class ActivityStreams extends PureComponent {
   }
 
   render () {
-    // console.log('RERENDEERRRRRRR')
     var y = 0
 
     if (_.get(this.props, 'streams.velocity_smooth')) {
@@ -346,19 +339,39 @@ export class ActivityStreams extends PureComponent {
     var currentTimeLine =
       <CustomAnimated.Line
         ref={(ref) => { this._line = ref }}
-        x1={0}
+        x1={this.streamTimeToLocationX(this.streamTime)}
         y1={0}
-        x2={0}
+        x2={this.streamTimeToLocationX(this.streamTime)}
         y2={this.state.height}
         stroke={STRAVA_BRAND_COLOUR}
         strokeDasharray={[5, 5]}
         strokeWidth='1' />
 
+    var videoStartTime =
+      <CustomAnimated.Line
+        ref={(ref) => { this._videoStartTime = ref }}
+        x1={this.streamTimeToLocationX(this.props.videoStreamStartTime)}
+        y1={0}
+        x2={this.streamTimeToLocationX(this.props.videoStreamStartTime)}
+        y2={this.state.height}
+        stroke={'black'}
+        strokeDasharray={[5, 5]}
+        strokeWidth='1' />
+
+    var videoEndTime =
+      <CustomAnimated.Line
+        ref={(ref) => { this._videoEndTime = ref }}
+        x1={this.streamTimeToLocationX(this.props.videoStreamEndTime)}
+        y1={0}
+        x2={this.streamTimeToLocationX(this.props.videoStreamEndTime)}
+        y2={this.state.height}
+        stroke={'black'}
+        strokeDasharray={[5, 5]}
+        strokeWidth='1' />
+
     var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], this.state.transform)
     var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipOrigin[0]
-    console.log('render')
-    console.log(this.state.transform)
-
+    console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
     return (
       <View
         {...this.responders}
@@ -391,6 +404,8 @@ export class ActivityStreams extends PureComponent {
           style={{position: 'absolute', left: 0, top: 0, bottom: 0, right: 0}}
           height='200'
           width='100%'>
+          {videoStartTime}
+          {videoEndTime}
           {currentTimeLine}
         </Svg>
       </View>
@@ -403,7 +418,9 @@ ActivityStreams.propTypes = {
   style: PropTypes.object,
   onStreamTimeChange: PropTypes.func,
   streams: PropTypes.object,
-  activity: PropTypes.object.isRequired
+  activity: PropTypes.object.isRequired,
+  videoStreamStartTime: PropTypes.any,
+  videoStreamEndTime: PropTypes.any
 }
 
 ActivityStreams.defaultProps = {

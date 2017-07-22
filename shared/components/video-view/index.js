@@ -176,7 +176,11 @@ export const VideoView = connect(
 
   render () {
     var activity = _.get(this.props, 'video.activity')
-    var startAt = _.get(this.props, 'video.startAt')
+    var videoDuration = _.get(this.props, 'video.rawVideoData.duration') || 0
+    var activityDuration = _.get(this.props, 'video.activity.elapsed_time') || 0
+
+    var videoStreamStartTime = Math.max(0, Math.min(this.videoTimeToStreamTime(0), activityDuration))
+    var videoStreamEndTime = Math.min(activityDuration, videoStreamStartTime + videoDuration)
 
     if (this.props.video) {
       var videoPlayer =
@@ -230,8 +234,8 @@ export const VideoView = connect(
           eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams}
-          videoDuration={this.props.video.rawVideoData.duration}
-          videoStartAt={startAt} />
+          videoStreamStartTime={videoStreamStartTime}
+          videoStreamEndTime={videoStreamEndTime} />
     }
 
     return (
