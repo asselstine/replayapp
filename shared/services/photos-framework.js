@@ -4,7 +4,7 @@ import RNPhotosFramework from 'react-native-photos-framework'
 export const PhotosFramework = {
   init () {
     if (!this._libraryUnsubscribe) {
-      this._libraryUnsubscribe = RNPhotosFramework.onLibraryChange(this._onLibraryChange.bind(this))
+      // this._libraryUnsubscribe = RNPhotosFramework.onLibraryChange(this._onLibraryChange.bind(this))
     }
   },
 

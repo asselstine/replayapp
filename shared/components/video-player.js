@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import update from 'immutability-helper'
 import Video from 'react-native-video'
 import {
   TouchableOpacity
@@ -77,10 +78,10 @@ export class VideoPlayer extends Component {
 
   render () {
     let aspectRatio = (this.state.width * 1.0) / this.state.height
-    let videoStyle = {
+    let videoStyle = update({
       width: '100%',
       aspectRatio: aspectRatio
-    }
+    }, { $merge: this.props.style })
 
     return (
       <TouchableOpacity onPress={this.onPressVideo}>
@@ -102,5 +103,10 @@ export class VideoPlayer extends Component {
 VideoPlayer.propTypes = {
   video: PropTypes.object.isRequired,
   onProgress: PropTypes.func,
-  onPlay: PropTypes.func
+  onPlay: PropTypes.func,
+  style: PropTypes.object
+}
+
+VideoPlayer.defaultProps = {
+  style: {}
 }
