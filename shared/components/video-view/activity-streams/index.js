@@ -10,9 +10,12 @@ import Svg, {
   Rect,
   G
 } from 'react-native-svg'
+import { TextLayer } from './text-layer'
 import _ from 'lodash'
 import { StreamPath } from './stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
+import { linear } from '../../../streams'
+import { round } from '../../../round'
 
 const STRAVA_BRAND_COLOUR = '#fc4c02'
 const STRAVA_BRAND_COLOUR_LIGHT = '#ffa078'
@@ -69,7 +72,8 @@ export class ActivityStreams extends PureComponent {
       touch.touches.forEach((secondaryTouch) => {
         if (secondaryTouch.identifier !== touch.identifier &&
             !this.touches[secondaryTouch.identifier]) {
-          this.touches[secondaryTouch.identifier] = secondaryTouch        }
+          this.touches[secondaryTouch.identifier] = secondaryTouch
+        }
       })
     })
   }
@@ -140,6 +144,16 @@ export class ActivityStreams extends PureComponent {
     var locationX = this.streamTimeToLocationX(streamTime)
     this.setCursorLocationX(this._line, locationX)
     this.moveClippingRectToLocationX(streamTime)
+    this.updateStreamLabels(streamTime)
+  }
+
+  updateStreamLabels (streamTime) {
+    if (this._textLayer) {
+      this._textLayer.updateText(
+        `${this.timeToCurrentKmh(streamTime)} Km/h`,
+        `${this.timeToCurrentAltitude(streamTime)} metres`
+      )
+    }
   }
 
   moveClippingRectToLocationX (streamTime) {
@@ -290,6 +304,19 @@ export class ActivityStreams extends PureComponent {
     return _.get(this.props, `streams.time.data[${lastIndex}]`, 0.0) * 1.0
   }
 
+  timeToCurrentKmh (streamTime) {
+    var times = _.get(this.props, 'streams.time.data', [])
+    var velocitySmooth = _.get(this.props, 'streams.velocity_smooth.data', [])
+    var speed = linear(streamTime, times, velocitySmooth)
+    return round((speed * 3600.0) / 1000.0, 2)
+  }
+
+  timeToCurrentAltitude (streamTime) {
+    var times = _.get(this.props, 'streams.time.data', [])
+    var altitude = _.get(this.props, 'streams.altitude.data', [])
+    return Math.round(linear(streamTime, times, altitude))
+  }
+
   render () {
     var y = 0
 
@@ -297,8 +324,8 @@ export class ActivityStreams extends PureComponent {
       var velocityStreamPath =
         <StreamPath
           width={this.state.width}
-          y={y}
-          height={100}
+          y={y + 20}
+          height={80}
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.velocity_smooth.data}
           transform={this.state.transform}
@@ -306,8 +333,8 @@ export class ActivityStreams extends PureComponent {
       var velocityStreamCurrentTimePath =
         <StreamPath
           width={this.state.width}
-          y={y}
-          height={100}
+          y={y + 20}
+          height={80}
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.velocity_smooth.data}
           transform={this.state.transform}
@@ -319,8 +346,8 @@ export class ActivityStreams extends PureComponent {
       var altitudeStreamPath =
         <StreamPath
           width={this.state.width}
-          y={y}
-          height={100}
+          y={y + 20}
+          height={80}
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.altitude.data}
           transform={this.state.transform}
@@ -328,8 +355,8 @@ export class ActivityStreams extends PureComponent {
       var altitudeStreamCurrentTimePath =
         <StreamPath
           width={this.state.width}
-          y={y}
-          height={100}
+          y={y + 20}
+          height={80}
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.altitude.data}
           transform={this.state.transform}
@@ -407,6 +434,12 @@ export class ActivityStreams extends PureComponent {
           {videoStartTime}
           {videoEndTime}
           {currentTimeLine}
+          <TextLayer
+            ref={(ref) => { this._textLayer = ref }}
+            velocityText='0 Km/h'
+            altitudeText='0m'
+            velocityY={0}
+            altitudeY={100} />
         </Svg>
       </View>
     )
