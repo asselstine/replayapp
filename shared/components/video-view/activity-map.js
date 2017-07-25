@@ -10,6 +10,7 @@ import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { linear, linearIndex } from '../../streams'
 import { closestPoint } from '../../closest-point'
+import * as colours from '../../colours'
 
 export class ActivityMap extends Component {
   constructor (props) {
@@ -129,6 +130,8 @@ export class ActivityMap extends Component {
         this.polyLine =
           <MapView.Polyline
             ref={(ref) => { this.polylineRef = ref }}
+            strokeColor={colours.STRAVA_BRAND_COLOUR}
+            strokeWidth={2}
             coordinates={latLngs} />
       }
 

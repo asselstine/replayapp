@@ -16,9 +16,8 @@ import { StreamPath } from './stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import { linear } from '../../../streams'
 import { round } from '../../../round'
+import * as colours from '../../../colours'
 
-const STRAVA_BRAND_COLOUR = '#fc4c02'
-const STRAVA_BRAND_COLOUR_LIGHT = '#ffa078'
 const IDENTITY = MatrixMath.createIdentityMatrix()
 
 const CustomAnimated = {
@@ -365,7 +364,7 @@ export class ActivityStreams extends PureComponent {
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.velocity_smooth.data}
           transform={this.state.transform}
-          fill={STRAVA_BRAND_COLOUR_LIGHT} />
+          fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
       var velocityStreamCurrentTimePath =
         <StreamPath
           width={this.state.width}
@@ -374,7 +373,7 @@ export class ActivityStreams extends PureComponent {
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.velocity_smooth.data}
           transform={this.state.transform}
-          fill={STRAVA_BRAND_COLOUR} />
+          fill={colours.STRAVA_BRAND_COLOUR} />
       y += 100
     }
 
@@ -387,7 +386,7 @@ export class ActivityStreams extends PureComponent {
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.altitude.data}
           transform={this.state.transform}
-          fill={STRAVA_BRAND_COLOUR_LIGHT} />
+          fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
       var altitudeStreamCurrentTimePath =
         <StreamPath
           width={this.state.width}
@@ -396,7 +395,7 @@ export class ActivityStreams extends PureComponent {
           timeStream={this.props.streams.time.data}
           dataStream={this.props.streams.altitude.data}
           transform={this.state.transform}
-          fill={STRAVA_BRAND_COLOUR} />
+          fill={colours.STRAVA_BRAND_COLOUR} />
     }
 
     var currentTimeLine =
@@ -406,7 +405,7 @@ export class ActivityStreams extends PureComponent {
         y1={0}
         x2={this.streamTimeToLocationX(this.streamTime)}
         y2={this.state.height}
-        stroke={STRAVA_BRAND_COLOUR}
+        stroke={colours.STRAVA_BRAND_COLOUR}
         strokeDasharray={[5, 5]}
         strokeWidth='1' />
 
