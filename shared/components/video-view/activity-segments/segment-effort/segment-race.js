@@ -8,7 +8,7 @@ import {
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Strava } from '../../../../strava'
-import { versusDeltaTimes } from '../../../../streams'
+import { RaceGraph } from './race-graph'
 
 export class SegmentRace extends Component {
   constructor (props) {
@@ -20,30 +20,26 @@ export class SegmentRace extends Component {
       versusTimes: null,
       versusDistances: null
     }
-    // this._updateDeltaTimes = this._updateDeltaTimes.bind(this)
     this.updateCompareEfforts = this.updateCompareEfforts.bind(this)
   }
 
   componentDidMount () {
     var segmentId = this.props.segmentEffort.segment.id
-    // this.retrieveSegmentEffortStream()
-    Strava.retrieveSegmentSegmentEfforts(segmentId).then((response) => {
+    this.retrieveSegmentEffortStream()
+    Strava.retrieveLeaderboard(segmentId).then((response) => {
       response.json().then((json) => {
         this.setState({
-          versusSegmentEffort: json[0]
+          versusSegmentEffortId: json.entries[0].effort_id
         }, this.updateCompareEfforts)
-
-        // this.updateCompareEfforts(json[0].id)
       })
     })
   }
 
   updateCompareEfforts () {
-    if (this.state.versusSegmentEffort) {
+    if (this.state.versusSegmentEffortId) {
       Strava
-        .compareEfforts(this.props.segmentEffort.segment.id, this.props.segmentEffort.id, this.state.versusSegmentEffort.id)
+        .compareEfforts(this.props.segmentEffort.segment.id, this.props.segmentEffort.id, this.state.versusSegmentEffortId)
         .then((response) => {
-          console.log(response)
           response.json().then((json) => {
             this.setState({
               versusDeltaTimes: json.delta_time
@@ -52,54 +48,22 @@ export class SegmentRace extends Component {
         })
     }
   }
-  // retrieveSegmentEffortStream () {
-  //   Strava.retrieveSegmentEffortStream(this.props.segmentEffort.id).then((response) => {
-  //     response.json().then((json) => {
-  //       var streams = _.reduce(json, (map, stream) => {
-  //         map[stream.type] = stream
-  //         return map
-  //       }, {})
-  //       this.setState({
-  //         times: streams.time.data,
-  //         distances: streams.distance.data,
-  //         moving: streams.moving.data
-  //       }, this._updateDeltaTimes)
-  //     })
-  //   })
-  // }
-  //
-  // retrieveVersusSegmentEffortStream (segmentEffortId) {
-  //   Strava.retrieveSegmentEffortStream(segmentEffortId).then((response) => {
-  //     response.json().then((json) => {
-  //       var streams = _.reduce(json, (map, stream) => {
-  //         map[stream.type] = stream
-  //         return map
-  //       }, {})
-  //       this.setState({
-  //         versusTimes: streams.time.data,
-  //         versusDistances: streams.distance.data,
-  //         versusMoving: streams.moving.data
-  //       }, this._updateDeltaTimes)
-  //     })
-  //   })
-  // }
-  //
-  // _updateDeltaTimes () {
-  //   if (this.state.times && this.state.distances && this.state.versusTimes && this.state.versusDistances) {
-  //     this.setState({
-  //       versusDeltaTimes: versusDeltaTimes(
-  //         this.state.times,
-  //         this.state.distances,
-  //         this.state.versusTimes,
-  //         this.state.versusDistances,
-  //         this.state.moving,
-  //         this.state.versusMoving
-  //       )
-  //     }, () => {
-  //       // console.log('updateDeltaTimes: ', this.state.versusDeltaTimes)
-  //     })
-  //   }
-  // }
+
+  retrieveSegmentEffortStream () {
+    Strava.retrieveSegmentEffortStream(this.props.segmentEffort.id).then((response) => {
+      response.json().then((json) => {
+        var streams = _.reduce(json, (map, stream) => {
+          map[stream.type] = stream
+          return map
+        }, {})
+        this.setState({
+          times: streams.time.data,
+          distances: streams.distance.data,
+          moving: streams.moving.data
+        }, this._updateDeltaTimes)
+      })
+    })
+  }
 
   render () {
     if (this.state.versusSegmentEffort) {
@@ -108,11 +72,13 @@ export class SegmentRace extends Component {
           <Text>You VS KOM</Text>
         </View>
     }
-    if (this.state.versusDeltaTimes) {
+    if (this.state.versusDeltaTimes && this.state.distances) {
       var versusDeltaTimes =
-        <View style={{flex: 1}}>
-          <Text>{this.state.versusDeltaTimes}</Text>
-        </View>
+        <RaceGraph
+          distanceStream={this.state.distances}
+          deltaTimeStream={this.state.versusDeltaTimes}
+          width='100%'
+          height='200' />
     }
     return (
       <View style={{flex: 1}}>

@@ -51,7 +51,7 @@ export const versusDeltaTimes = function (times, distances, versusTimes, versusD
     var versusMoving = versusMovings[Math.floor(versusIndex)]
     var versusTime = linearIndex(versusIndex, versusTimes)
     var deltaTime = (times[index] - times[0]) - (versusTime - versusTimes[0])
-    console.log(`${deltaTime} @ index ${index}: ${movings[index]} time ${times[index]} at ${distance} vs ${versusMoving} ${versusTime} at ${versusDistance}`)
+    // console.log(`${deltaTime} @ index ${index}: ${movings[index]} time ${times[index]} at ${distance} vs ${versusMoving} ${versusTime} at ${versusDistance}`)
     return deltaTime
   })
 }

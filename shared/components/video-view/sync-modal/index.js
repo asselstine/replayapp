@@ -86,12 +86,11 @@ export class SyncModal extends Component {
   }
 
   _onStreamTimeChange (streamTime) {
-    console.log('YAAAAS: ', streamTime)
     if (this.state.locked) {
       // otherwise, update the video current time and stream time
     } else {
       // update the video start at
-      console.log('update: ', streamTime, this.player.currentTime)
+      // console.log('update: ', streamTime, this.player.currentTime)
     }
   }
 
