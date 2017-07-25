@@ -4,6 +4,7 @@ import { VideoPlayer } from '../video-player'
 import {
   Animated,
   View,
+  Text,
   ScrollView,
   Button
 } from 'react-native'
@@ -18,6 +19,7 @@ import { login } from '../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
 import { ActivityMap } from './activity-map'
+import { ActivitySegments } from './activity-segments'
 import { StreamsService } from '../../services/streams-service'
 import { Rotator } from './rotator'
 
@@ -211,6 +213,9 @@ export const VideoView = connect(
           eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams} />
+      var activitySegments =
+        <ActivitySegments
+          activity={activity} />
     }
 
     if (activity && this.props.streams) {
@@ -232,6 +237,8 @@ export const VideoView = connect(
           {lockToggle}
         </View>
         <ScrollView style={styles.streamsContainer}>
+          {activitySegments}
+          <Text>Blahrg</Text>
           {activityStreams}
           {activityMap}
         </ScrollView>

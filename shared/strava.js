@@ -27,6 +27,16 @@ export const Strava = {
     )
   },
 
+  retrieveActivity (activityId) {
+    return (
+      fetch(`${this.baseUrl}/activities/${activityId}`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
+  },
+
   retrieveStream (activityId) {
     return (
       fetch(`${this.baseUrl}/activities/${activityId}/streams/latlng,time,velocity_smooth,altitude`, {
