@@ -69,7 +69,8 @@ export class ActivityStreams extends PureComponent {
       touch.touches.forEach((secondaryTouch) => {
         if (secondaryTouch.identifier !== touch.identifier &&
             !this.touches[secondaryTouch.identifier]) {
-          this.touches[secondaryTouch.identifier] = secondaryTouch        }
+          this.touches[secondaryTouch.identifier] = secondaryTouch
+        }
       })
     })
   }
@@ -98,7 +99,9 @@ export class ActivityStreams extends PureComponent {
     if (e.nativeEvent.touches.length === 2) {
       this.storeOriginalTouches(e.nativeEvent.touches)
       this.newTransform = MatrixMath.createIdentityMatrix()
-      this.setTransform(this.translateAndScale(this.newTransform, e, gestureState))
+      this.translateAndScale(this.newTransform, e, gestureState)
+      this.addBoundaryTransformTo(this.newTransform)
+      this.setTransform(this.newTransform)
       // NOTE: should only update if it's not playing
       this.updateCursorLocation()
     } else if (touchKeys.length === 1) {
@@ -221,10 +224,41 @@ export class ActivityStreams extends PureComponent {
   }
 
   setTransform (matrix) {
-    this.transformView.setNativeProps({ style: { transform: [{perspective: 1000}, { matrix: this.applyTransformOrigin(matrix) }] } })
+    this.transformView.setNativeProps({ style: { transform: [{perspective: 1000}, { matrix: this.addOriginTransformTo(matrix) }] } })
   }
 
-  applyTransformOrigin (matrix) {
+  addBoundaryTransformTo (matrix) {
+    var completeTransform = this.combinedTransforms()
+    // console.log(completeTransform)
+
+    // Fix the scale
+    if (completeTransform[0] < 1) {
+      var minScale = MatrixMath.createIdentityMatrix()
+      minScale[0] = 1.0 / completeTransform[0]
+      MatrixMath.multiplyInto(matrix, minScale, matrix)
+    }
+    // Update current complete matrix
+    MatrixMath.multiplyInto(completeTransform, matrix, this.state.transform)
+
+    // Fix the origin
+    var originDifference = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], completeTransform)
+    if (originDifference[0] > 0) {
+      MatrixMath.multiplyInto(matrix, MatrixMath.createTranslate2d(-originDifference[0], 0), matrix)
+    }
+    // Update current complete matrix
+    MatrixMath.multiplyInto(completeTransform, matrix, this.state.transform)
+
+    // Fix the end
+    var endPointDifference = MatrixMath.multiplyVectorByMatrix([this.state.width, 0, 0, 1], completeTransform)
+    var diff = endPointDifference[0] - this.state.width
+    if (diff < 0) {
+      MatrixMath.multiplyInto(matrix, MatrixMath.createTranslate2d(-diff, 0), matrix)
+    }
+
+    return matrix
+  }
+
+  addOriginTransformTo (matrix) {
     var translate = MatrixMath.createIdentityMatrix()
     var copy = matrix.slice()
     MatrixMath.reuseTranslate2dCommand(translate, (this.state.width / 2.0), 0)
