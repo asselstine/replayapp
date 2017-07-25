@@ -1,4 +1,4 @@
-import { timeToIndex, linearIndex } from './streams'
+import { valueToIndex, linearIndex } from './streams'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 
 export const transformPoints = function (streamPoints, transform) {
@@ -26,7 +26,7 @@ export const streamPoints = function (height, width, timeStream, dataStream) {
   for (var i = 0; i <= numPoints; i++) {
     xFraction = (i / numPoints)
     time = timeMin + xFraction * (timeMax - timeMin)
-    index = timeToIndex(time, timeStream, index)
+    index = valueToIndex(time, timeStream, index)
     value = linearIndex(index, dataStream)
     yFraction = (maxValue - value) / (maxValue - minValue)
     x = xFraction * width

@@ -45,5 +45,35 @@ export const Strava = {
         console.error(error)
       })
     )
+  },
+
+  retrieveSegmentSegmentEfforts (segmentId) {
+    return (
+      fetch(`${this.baseUrl}/segments/${segmentId}/all_efforts?page=1&per_page=1`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
+  },
+
+  retrieveSegmentEffortStream (segmentEffortId) {
+    return (
+      fetch(`${this.baseUrl}/segment_efforts/${segmentEffortId}/streams/distance,time,moving`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
+  },
+
+  compareEfforts (segmentId, referenceSegmentEffortId, segmentEffortId) {
+    return (
+      fetch(`${this.baseUrl}/segments/${segmentId}?reference_id=${referenceSegmentEffortId}&comparing_id=${segmentEffortId}`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
   }
 }

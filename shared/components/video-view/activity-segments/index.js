@@ -3,7 +3,8 @@ import React, {
 } from 'react'
 import PropTypes from 'prop-types'
 import {
-  View
+  View,
+  ScrollView
 } from 'react-native'
 import _ from 'lodash'
 import { SegmentEffort } from './segment-effort'
@@ -13,7 +14,6 @@ export class ActivitySegments extends Component {
   componentDidMount () {
     Strava.retrieveActivity(this.props.activity.id).then((response) => {
       response.json().then((json) => {
-        console.log(json)
         this.setState({
           detailedActivity: json
         })
@@ -24,11 +24,11 @@ export class ActivitySegments extends Component {
   render () {
     var segmentEfforts = _.get(this.state, 'detailedActivity.segment_efforts', [])
     return (
-      <View style={styles.view}>
+      <ScrollView style={styles.view}>
         {segmentEfforts.map((segmentEffort) => {
           return <SegmentEffort segmentEffort={segmentEffort} key={segmentEffort.id} />
         })}
-      </View>
+      </ScrollView>
     )
   }
 }
