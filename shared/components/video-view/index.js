@@ -22,6 +22,7 @@ import { ActivityMap } from './activity-map'
 import { ActivitySegments } from './activity-segments'
 import { StreamsService } from '../../services/streams-service'
 import { Rotator } from './rotator'
+import ScrollableTabView from 'react-native-scrollable-tab-view'
 
 export const VideoView = connect(
   (state, ownProps) => {
@@ -208,6 +209,7 @@ export const VideoView = connect(
     if (activity) {
       var activityMap =
         <ActivityMap
+          tabLabel='Map'
           ref={(ref) => { this._activityMap = ref }}
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
           eventEmitter={this.eventEmitter}
@@ -215,12 +217,14 @@ export const VideoView = connect(
           streams={this.props.streams} />
       var activitySegments =
         <ActivitySegments
+          tabLabel='Race'
           activity={activity} />
     }
 
     if (activity && this.props.streams) {
       var activityStreams =
         <ActivityStreams
+          tabLabel='Data'
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
           eventEmitter={this.eventEmitter}
           activity={activity}
@@ -236,12 +240,14 @@ export const VideoView = connect(
           {connectStravaButton}
           {lockToggle}
         </View>
-        <ScrollView style={styles.streamsContainer}>
+        <ScrollableTabView
+          locked
+          tabBarTextStyle={styles.tabBarTextStyle}
+          style={styles.streamsContainer}>
           {activitySegments}
-          <Text>Blahrg</Text>
           {activityStreams}
           {activityMap}
-        </ScrollView>
+        </ScrollableTabView>
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}
@@ -276,8 +282,12 @@ const styles = {
   },
 
   streamsContainer: {
-    flex: 1,
-    zIndex: 1000
+    flex: 1
+  },
+
+  tabBarTextStyle: {
+    fontSize: 18,
+    fontWeight: 'bold'
   }
 }
 

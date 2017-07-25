@@ -49,13 +49,16 @@ export class ActivityStreams extends PureComponent {
   componentWillMount () {
     this._subscription = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
     this.responders = {
-      onStartShouldSetResponder: () => { return true },
-      onMoveShouldSetResponder: () => { return true },
-      onResponderGrant: this.handleResponderGrant.bind(this),
-      onResponderMove: this.handleResponderMove.bind(this),
-      onResponderRelease: this.handleResponderRelease.bind(this),
-      onResponderTerminate: this.handleResponderTerminate.bind(this),
-      onResponderTerminationRequest: () => { return false }
+      onStartShouldSetResponder: () => { console.log('start should set'); return true },
+      onMoveShouldSetResponder: () => { console.log('move should set'); return true },
+      onStartShouldSetResponderCapture: () => { console.log('start set capture'); return true },
+      onMoveShouldSetResponderCapture: () => { console.log('move set capture'); return true },
+      onResponderGrant: (e) => { console.log('grant'); this.handleResponderGrant(e) },
+      onResponderMove: (e) => { /* console.log('move'); */ this.handleResponderMove(e) },
+      onResponderReject: (e) => { console.log('reject') },
+      onResponderRelease: (e) => { console.log('release'); this.handleResponderRelease(e) },
+      onResponderTerminate: (e) => { console.log('terminate'); this.handleResponderTerminate(e) },
+      onResponderTerminationRequest: () => { console.log('terminate request'); return false }
     }
   }
 
