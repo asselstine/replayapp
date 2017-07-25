@@ -10,13 +10,30 @@ import _ from 'lodash'
 
 export class SegmentEffort extends Component {
   render () {
+    var komRank = _.get(this.props, 'segmentEffort.kom_rank')
+    var prRank = _.get(this.props, 'segmentEffort.pr_rank')
+
+    if (komRank) {
+      var komRankLabel =
+        <Text>KOM {komRank}</Text>
+    }
+
+    if (prRank) {
+      var prRankLabel =
+        <Text>PR {prRank}</Text>
+    }
+
     return (
       <View style={styles.view}>
-        <Text style={styles.effortName}>{_.get(this.props, 'segmentEffort.name')}</Text>
-        <Text>Elapsed Time: {_.get(this.props, 'segmentEffort.elapsed_time')}s</Text>
-        <Text>Distance: {_.get(this.props, 'segmentEffort.distance')}m</Text>
-        <Text>Kom: {_.get(this.props, 'segmentEffort.kom_rank')}</Text>
-        <Text>Personal: {_.get(this.props, 'segmentEffort.pr_rank')}</Text>
+        <View style={styles.leftPane}>
+          <Text style={styles.effortName}>{_.get(this.props, 'segmentEffort.name')}</Text>
+          {komRankLabel}
+          {prRankLabel}
+        </View>
+        <View style={styles.rightPane}>
+          <Text style={styles.headerData}>{_.get(this.props, 'segmentEffort.distance')}m</Text>
+          <Text style={styles.headerData}>{_.get(this.props, 'segmentEffort.elapsed_time')}s</Text>
+        </View>
       </View>
     )
   }
@@ -24,12 +41,25 @@ export class SegmentEffort extends Component {
 
 const styles = {
   view: {
+    padding: 10,
+    flexDirection: 'row'
+  },
+
+  leftPane: {
     flex: 1
   },
 
+  rightPane: {
+    width: 60
+  },
+
   effortName: {
-    fontSize: 14,
-    fontWeight: 'bold'
+    fontSize: 22,
+    fontWeight: '300'
+  },
+
+  headerData: {
+    textAlign: 'right'
   }
 }
 

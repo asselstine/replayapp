@@ -177,8 +177,8 @@ ActivityMap.defaultProps = {
 
 const styles = StyleSheet.create({
   map: {
+    flex: 1,
     width: '100%',
-    height: 300,
     backgroundColor: 'transparent'
   }
 })
