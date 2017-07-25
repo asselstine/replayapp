@@ -1,38 +1,46 @@
-import { timeToIndex, linearIndex } from './streams'
+import { valueToIndex, linearIndex } from './streams'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 
 export const transformPoints = function (streamPoints, transform) {
   return streamPoints.map((point) => {
-    var vx = MatrixMath.multiplyVectorByMatrix([point[0], 0, 0, 1], transform)
-    return [vx[0], point[1]]
+    var vx = MatrixMath.multiplyVectorByMatrix([point[0], point[1], 0, 1], transform)
+    return [vx[0], vx[1]]
   })
 }
 
-export const streamPoints = function (height, width, timeStream, dataStream) {
-  var timeMin = timeStream[0]
-  var timeMax = timeStream[timeStream.length - 1]
+export const streamPoints = function (height, width, xStream, yStream) {
+  var xMin = xStream[0]
+  var xMax = xStream[xStream.length - 1]
 
-  var minValue = Math.min(...dataStream)
-  var maxValue = Math.max(...dataStream)
+  var yMin = Math.min(...yStream)
+  var yMax = Math.max(...yStream)
 
   var index = -1
   var points = []
-  var time, value, xFraction, yFraction
+  var x, value, xFraction, yFraction
 
   var numPoints = 100.0
 
-  var x, y
+  var worldX, worldY
 
   for (var i = 0; i <= numPoints; i++) {
     xFraction = (i / numPoints)
-    time = timeMin + xFraction * (timeMax - timeMin)
-    index = timeToIndex(time, timeStream, index)
-    value = linearIndex(index, dataStream)
-    yFraction = (maxValue - value) / (maxValue - minValue)
-    x = xFraction * width
-    y = yFraction * (height - 2)
-    points.push([x, y])
+    x = xMin + xFraction * (xMax - xMin)
+    index = valueToIndex(x, xStream, index)
+    value = linearIndex(index, yStream)
+    yFraction = (yMax - value) / (yMax - yMin)
+    worldX = xFraction * width
+    worldY = yFraction * (height - 2)
+    points.push([worldX, worldY])
   }
 
   return points
+}
+
+export const zeroScreenY = function (height, yStream) {
+  var yMin = Math.min(...yStream)
+  var yMax = Math.max(...yStream)
+
+  var zeroScale = yMin / (yMax - yMin)
+  return zeroScale * height + height
 }

@@ -45,5 +45,49 @@ export const Strava = {
         console.error(error)
       })
     )
+  },
+
+  retrieveSegmentSegmentEfforts (segmentId) {
+    return (
+      fetch(`${this.baseUrl}/segments/${segmentId}/all_efforts?page=1&per_page=1`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
+  },
+
+  retrieveLeaderboard (segmentId) {
+    return (
+      fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?page=1&per_page=1`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
+  },
+
+  retrieveSegmentEffortStream (segmentEffortId) {
+    return (
+      fetch(`${this.baseUrl}/segment_efforts/${segmentEffortId}/streams/distance,time,moving`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
+  },
+
+  compareEfforts (segmentId, referenceSegmentEffortId, segmentEffortId) {
+    // console.log(segmentId, referenceSegmentEffortId, segmentEffortId)
+    // console.log(this.headers())
+    // var url = `https://www.strava.com/segments/5015250/compare_efforts?reference_id=26876076234&comparing_id=8148352838`
+    var url = `https://www.strava.com/segments/${segmentId}/compare_efforts?reference_id=${referenceSegmentEffortId}&comparing_id=${segmentEffortId}`
+    return (
+      fetch(url, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
   }
 }

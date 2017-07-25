@@ -433,7 +433,7 @@ export class ActivityStreams extends PureComponent {
 
     var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], this.state.transform)
     var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipOrigin[0]
-    console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
+    // console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
     return (
       <View
         {...this.responders}
