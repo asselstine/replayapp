@@ -12,7 +12,6 @@ export class RacePath extends Component {
     var zeroY = zeroScreenY(this.props.height, this.props.deltaTimeStream)
     points.unshift([0, zeroY])
     points.push([this.props.width, zeroY])
-    // console.log(zeroY)
     var path = ''
     _.each(points, (point, index) => {
       if (index === 0) {
@@ -21,8 +20,6 @@ export class RacePath extends Component {
         path += `L${point[0]} ${point[1]} `
       }
     })
-    // path += 'Z'
-
     return (
       <Path d={path} {...this.props} />
     )

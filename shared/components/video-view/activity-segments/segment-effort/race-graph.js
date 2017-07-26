@@ -33,16 +33,18 @@ export class RaceGraph extends Component {
   render () {
     var distanceStream = this.props.distanceStream
     var deltaTimeStream = this.props.deltaTimeStream
+
     var zeroY = zeroScreenY(this.state.height, deltaTimeStream)
 
-    var maxDeltaTimeIndex = maxValueIndex(deltaTimeStream)
     var minDeltaTimeIndex = minValueIndex(deltaTimeStream)
+    var maxDeltaTimeIndex = maxValueIndex(deltaTimeStream)
+
+    console.log(deltaTimeStream)
 
     var minDistance = linearIndex(minDeltaTimeIndex, distanceStream)
     var maxDistance = linearIndex(maxDeltaTimeIndex, distanceStream)
 
     var xScale = 1.0 / distanceStream[distanceStream.length - 1]
-
     var minX = xScale * minDistance * this.state.width
     var maxX = xScale * maxDistance * this.state.width
 

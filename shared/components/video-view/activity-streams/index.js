@@ -390,8 +390,10 @@ export class ActivityStreams extends PureComponent {
   render () {
     var y = 0
 
+    var velocityStreamPath, velocityStreamCurrentTimePath
+
     if (_.get(this.props, 'streams.velocity_smooth')) {
-      var velocityStreamPath =
+      velocityStreamPath =
         <StreamPath
           width={this.state.width}
           y={y + 20}
@@ -400,7 +402,7 @@ export class ActivityStreams extends PureComponent {
           dataStream={this.props.streams.velocity_smooth.data}
           transform={this.state.transform}
           fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
-      var velocityStreamCurrentTimePath =
+      velocityStreamCurrentTimePath =
         <StreamPath
           width={this.state.width}
           y={y + 20}
@@ -412,8 +414,10 @@ export class ActivityStreams extends PureComponent {
       y += 100
     }
 
+    var altitudeStreamPath, altitudeStreamCurrentTimePath
+
     if (_.get(this.props, 'streams.altitude')) {
-      var altitudeStreamPath =
+      altitudeStreamPath =
         <StreamPath
           width={this.state.width}
           y={y + 20}
@@ -422,7 +426,7 @@ export class ActivityStreams extends PureComponent {
           dataStream={this.props.streams.altitude.data}
           transform={this.state.transform}
           fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
-      var altitudeStreamCurrentTimePath =
+      altitudeStreamCurrentTimePath =
         <StreamPath
           width={this.state.width}
           y={y + 20}
@@ -433,7 +437,9 @@ export class ActivityStreams extends PureComponent {
           fill={colours.STRAVA_BRAND_COLOUR} />
     }
 
-    var currentTimeLine =
+    var currentTimeLine, videoStartTime, videoEndTime
+
+    currentTimeLine =
       <CustomAnimated.Line
         ref={(ref) => { this._line = ref }}
         x1={this.streamTimeToLocationX(this.streamTime)}
@@ -444,7 +450,7 @@ export class ActivityStreams extends PureComponent {
         strokeDasharray={[5, 5]}
         strokeWidth='1' />
 
-    var videoStartTime =
+    videoStartTime =
       <CustomAnimated.Line
         ref={(ref) => { this._videoStartTime = ref }}
         x1={this.streamTimeToLocationX(this.props.videoStreamStartTime)}
@@ -455,7 +461,7 @@ export class ActivityStreams extends PureComponent {
         strokeDasharray={[5, 5]}
         strokeWidth='1' />
 
-    var videoEndTime =
+    videoEndTime =
       <CustomAnimated.Line
         ref={(ref) => { this._videoEndTime = ref }}
         x1={this.streamTimeToLocationX(this.props.videoStreamEndTime)}
@@ -469,6 +475,7 @@ export class ActivityStreams extends PureComponent {
     var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], this.state.transform)
     var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipOrigin[0]
     // console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
+
     return (
       <View
         {...this.responders}

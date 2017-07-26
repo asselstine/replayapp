@@ -206,8 +206,10 @@ export const VideoView = connect(
           color='#fc4c02' />
     }
 
+    var activityMap, activitySegments
+
     if (activity) {
-      var activityMap =
+      activityMap =
         <ActivityMap
           tabLabel='Map'
           ref={(ref) => { this._activityMap = ref }}
@@ -215,15 +217,17 @@ export const VideoView = connect(
           eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams} />
-      var activitySegments =
+      activitySegments =
         <ActivitySegments
           tabLabel='Race'
           eventEmitter={this.eventEmitter}
           activity={activity} />
     }
 
+    var activityStreams
+
     if (activity && this.props.streams) {
-      var activityStreams =
+      activityStreams =
         <ActivityStreams
           tabLabel='Data'
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
@@ -245,9 +249,9 @@ export const VideoView = connect(
           locked
           tabBarTextStyle={styles.tabBarTextStyle}
           style={styles.streamsContainer}>
-          {activitySegments}
           {activityStreams}
           {activityMap}
+          {activitySegments}
         </ScrollableTabView>
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
