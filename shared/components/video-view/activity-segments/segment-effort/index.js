@@ -45,6 +45,7 @@ export class SegmentEffort extends Component {
         <SegmentRace
           eventEmitter={this.props.eventEmitter}
           segmentEffort={this.props.segmentEffort}
+          onStreamTimeChange={this.props.onStreamTimeChange}
           style={styles.segmentRace} />
     }
 
@@ -99,5 +100,6 @@ const styles = {
 
 SegmentEffort.propTypes = {
   segmentEffort: PropTypes.object,
-  eventEmitter: PropTypes.object
+  eventEmitter: PropTypes.object,
+  onStreamTimeChange: PropTypes.func
 }

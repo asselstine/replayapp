@@ -221,6 +221,7 @@ export const VideoView = connect(
         <ActivitySegments
           tabLabel='Race'
           eventEmitter={this.eventEmitter}
+          onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
           activity={activity} />
     }
 
@@ -249,9 +250,9 @@ export const VideoView = connect(
           locked
           tabBarTextStyle={styles.tabBarTextStyle}
           style={styles.streamsContainer}>
+          {activitySegments}
           {activityStreams}
           {activityMap}
-          {activitySegments}
         </ScrollableTabView>
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}

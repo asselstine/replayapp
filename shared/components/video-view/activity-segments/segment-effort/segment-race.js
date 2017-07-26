@@ -75,8 +75,11 @@ export class SegmentRace extends Component {
     if (this.state.versusDeltaTimes && this.state.distances) {
       var versusDeltaTimes =
         <RaceGraph
+          eventEmitter={this.props.eventEmitter}
+          timeStream={this.state.times}
           distanceStream={this.state.distances}
           deltaTimeStream={this.state.versusDeltaTimes}
+          onStreamTimeChange={this.props.onStreamTimeChange}
           width='100%'
           height='200' />
     }
@@ -91,5 +94,6 @@ export class SegmentRace extends Component {
 
 SegmentRace.propTypes = {
   segmentEffort: PropTypes.object.isRequired,
-  eventEmitter: PropTypes.object.isRequired
+  eventEmitter: PropTypes.object.isRequired,
+  onStreamTimeChange: PropTypes.func
 }
