@@ -1,4 +1,12 @@
-import { valueToIndex, linear, versusDeltaTimes } from '../shared/streams'
+import {
+  valueToIndex,
+  linear,
+  versusDeltaTimes,
+  minValueIndex,
+  maxValueIndex,
+  createBoundsTransform
+} from '../shared/streams'
+import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 
 /* global describe, it, expect */
 
@@ -82,5 +90,54 @@ describe('versusDeltaTimes', () => {
     )).toEqual(
       [0, 0.5, 1, 0]
     )
+  })
+})
+
+describe('minValueIndex', () => {
+  it('should retrieve the index of the minimum value', () => {
+    expect(minValueIndex([1, 2, 4, 0, 4])).toEqual(3)
+    expect(minValueIndex([1, 0, 4, 0, 4])).toEqual(1)
+    expect(minValueIndex([0, 4, 10, 4])).toEqual(0)
+  })
+})
+
+describe('maxValueIndex', () => {
+  it('should retrieve the index of the maximum value', () => {
+    expect(maxValueIndex([1, 2, 4, 0, 4])).toEqual(2)
+    expect(maxValueIndex([11, 0, 4, 5, 4])).toEqual(0)
+    expect(maxValueIndex([0, 4, 10, 4])).toEqual(2)
+  })
+})
+
+describe('createBoundsTransform', () => {
+  it('should translate and scale the data', () => {
+    var transform = createBoundsTransform(
+      [6, 8, 10, 12],
+      [20, 30, 50, 40],
+      0, 0, 100, 100
+    )
+    var vector = [6, 20, 0, 1]
+    expect(MatrixMath.multiplyVectorByMatrix(vector, transform)).toEqual([0, 0, 0, 1])
+    vector = [12, 50, 0, 1]
+    vector = MatrixMath.multiplyVectorByMatrix(vector, transform)
+    expect(vector[0]).toBeCloseTo(100)
+    expect(vector[1]).toBeCloseTo(100)
+  })
+
+  it('should transform to non-origin coordinates', () => {
+    var transform = createBoundsTransform(
+      [6, 8, 10, 12],
+      [20, 30, 50, 40],
+      10, 20, 100, -100
+    )
+    var vector = [6, 20, 0, 1]
+    vector = MatrixMath.multiplyVectorByMatrix(vector, transform)
+    expect(vector[0]).toBeCloseTo(10)
+    expect(vector[1]).toBeCloseTo(20)
+    vector[0] = 12
+    vector[1] = 50
+    vector = MatrixMath.multiplyVectorByMatrix(vector, transform)
+    expect(vector[0]).toBeCloseTo(110)
+    expect(vector[1]).toBeCloseTo(-80)
   })
 })

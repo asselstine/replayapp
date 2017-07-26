@@ -42,7 +42,11 @@ export class SegmentEffort extends Component {
     if (this.state.raceVisible) {
       flex = 2
       var race =
-        <SegmentRace segmentEffort={this.props.segmentEffort} style={styles.segmentRace} />
+        <SegmentRace
+          eventEmitter={this.props.eventEmitter}
+          segmentEffort={this.props.segmentEffort}
+          onStreamTimeChange={this.props.onStreamTimeChange}
+          style={styles.segmentRace} />
     }
 
     return (
@@ -95,5 +99,7 @@ const styles = {
 }
 
 SegmentEffort.propTypes = {
-  segmentEffort: PropTypes.object
+  segmentEffort: PropTypes.object,
+  eventEmitter: PropTypes.object,
+  onStreamTimeChange: PropTypes.func
 }

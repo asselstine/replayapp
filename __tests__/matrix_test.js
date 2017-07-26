@@ -1,8 +1,5 @@
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
-import {
-  toWorldCoordinate,
-  fromWorldCoordinate
-} from '../shared/matrix'
+import Matrix from '../shared/matrix'
 
 /* global describe, it, expect */
 
@@ -25,18 +22,18 @@ function setup () {
 
 describe('toWorldCoordinate', () => {
   it('translates the origin correctly', () => {
-    expect(toWorldCoordinate(0, MatrixMath.createTranslate2d(10, 0))).toEqual(10)
+    expect(Matrix.toWorldCoordinate(0, MatrixMath.createTranslate2d(10, 0))).toEqual(10)
   })
   it('translates more complex locations', () => {
     var matrix = setup()
-    expect(toWorldCoordinate(0, matrix)).toEqual(15)
-    expect(toWorldCoordinate(10, matrix)).toEqual(35)
+    expect(Matrix.toWorldCoordinate(0, matrix)).toEqual(15)
+    expect(Matrix.toWorldCoordinate(10, matrix)).toEqual(35)
   })
 })
 
 describe('fromWorldCoordinate', () => {
   it('translates correctly', () => {
     var matrix = setup()
-    expect(fromWorldCoordinate(35, matrix)).toEqual(10)
+    expect(Matrix.fromWorldCoordinate(35, matrix)).toEqual(10)
   })
 })

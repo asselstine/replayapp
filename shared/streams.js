@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 
 export const valueToIndex = function (value, values, fromIndex = 0) {
   var ceilIndex = _.findIndex(values, (valueTime) => valueTime >= value, Math.floor(fromIndex))
@@ -15,6 +16,15 @@ export const valueToIndex = function (value, values, fromIndex = 0) {
   var indexFraction = valueFraction * indexSpan
 
   return floorIndex + indexFraction
+}
+
+// https://stackoverflow.com/questions/11301438/return-index-of-greatest-value-in-an-array
+export const minValueIndex = function (values) {
+  return values.reduce((iMax, x, i, arr) => x < arr[iMax] ? i : iMax, 0)
+}
+
+export const maxValueIndex = function (values) {
+  return values.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0)
 }
 
 // assume times are sorted
@@ -38,7 +48,7 @@ export const linearIndex = function (index, values) {
 
   NOTE: normalizes the versus distance as well; this may skew results.
 */
-export const versusDeltaTimes = function (times, distances, versusTimes, versusDistances, movings, versusMovings) {
+export const versusDeltaTimes = function (times, distances, versusTimes, versusDistances) {
   var distanceMax = distances[distances.length - 1]
   var versusDistanceMax = versusDistances[versusDistances.length - 1]
   var distanceMin = distances[0]
@@ -48,10 +58,35 @@ export const versusDeltaTimes = function (times, distances, versusTimes, versusD
   return _.map(distances, (distance, index) => {
     var versusDistance = (distance - distanceMin) * distanceScale
     versusIndex = valueToIndex(versusDistanceMin + versusDistance, versusDistances, versusIndex)
-    var versusMoving = versusMovings[Math.floor(versusIndex)]
     var versusTime = linearIndex(versusIndex, versusTimes)
     var deltaTime = (times[index] - times[0]) - (versusTime - versusTimes[0])
-    // console.log(`${deltaTime} @ index ${index}: ${movings[index]} time ${times[index]} at ${distance} vs ${versusMoving} ${versusTime} at ${versusDistance}`)
     return deltaTime
   })
+}
+
+export function createBoundsTransform (xStream, yStream, x, y, width, height) {
+  var xMin = xStream[0]
+  var xMax = xStream[xStream.length - 1]
+
+  var yMin = Math.min(...yStream)
+  var yMax = Math.max(...yStream)
+
+  var xScale = (width) / Math.max(1, xMax - xMin)
+  var yScale = (height) / Math.max(1, yMax - yMin)
+
+  var translate = MatrixMath.createIdentityMatrix()
+  var scale = MatrixMath.createIdentityMatrix()
+  MatrixMath.reuseTranslate2dCommand(translate, -x, -y)
+  MatrixMath.reuseScale3dCommand(scale, xScale, yScale, 1)
+  MatrixMath.multiplyInto(scale, scale, translate)
+  MatrixMath.reuseTranslate2dCommand(translate, x, y)
+  MatrixMath.multiplyInto(scale, translate, scale)
+
+  var xTranslate = x - xMin
+  var yTranslate = y - yMin
+  MatrixMath.reuseTranslate2dCommand(translate, xTranslate, yTranslate)
+
+  MatrixMath.multiplyInto(translate, scale, translate)
+
+  return translate
 }
