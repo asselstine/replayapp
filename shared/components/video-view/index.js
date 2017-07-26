@@ -218,6 +218,7 @@ export const VideoView = connect(
       var activitySegments =
         <ActivitySegments
           tabLabel='Race'
+          eventEmitter={this.eventEmitter}
           activity={activity} />
     }
 

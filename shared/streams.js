@@ -17,6 +17,15 @@ export const valueToIndex = function (value, values, fromIndex = 0) {
   return floorIndex + indexFraction
 }
 
+// https://stackoverflow.com/questions/11301438/return-index-of-greatest-value-in-an-array
+export const minValueIndex = function (values) {
+  return values.reduce((iMax, x, i, arr) => x < arr[iMax] ? i : iMax, 0)
+}
+
+export const maxValueIndex = function (values) {
+  return values.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0)
+}
+
 // assume times are sorted
 export const linear = function (time, times, values, fromIndex = 0) {
   var index = valueToIndex(time, times)
@@ -38,7 +47,7 @@ export const linearIndex = function (index, values) {
 
   NOTE: normalizes the versus distance as well; this may skew results.
 */
-export const versusDeltaTimes = function (times, distances, versusTimes, versusDistances, movings, versusMovings) {
+export const versusDeltaTimes = function (times, distances, versusTimes, versusDistances) {
   var distanceMax = distances[distances.length - 1]
   var versusDistanceMax = versusDistances[versusDistances.length - 1]
   var distanceMin = distances[0]
@@ -48,10 +57,8 @@ export const versusDeltaTimes = function (times, distances, versusTimes, versusD
   return _.map(distances, (distance, index) => {
     var versusDistance = (distance - distanceMin) * distanceScale
     versusIndex = valueToIndex(versusDistanceMin + versusDistance, versusDistances, versusIndex)
-    var versusMoving = versusMovings[Math.floor(versusIndex)]
     var versusTime = linearIndex(versusIndex, versusTimes)
     var deltaTime = (times[index] - times[0]) - (versusTime - versusTimes[0])
-    // console.log(`${deltaTime} @ index ${index}: ${movings[index]} time ${times[index]} at ${distance} vs ${versusMoving} ${versusTime} at ${versusDistance}`)
     return deltaTime
   })
 }

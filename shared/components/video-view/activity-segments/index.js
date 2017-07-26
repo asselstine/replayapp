@@ -26,7 +26,12 @@ export class ActivitySegments extends Component {
     return (
       <ScrollView style={styles.view}>
         {segmentEfforts.map((segmentEffort) => {
-          return <SegmentEffort segmentEffort={segmentEffort} key={segmentEffort.id} />
+          return (
+            <SegmentEffort
+              eventEmitter={this.props.eventEmitter}
+              segmentEffort={segmentEffort}
+              key={segmentEffort.id} />
+          )
         })}
       </ScrollView>
     )
@@ -40,5 +45,6 @@ const styles = {
 }
 
 ActivitySegments.propTypes = {
-  activity: PropTypes.object
+  activity: PropTypes.object,
+  eventEmitter: PropTypes.object.isRequired
 }

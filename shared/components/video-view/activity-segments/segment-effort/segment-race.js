@@ -90,5 +90,6 @@ export class SegmentRace extends Component {
 }
 
 SegmentRace.propTypes = {
-  segmentEffort: PropTypes.object.isRequired
+  segmentEffort: PropTypes.object.isRequired,
+  eventEmitter: PropTypes.object.isRequired
 }
