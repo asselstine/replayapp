@@ -30,6 +30,7 @@ export class ActivityStreams extends PureComponent {
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
     this.streamTime = 0
     this.newTransform = MatrixMath.createIdentityMatrix()
+    this.resizeToVideo = this.resizeToVideo.bind(this)
     this.moveCursor = _.throttle(this.moveCursor.bind(this), 20)
     this.setTransform = _.throttle(this.setTransform.bind(this), 20)
     this._onLayout = this._onLayout.bind(this)
@@ -63,6 +64,7 @@ export class ActivityStreams extends PureComponent {
 
   componentDidMount () {
     this.updateCursorLocation()
+    this.resizeToVideo(this.props)
   }
 
   storeOriginalTouches (touches) {
@@ -117,6 +119,14 @@ export class ActivityStreams extends PureComponent {
         this.moveCursor(locationX)
       }
     }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    // if (nextProps.streams !== this.props.streams ||
+    //     nextProps.videoStreamStartTime !== this.props.videoStreamStartTime ||
+    //     nextProps.videoStreamEndTime !== this.props.videoStreamEndTime) {
+    this.resizeToVideo(nextProps)
+    // }
   }
 
   handleResponderRelease (e, gestureState) {
@@ -273,6 +283,31 @@ export class ActivityStreams extends PureComponent {
     return matrix
   }
 
+  resizeToVideo (props) {
+    var times = _.get(props, 'streams.time.data')
+    if (!(times && props.videoStreamStartTime && props.videoStreamEndTime && this.state.width > 1)) { return }
+
+    var matrix = this.newTransform
+    var completeTransform = this.combinedTransforms()
+    // duration / length
+    var bestScale = (times[times.length - 1] - times[0]) / (props.videoStreamEndTime - props.videoStreamStartTime)
+    // Fix the scale
+    if (completeTransform[0] !== bestScale) {
+      var reScale = MatrixMath.createIdentityMatrix()
+      reScale[0] = bestScale / completeTransform[0]
+      MatrixMath.multiplyInto(matrix, reScale, matrix)
+    }
+    // Update current complete matrix
+    MatrixMath.multiplyInto(completeTransform, matrix, this.state.transform)
+
+    var originalX = this.streamTimeToOriginalX(props.videoStreamStartTime)
+    // Fix the origin
+    var originDifference = MatrixMath.multiplyVectorByMatrix([originalX, 0, 0, 1], completeTransform)
+    MatrixMath.multiplyInto(matrix, MatrixMath.createTranslate2d(-originDifference[0], 0), matrix)
+
+    this.applyTransform()
+  }
+
   addOriginTransformTo (matrix) {
     var translate = MatrixMath.createIdentityMatrix()
     var copy = matrix.slice()
@@ -287,7 +322,7 @@ export class ActivityStreams extends PureComponent {
     this.setState({
       width: _.get(event, 'nativeEvent.layout.width') || 1,
       height: _.get(event, 'nativeEvent.layout.height') || 1
-    })
+    }, () => { this.resizeToVideo(this.props) })
   }
 
   animateCursorToLocationX (locationX) {
