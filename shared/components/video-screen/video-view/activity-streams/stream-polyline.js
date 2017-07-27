@@ -4,7 +4,7 @@ import _ from 'lodash'
 import {
   Polyline
 } from 'react-native-svg'
-import { streamPoints, transformPoints } from '../../../svg'
+import { streamPoints, transformPoints } from '../../../../svg'
 
 export class StreamPolyline extends PureComponent {
   render () {

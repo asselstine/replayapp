@@ -1,17 +1,17 @@
 import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
 import Video from 'react-native-video'
+import PropTypes from 'prop-types'
 import Orientation from 'react-native-orientation'
-import { PhotosFramework } from '../../services/photos-framework'
+import { PhotosFramework } from '../../../../services/photos-framework'
 
 import {
-  ActivityIndicator,
   FlatList,
   TouchableHighlight,
   Alert
 } from 'react-native'
 
-export class VideoBrowserView extends PureComponent {
+export class RawVideoList extends PureComponent {
   constructor (props) {
     super(props)
     this.state = {
@@ -65,7 +65,7 @@ export class VideoBrowserView extends PureComponent {
   }
 
   _keyExtractor (item, index) {
-    return item.video.uri
+    return item.localIdentifier
   }
 
   _onEndReached () {
@@ -80,7 +80,7 @@ export class VideoBrowserView extends PureComponent {
         onPress={() => this.props.onPressVideo(item)}
         style={styles.videoContainer}>
         <Video
-          source={item._videoRef}
+          source={item.video}
           paused
           resizeMode='cover'
           style={styles.video}
@@ -132,7 +132,8 @@ export class VideoBrowserView extends PureComponent {
         numColumns={2}
         renderItem={this._renderItem}
         keyExtractor={this._keyExtractor}
-        onEndReached={this._onEndReached} />
+        onEndReached={this._onEndReached}
+        style={this.props.style} />
     )
   }
 }
@@ -149,10 +150,11 @@ const styles = {
   }
 }
 
-VideoBrowserView.propTypes = {
-  onPressVideo: React.PropTypes.func.isRequired
+RawVideoList.propTypes = {
+  onPressVideo: PropTypes.func.isRequired,
+  style: PropTypes.any
 }
 
-VideoBrowserView.navigationOptions = {
+RawVideoList.navigationOptions = {
   title: 'Add Video'
 }

@@ -105,7 +105,7 @@ export class SyncModal extends Component {
     if (this.props.rawVideoData) {
       var video =
         <Video
-          source={this.props.rawVideoData}
+          source={this.props.rawVideoData.video}
           onLoad={this.onLoad}
           ref={(ref) => { this.player = ref }}
           paused={this.state.paused}

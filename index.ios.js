@@ -1,4 +1,4 @@
 import { AppRegistry } from 'react-native'
-import { Navigator } from './shared/components/navigator'
+import { App } from './shared/app'
 
-AppRegistry.registerComponent('replayapp', () => Navigator)
+AppRegistry.registerComponent('replayapp', () => App)

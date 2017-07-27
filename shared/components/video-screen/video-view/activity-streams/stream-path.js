@@ -4,7 +4,7 @@ import _ from 'lodash'
 import {
   Path
 } from 'react-native-svg'
-import { streamPoints, transformPoints } from '../../../svg'
+import { streamPoints, transformPoints } from '../../../../svg'
 
 export class StreamPath extends PureComponent {
   render () {

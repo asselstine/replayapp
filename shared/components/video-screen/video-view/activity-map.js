@@ -8,9 +8,9 @@ import {
 import MapView from 'react-native-maps'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { linear, linearIndex } from '../../streams'
-import { closestPoint } from '../../closest-point'
-import * as colours from '../../colours'
+import { linear, linearIndex } from '../../../streams'
+import { closestPoint } from '../../../closest-point'
+import * as colours from '../../../colours'
 
 export class ActivityMap extends Component {
   constructor (props) {

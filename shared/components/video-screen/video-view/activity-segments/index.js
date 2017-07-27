@@ -3,12 +3,11 @@ import React, {
 } from 'react'
 import PropTypes from 'prop-types'
 import {
-  View,
   ScrollView
 } from 'react-native'
 import _ from 'lodash'
 import { SegmentEffort } from './segment-effort'
-import { Strava } from '../../../strava'
+import { Strava } from '../../../../strava'
 
 export class ActivitySegments extends Component {
   componentDidMount () {

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {
   FlatList
 } from 'react-native'
-import { Strava } from '../../../../strava'
+import { Strava } from '../../../../../strava'
 import { ActivityItem } from './activity-item'
 import PropTypes from 'prop-types'
 

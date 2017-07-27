@@ -1,26 +1,24 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { VideoPlayer } from '../video-player'
+import { VideoPlayer } from '../../video-player'
 import {
   Animated,
   View,
-  Text,
-  ScrollView,
   Button
 } from 'react-native'
 import EventEmitter from 'EventEmitter'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import moment from 'moment'
-import { manager } from '../../oauth'
-import { store } from '../../store'
-import { attachActivity, setVideoStartAt } from '../../actions/video-actions'
-import { login } from '../../actions/strava-actions'
+import { manager } from '../../../oauth'
+import { store } from '../../../store'
+import { attachActivity, setVideoStartAt } from '../../../actions/video-actions'
+import { login } from '../../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
 import { ActivityMap } from './activity-map'
 import { ActivitySegments } from './activity-segments'
-import { StreamsService } from '../../services/streams-service'
+import { StreamsService } from '../../../services/streams-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 
@@ -176,7 +174,7 @@ export const VideoView = connect(
             ref={(ref) => { this._videoPlayer = ref }}
             onProgress={this.onProgress}
             onPlay={this.onPlay}
-            video={this.props.video.rawVideoData._videoRef}
+            video={this.props.video.src}
             style={styles.videoPlayer} />
         </Rotator>
     }
@@ -206,7 +204,7 @@ export const VideoView = connect(
           color='#fc4c02' />
     }
 
-    var activityMap, activitySegments
+    var activityInfo, activityStreams, activityMap, activitySegments
 
     if (activity) {
       activityMap =
@@ -223,29 +221,20 @@ export const VideoView = connect(
           eventEmitter={this.eventEmitter}
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
           activity={activity} />
-    }
 
-    var activityStreams
+      if (this.props.streams) {
+        activityStreams =
+          <ActivityStreams
+            tabLabel='Data'
+            onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
+            eventEmitter={this.eventEmitter}
+            activity={activity}
+            streams={this.props.streams}
+            videoStreamStartTime={videoStreamStartTime}
+            videoStreamEndTime={videoStreamEndTime} />
+      }
 
-    if (activity && this.props.streams) {
-      activityStreams =
-        <ActivityStreams
-          tabLabel='Data'
-          onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
-          eventEmitter={this.eventEmitter}
-          activity={activity}
-          streams={this.props.streams}
-          videoStreamStartTime={videoStreamStartTime}
-          videoStreamEndTime={videoStreamEndTime} />
-    }
-
-    return (
-      <View style={styles.videoView} ref={(ref) => { this.viewRef = ref }}>
-        {videoPlayer}
-        <View style={styles.titleHeader}>
-          {connectStravaButton}
-          {lockToggle}
-        </View>
+      activityInfo =
         <ScrollableTabView
           locked
           tabBarTextStyle={styles.tabBarTextStyle}
@@ -254,6 +243,16 @@ export const VideoView = connect(
           {activityStreams}
           {activityMap}
         </ScrollableTabView>
+    }
+
+    return (
+      <View style={styles.videoView}>
+        {videoPlayer}
+        <View style={styles.titleHeader}>
+          {connectStravaButton}
+          {lockToggle}
+        </View>
+        {activityInfo}
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}

@@ -14,9 +14,9 @@ import { TextLayer } from './text-layer'
 import _ from 'lodash'
 import { StreamPath } from './stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
-import { linear } from '../../../streams'
-import { round } from '../../../round'
-import * as colours from '../../../colours'
+import { linear } from '../../../../streams'
+import { round } from '../../../../round'
+import * as colours from '../../../../colours'
 
 const IDENTITY = MatrixMath.createIdentityMatrix()
 

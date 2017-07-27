@@ -7,7 +7,7 @@ import {
 } from 'react-native'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Strava } from '../../../../strava'
+import { Strava } from '../../../../../strava'
 import { RaceGraph } from './race-graph'
 
 export class SegmentRace extends Component {
