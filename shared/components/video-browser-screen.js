@@ -3,6 +3,7 @@ import { VideoBrowserView } from './video-browser-view'
 import { Provider } from 'react-redux'
 import { store } from '../store'
 import { newVideo } from '../actions/video-actions'
+import { NavigationActions } from 'react-navigation'
 
 export const VideoBrowserScreen = React.createClass({
   navigationOptions: {
@@ -11,7 +12,14 @@ export const VideoBrowserScreen = React.createClass({
 
   onPressVideo (video) {
     store.dispatch(newVideo(video))
-    this.props.navigation.navigate('Video', { videoUri: video.video.uri })
+    var action = NavigationActions.reset({
+      index: 0,
+      actions: [
+        NavigationActions.navigate({ routeName: 'LinkedVideos' }),
+        NavigationActions.navigate({ routeName: 'Video', params: { localIdentifier: video.video.uri } })
+      ]
+    })
+    this.props.navigation.dispatch(action)
   },
 
   render () {

@@ -125,13 +125,6 @@ export class VideoBrowserView extends PureComponent {
     )
   }
 
-  _renderFooter () {
-    if (!this.state.noMore) {
-      return <ActivityIndicator />
-    }
-    return null
-  }
-
   render () {
     return (
       <FlatList
@@ -158,4 +151,8 @@ const styles = {
 
 VideoBrowserView.propTypes = {
   onPressVideo: React.PropTypes.func.isRequired
+}
+
+VideoBrowserView.navigationOptions = {
+  title: 'Add Video'
 }

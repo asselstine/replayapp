@@ -26,7 +26,7 @@ import ScrollableTabView from 'react-native-scrollable-tab-view'
 
 export const VideoView = connect(
   (state, ownProps) => {
-    var video = _.get(state, `videos[${ownProps.videoUri}]`)
+    var video = _.get(state, `videos[${ownProps.localIdentifier}]`)
     var result = {
       video: video
     }
@@ -298,7 +298,7 @@ const styles = {
 }
 
 VideoView.propTypes = {
-  videoUri: PropTypes.string.isRequired,
+  localIdentifier: PropTypes.string.isRequired,
   video: PropTypes.object,
   latlngStream: PropTypes.object,
   timeStream: PropTypes.object
