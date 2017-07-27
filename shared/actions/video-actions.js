@@ -20,3 +20,10 @@ export const setVideoStartAt = function (rawVideoData, videoStartAt) {
     startAt: videoStartAt
   }
 }
+
+export const removeVideo = function (video) {
+  return {
+    type: 'REMOVE_VIDEO',
+    video: video
+  }
+}

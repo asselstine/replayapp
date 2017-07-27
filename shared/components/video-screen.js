@@ -11,7 +11,7 @@ export class VideoScreen extends Component {
     return (
       <Provider store={store}>
         <VideoView
-          videoUri={params.videoUri} />
+          localIdentifier={params.localIdentifier} />
       </Provider>
     )
   }

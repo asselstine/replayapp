@@ -7,9 +7,9 @@ export default function (state, action) {
   }
   switch (action.type) {
     case 'NEW_VIDEO':
-      if (!state[action.rawVideoData._uri]) {
+      if (!state[action.rawVideoData.localIdentifier]) {
         var cmd = {}
-        cmd[action.rawVideoData._uri] = {
+        cmd[action.rawVideoData.localIdentifier] = {
           '$set': {
             rawVideoData: action.rawVideoData,
             startAt: moment(action.rawVideoData.creationDateUTCSeconds * 1000)
@@ -20,7 +20,7 @@ export default function (state, action) {
       break
     case 'ATTACH_ACTIVITY':
       cmd = {}
-      cmd[action.rawVideoData._uri] = {
+      cmd[action.rawVideoData.localIdentifier] = {
         activity: {
           '$set': action.activity
         }
@@ -29,12 +29,16 @@ export default function (state, action) {
       break
     case 'SET_VIDEO_START_AT':
       cmd = {}
-      cmd[action.rawVideoData._uri] = {
+      cmd[action.rawVideoData.localIdentifier] = {
         startAt: {
           '$set': action.startAt.toDate()
         }
       }
       state = update(state, cmd)
+      break
+    case 'REMOVE_VIDEO':
+      state = update(state, {})
+      delete state[action.video.rawVideoData.localIdentifier]
       break
   }
   return state
