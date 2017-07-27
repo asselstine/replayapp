@@ -15,7 +15,7 @@ export const VideoScreen = connect(
   componentWillReceiveProps (nextProps) {
     const { title } = nextProps.navigation.state.params
     if (nextProps.activityName && nextProps.activityName !== title) {
-      // nextProps.navigation.setParams({ title: nextProps.activityName })
+      nextProps.navigation.setParams({ title: nextProps.activityName })
     }
   }
   render () {
