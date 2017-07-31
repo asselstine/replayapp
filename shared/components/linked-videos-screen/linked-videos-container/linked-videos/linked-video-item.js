@@ -23,6 +23,7 @@ export class LinkedVideoItem extends PureComponent {
   }
 
   render () {
+    console.log('linked video item ', this.props.video.src)
     return (
       <TouchableHighlight
         onPress={this._onPress}

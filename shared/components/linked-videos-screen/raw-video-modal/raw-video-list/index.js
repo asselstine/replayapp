@@ -1,13 +1,12 @@
 import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
-import Video from 'react-native-video'
 import PropTypes from 'prop-types'
 import Orientation from 'react-native-orientation'
 import { PhotosFramework } from '../../../../services/photos-framework'
+import { RawVideoItem } from './raw-video-item'
 
 import {
   FlatList,
-  TouchableHighlight,
   Alert
 } from 'react-native'
 
@@ -36,10 +35,10 @@ export class RawVideoList extends PureComponent {
 
     RNPhotosFramework.getAssets({
       startIndex: 0,
-      endIndex: 10,
+      endIndex: 15,
       includeMetadata: true,
       fetchOptions: {
-        sourceTypes: ['userLibrary'],
+        // sourceTypes: ['userLibrary'],
         mediaTypes: ['video'],
         sortDescriptors: [
           {
@@ -76,16 +75,9 @@ export class RawVideoList extends PureComponent {
 
   _renderItem ({item, index, separators}) {
     return (
-      <TouchableHighlight
-        onPress={() => this.props.onPressVideo(item)}
-        style={styles.videoContainer}>
-        <Video
-          source={item.video}
-          paused
-          resizeMode='cover'
-          style={styles.video}
-          />
-      </TouchableHighlight>
+      <RawVideoItem
+        onPressVideo={this.props.onPressVideo}
+        rawVideoData={item} />
     )
   }
 
@@ -108,7 +100,7 @@ export class RawVideoList extends PureComponent {
       if (response.isAuthorized) {
         PhotosFramework.init()
         this._subscription = PhotosFramework.emitter().addListener('onLibraryChange', this.refetch.bind(this))
-        this.setState({ loaded: true }, this.fetch.bind(this))
+        this.setState({ loaded: true })
       } else {
         this.requestAuthorization()
       }
@@ -135,18 +127,6 @@ export class RawVideoList extends PureComponent {
         onEndReached={this._onEndReached}
         style={this.props.style} />
     )
-  }
-}
-
-const styles = {
-  videoContainer: {
-    width: '50%',
-    aspectRatio: 1.0
-  },
-
-  video: {
-    width: '100%',
-    height: '100%'
   }
 }
 
