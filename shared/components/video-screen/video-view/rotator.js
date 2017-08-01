@@ -36,7 +36,8 @@ export class Rotator extends Component {
   }
 
   _onOrientationChange (orientation) {
-    var landscape = orientation === 'LANDSCAPE'
+    var landscape =
+      (orientation === 'LANDSCAPE' || orientation === 'UNKNOWN' && this.state.landscape)
     this.setState({ landscape: landscape }, () => {
       if (landscape) {
         var toValue = 1
