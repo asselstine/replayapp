@@ -15,7 +15,6 @@ export class RawVideoList extends PureComponent {
     super(props)
     this.state = {
       assets: [],
-      lastCursor: null,
       noMore: false,
       loaded: false
     }
@@ -24,21 +23,11 @@ export class RawVideoList extends PureComponent {
   }
 
   fetch () {
-    const fetchParams = {
-      first: 40,
-      groupTypes: 'All',
-      assetType: 'All' // assetType: 'Videos'
-    }
-    if (this.state.lastCursor) {
-      fetchParams.after = this.state.lastCursor
-    }
-
     RNPhotosFramework.getAssets({
       startIndex: 0,
-      endIndex: 15,
+      endIndex: 20,
       includeMetadata: true,
       fetchOptions: {
-        // sourceTypes: ['userLibrary'],
         mediaTypes: ['video'],
         sortDescriptors: [
           {
@@ -58,8 +47,7 @@ export class RawVideoList extends PureComponent {
   refetch () {
     this.setState({
       assets: [],
-      noMore: false,
-      lastCursor: null
+      noMore: false
     }, () => { this.fetch() })
   }
 
@@ -96,11 +84,10 @@ export class RawVideoList extends PureComponent {
   }
 
   authorize () {
-    RNPhotosFramework.requestAuthorization().then((response) => {
+    PhotosFramework.auth().then((response) => {
       if (response.isAuthorized) {
-        PhotosFramework.init()
         this._subscription = PhotosFramework.emitter().addListener('onLibraryChange', this.refetch.bind(this))
-        this.setState({ loaded: true })
+        this.setState({ loaded: true }, this.refetch.bind(this))
       } else {
         this.requestAuthorization()
       }

@@ -6,6 +6,7 @@ import {
 } from 'react-native'
 import PropTypes from 'prop-types'
 import { LinkedVideoItem } from './linked-video-item'
+import { PhotosFramework } from '../../../../services/photos-framework'
 
 export class LinkedVideos extends Component {
   constructor (props) {
@@ -13,6 +14,19 @@ export class LinkedVideos extends Component {
     this._onPress = this._onPress.bind(this)
     this._onLongPress = this._onLongPress.bind(this)
     this._renderItem = this._renderItem.bind(this)
+    this.state = {
+      showVideos: false
+    }
+  }
+
+  componentDidMount () {
+    PhotosFramework.auth().then((response) => {
+      if (response.isAuthorized) {
+        this.setState({
+          showVideos: true
+        })
+      }
+    })
   }
 
   _onPress (video) {
@@ -34,9 +48,14 @@ export class LinkedVideos extends Component {
   }
 
   render () {
+    var videos = []
+    if (this.state.showVideos) {
+      videos = this.props.videos
+    }
+
     return (
       <FlatList
-        data={this.props.videos}
+        data={videos}
         numColumns={2}
         renderItem={this._renderItem}
         keyExtractor={this._keyExtractor} />
