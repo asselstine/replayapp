@@ -174,8 +174,8 @@ export const VideoView = connect(
             ref={(ref) => { this._videoPlayer = ref }}
             onProgress={this.onProgress}
             onPlay={this.onPlay}
-            video={this.props.video.src}
-            style={styles.videoPlayer} />
+            style={styles.videoPlayer}
+            video={this.props.video.src} />
         </Rotator>
     }
 

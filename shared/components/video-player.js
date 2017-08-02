@@ -2,9 +2,16 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import update from 'immutability-helper'
 import Video from 'react-native-video'
+import TimerMixin from 'react-timer-mixin'
+import reactMixin from 'react-mixin'
+import _ from 'lodash'
 import {
-  TouchableOpacity
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Animated,
+  View
 } from 'react-native'
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -14,10 +21,13 @@ export class VideoPlayer extends Component {
       duration: 0,
       orientation: 'landscape',
       width: 1,
-      height: 1
+      height: 1,
+      overlayOpacity: new Animated.Value(0),
+      showOverlay: false
     }
     this.onLoad = this.onLoad.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
+    this.hideOverlay = this.hideOverlay.bind(this)
   }
 
   onLoad (e) {
@@ -29,7 +39,48 @@ export class VideoPlayer extends Component {
     })
   }
 
+  showOverlay () {
+    Animated.timing(
+      this.state.overlayOpacity,
+      {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true
+      }
+    ).start()
+    this.setState({ showOverlay: true })
+  }
+
+  hideOverlay () {
+    Animated.timing(
+      this.state.overlayOpacity,
+      {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true
+      }
+    ).start()
+    this.setState({ showOverlay: false })
+  }
+
+  beginOverlayTimeout () {
+    if (this.timeout) {
+      this.clearTimeout(this.timeout)
+    }
+    this.timeout = this.setTimeout(this.hideOverlay, 3000)
+  }
+
   onPressVideo (e) {
+    // if (!this.state.showOverlay) {
+    //   this.showOverlay()
+    //   this.beginOverlayTimeout()
+    // } else {
+    //   this.hideOverlay()
+    // }
+    this.togglePlay()
+  }
+
+  togglePlay () {
     if (this.state.paused) {
       if (this.getCurrentTime() >= this.state.duration) {
         this.player.seek(0)
@@ -83,6 +134,18 @@ export class VideoPlayer extends Component {
       aspectRatio: aspectRatio
     }, { $merge: this.props.style })
 
+    var overlayStyle = _.merge({}, styles.overlay, {
+      opacity: this.state.overlayOpacity
+    })
+
+    /*
+    <View>
+    <Animated.View style={overlayStyle}>
+      <MaterialIcon name='keyboard-arrow-down' size={30} color='red' />
+    </Animated.View>
+    </View>
+    */
+
     return (
       <TouchableOpacity onPress={this.onPressVideo}>
         <Video
@@ -93,7 +156,7 @@ export class VideoPlayer extends Component {
           onEnd={(arg) => { this._onEnd(arg) }}
           paused={this.state.paused}
           style={videoStyle}
-          resizeMode='fill'
+          resizeMode='cover'
           />
       </TouchableOpacity>
     )
@@ -110,3 +173,16 @@ VideoPlayer.propTypes = {
 VideoPlayer.defaultProps = {
   style: {}
 }
+
+const styles = {
+  overlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)'
+  }
+}
+
+reactMixin(VideoPlayer.prototype, TimerMixin)
