@@ -21,6 +21,7 @@ import { ActivitySegments } from './activity-segments'
 import { StreamsService } from '../../../services/streams-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
+import { NavigationEventEmitter } from '../../navigation-event-emitter'
 
 export const VideoView = connect(
   (state, ownProps) => {
@@ -44,7 +45,8 @@ export const VideoView = connect(
       landscape: false,
       videoRotate: new Animated.Value(0),
       videoPlayerWidth: 1,
-      videoPlayerHeight: 1
+      videoPlayerHeight: 1,
+      showVideo: false
     }
     this.onProgress = this.onProgress.bind(this)
     this.onPlay = this.onPlay.bind(this)
@@ -105,6 +107,17 @@ export const VideoView = connect(
       StreamsService.retrieveStreams(this.props.video.activity.id)
     }
     this.checkStreams(this.props)
+    this._transitionEndListener = NavigationEventEmitter.addListener('transitionEnd', this._transitionEnd.bind(this))
+  }
+
+  componentWillUnmount () {
+    this._transitionEndListener.remove()
+  }
+
+  _transitionEnd () {
+    this.setState({
+      showVideo: true
+    })
   }
 
   componentWillReceiveProps (nextProps) {
@@ -167,7 +180,7 @@ export const VideoView = connect(
     var videoStreamStartTime = Math.max(0, Math.min(this.videoTimeToStreamTime(0), activityDuration))
     var videoStreamEndTime = Math.min(activityDuration, videoStreamStartTime + videoDuration)
 
-    if (this.props.video) {
+    if (this.props.video && this.state.showVideo) {
       var videoPlayer =
         <Rotator>
           <VideoPlayer
