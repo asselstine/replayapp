@@ -41,6 +41,15 @@ export default function (state, action) {
       state = update(state, {})
       delete state[action.video.rawVideoData.localIdentifier]
       break
+    case 'RESET_VIDEO_START_AT':
+      cmd = {}
+      cmd[action.rawVideoData.localIdentifier] = {
+        startAt: {
+          '$set': moment(action.rawVideoData.creationDateUTCSeconds * 1000)
+        }
+      }
+      state = update(state, cmd)
+      break
   }
   return state
 }
