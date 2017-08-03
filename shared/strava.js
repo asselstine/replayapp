@@ -89,6 +89,7 @@ export const Strava = {
 
   compareEfforts (segmentId, referenceSegmentEffortId, segmentEffortId) {
     var url = `https://www.strava.com/segments/${segmentId}/compare_efforts?reference_id=${referenceSegmentEffortId}&comparing_id=${segmentEffortId}`
+    console.log(`Strava ${url}`)
     return (
       fetch(url, {
         headers: this.headers()
