@@ -4,7 +4,10 @@ import { VideoPlayer } from '../../video-player'
 import {
   Animated,
   View,
-  Button
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  Image
 } from 'react-native'
 import EventEmitter from 'EventEmitter'
 import { connect } from 'react-redux'
@@ -21,6 +24,12 @@ import { ActivitySegments } from './activity-segments'
 import { StreamsService } from '../../../services/streams-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
+import { NavigationEventEmitter } from '../../navigation-event-emitter'
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Orientation from 'react-native-orientation'
+import * as colours from '../../../colours'
+
+import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
 export const VideoView = connect(
   (state, ownProps) => {
@@ -44,7 +53,8 @@ export const VideoView = connect(
       landscape: false,
       videoRotate: new Animated.Value(0),
       videoPlayerWidth: 1,
-      videoPlayerHeight: 1
+      videoPlayerHeight: 1,
+      showVideo: true
     }
     this.onProgress = this.onProgress.bind(this)
     this.onPlay = this.onPlay.bind(this)
@@ -100,11 +110,23 @@ export const VideoView = connect(
   }
 
   componentDidMount () {
+    Orientation.lockToPortrait()
     this.checkSyncModal(this.props)
     if (_.get(this.props, 'video.activity')) {
       StreamsService.retrieveStreams(this.props.video.activity.id)
     }
     this.checkStreams(this.props)
+    this._transitionEndListener = NavigationEventEmitter.addListener('transitionEnd', this._transitionEnd.bind(this))
+  }
+
+  componentWillUnmount () {
+    this._transitionEndListener.remove()
+  }
+
+  _transitionEnd () {
+    this.setState({
+      showVideo: true
+    })
   }
 
   componentWillReceiveProps (nextProps) {
@@ -167,41 +189,61 @@ export const VideoView = connect(
     var videoStreamStartTime = Math.max(0, Math.min(this.videoTimeToStreamTime(0), activityDuration))
     var videoStreamEndTime = Math.min(activityDuration, videoStreamStartTime + videoDuration)
 
-    if (this.props.video) {
+    if (this.props.video && this.state.showVideo) {
       var videoPlayer =
         <Rotator>
           <VideoPlayer
             ref={(ref) => { this._videoPlayer = ref }}
             onProgress={this.onProgress}
             onPlay={this.onPlay}
-            video={this.props.video.src}
-            style={styles.videoPlayer} />
+            onClose={this.props.onClose}
+            style={styles.videoPlayer}
+            video={this.props.video.src} />
         </Rotator>
     }
 
     if (activity) {
-      var connectStravaButton =
-        <Button
-          title={activity.name}
-          onPress={this.onPressStravaConnect}
-          style={styles.titleHeaderButton} />
+      var changeActivityButton =
+        <TouchableOpacity onPress={this.onPressStravaConnect}>
+          <View style={styles.activityButton}>
+            <Text style={styles.activityButtonText}>
+              {activity.name}
+            </Text>
+          </View>
+        </TouchableOpacity>
 
-      var lockTitle = 'Unlock'
-      if (!this.state.locked) {
-        lockTitle = 'Lock'
+      var lockContent
+      if (this.state.locked) {
+        lockContent =
+          <MaterialCommunityIcon
+            name='lock'
+            style={styles.titleHeaderIcon} />
+      } else {
+        lockContent =
+          <MaterialCommunityIcon
+            name='lock-open'
+            style={styles.titleHeaderIcon} />
       }
       var lockToggle =
-        <Button
-          title={lockTitle}
-          onPress={this.onToggleLock}
-          style={styles.titleHeaderButton} />
+        <TouchableOpacity onPress={this.onToggleLock}>
+          {lockContent}
+        </TouchableOpacity>
+
+      var header =
+        <View style={styles.titleHeader}>
+          {changeActivityButton}
+          {lockToggle}
+        </View>
     } else {
-      connectStravaButton =
-        <Button
-          onPress={this.onPressStravaConnect}
-          title='Connect Strava'
-          style={styles.titleHeaderButton}
-          color='#fc4c02' />
+      header =
+        <View style={styles.connectHeader}>
+          <TouchableOpacity onPress={this.onPressStravaConnect}>
+            <Image
+              resizeMode='contain'
+              style={styles.connectStravaButton}
+              source={connectWithStrava} />
+          </TouchableOpacity>
+        </View>
     }
 
     var activityInfo, activityStreams, activityMap, activitySegments
@@ -238,6 +280,8 @@ export const VideoView = connect(
         <ScrollableTabView
           locked
           tabBarTextStyle={styles.tabBarTextStyle}
+          tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
+          tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}
           style={styles.streamsContainer}>
           {activitySegments}
           {activityStreams}
@@ -247,11 +291,9 @@ export const VideoView = connect(
 
     return (
       <View style={styles.videoView}>
+        <StatusBar hidden />
         {videoPlayer}
-        <View style={styles.titleHeader}>
-          {connectStravaButton}
-          {lockToggle}
-        </View>
+        {header}
         {activityInfo}
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
@@ -267,6 +309,10 @@ const styles = {
     flex: 1
   },
 
+  connectStravaButton: {
+    width: 193
+  },
+
   titleHeader: {
     flex: 0,
     flexDirection: 'row',
@@ -274,8 +320,28 @@ const styles = {
     zIndex: 1000
   },
 
-  titleHeaderButton: {
-    flex: 1
+  connectHeader: {
+    flex: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  activityButton: {
+    flex: 1,
+    padding: 10
+  },
+
+  activityButtonText: {
+    fontSize: 24,
+    fontWeight: '300',
+    color: 'black'
+  },
+
+  titleHeaderIcon: {
+    color: 'black',
+    fontSize: 24,
+    padding: 10
   },
 
   connectButton: {
@@ -292,7 +358,7 @@ const styles = {
 
   tabBarTextStyle: {
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: '200'
   }
 }
 
@@ -300,5 +366,6 @@ VideoView.propTypes = {
   localIdentifier: PropTypes.string.isRequired,
   video: PropTypes.object,
   latlngStream: PropTypes.object,
-  timeStream: PropTypes.object
+  timeStream: PropTypes.object,
+  onClose: PropTypes.func
 }

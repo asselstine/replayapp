@@ -26,13 +26,15 @@ export class SegmentRace extends Component {
   componentDidMount () {
     var segmentId = this.props.segmentEffort.segment.id
     this.retrieveSegmentEffortStream()
-    Strava.retrieveLeaderboard(segmentId).then((response) => {
-      response.json().then((json) => {
-        this.setState({
-          versusSegmentEffortId: json.entries[0].effort_id
-        }, this.updateCompareEfforts)
+    Strava
+      .retrieveLeaderboard(segmentId)
+      .then((response) => {
+        response.json().then((json) => {
+          this.setState({
+            versusSegmentEffortId: json.entries[0].effort_id
+          }, this.updateCompareEfforts)
+        })
       })
-    })
   }
 
   updateCompareEfforts () {
@@ -40,6 +42,7 @@ export class SegmentRace extends Component {
       Strava
         .compareEfforts(this.props.segmentEffort.segment.id, this.props.segmentEffort.id, this.state.versusSegmentEffortId)
         .then((response) => {
+          console.log(response)
           response.json().then((json) => {
             this.setState({
               versusDeltaTimes: json.delta_time

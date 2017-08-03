@@ -2819,6 +2819,10 @@ oauth-sign@~0.8.1:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.8.2.tgz#46a6ab7f0aead8deae9ec0565780b7d4efeb9d43"
 
+object-assign@^2.0.0:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-2.1.1.tgz#43c36e5d569ff8e4816c4efa8be02d26967c18aa"
+
 object-assign@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-3.0.0.tgz#9bedd5ca0897949bca47e7ff408062d549f587f2"
@@ -3118,6 +3122,13 @@ react-devtools-core@2.3.1:
   dependencies:
     shell-quote "^1.6.1"
     ws "^2.0.3"
+
+react-mixin@2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/react-mixin/-/react-mixin-2.0.2.tgz#5133570554fa8954b7b847422dbd5e8c7a0a73d0"
+  dependencies:
+    object-assign "^2.0.0"
+    smart-mixin "^1.2.0"
 
 react-native-config@^0.5.0:
   version "0.5.0"
@@ -3694,6 +3705,10 @@ slash@^1.0.0:
 slide@^1.1.5:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/slide/-/slide-1.1.6.tgz#56eb027d65b4d2dce6cb2e2d32c4d4afc9e1d707"
+
+smart-mixin@^1.2.0:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/smart-mixin/-/smart-mixin-1.2.1.tgz#11a2b3e4628dfee16ac9cb51edd301be21be1452"
 
 sntp@1.x.x:
   version "1.0.9"

@@ -12,6 +12,7 @@
     "prop-types": "^15.5.10",
     "react": "16.0.0-alpha.12",
     "react-addons-update": "^15.5.2",
+    "react-mixin": "2",
     "react-native": "0.46.4",
     "react-native-config": "^0.5.0",
     "react-native-maps": "^0.15.3",
@@ -24,6 +25,7 @@
     "react-native-video": "git://github.com/olofd/react-native-video.git#react-native-photos-framework",
     "react-navigation": "git+https://github.com/react-community/react-navigation.git",
     "react-redux": "^5.0.4",
+    "react-timer-mixin": "^0.13.3",
     "redux": "^3.6.0",
     "redux-persist": "^4.8.0"
   },

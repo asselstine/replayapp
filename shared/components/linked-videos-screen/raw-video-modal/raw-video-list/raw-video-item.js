@@ -35,7 +35,7 @@ export class RawVideoItem extends PureComponent {
           onLoadStart={this.onLoadStart.bind(this)}
           onLoad={this.onLoad.bind(this)}
           paused
-          resizeMode='fill'
+          resizeMode='cover'
           style={styles.video}
           />
       </TouchableHighlight>
