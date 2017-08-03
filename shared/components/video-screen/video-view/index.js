@@ -7,6 +7,7 @@ import {
   StatusBar,
   Text,
   TouchableOpacity,
+  Alert,
   Image
 } from 'react-native'
 import EventEmitter from 'EventEmitter'
@@ -15,7 +16,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { manager } from '../../../oauth'
 import { store } from '../../../store'
-import { attachActivity, setVideoStartAt } from '../../../actions/video-actions'
+import { attachActivity, setVideoStartAt, resetVideoStartAt } from '../../../actions/video-actions'
 import { login } from '../../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
@@ -64,6 +65,7 @@ export const VideoView = connect(
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
     this._onCloseSyncModal = this._onCloseSyncModal.bind(this)
     this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
+    this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
   }
 
@@ -74,6 +76,21 @@ export const VideoView = connect(
         this.setState({ stravaActivityModalIsOpen: true })
       })
       .catch(response => console.log('could not authenticate: ', response))
+  }
+
+  _onPressReset () {
+    Alert.alert(
+      'Reset time to video creation date?',
+      'This will reset the video start time to the file creation date',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK', onPress: () => { this.resetTime() } }
+      ]
+    )
+  }
+
+  resetTime () {
+    store.dispatch(resetVideoStartAt(this.props.video.rawVideoData))
   }
 
   onToggleLock () {
@@ -212,6 +229,13 @@ export const VideoView = connect(
           </View>
         </TouchableOpacity>
 
+      var lockReset =
+        <TouchableOpacity onPress={this._onPressReset}>
+          <MaterialCommunityIcon
+            name='lock-reset'
+            style={styles.titleHeaderIcon} />
+        </TouchableOpacity>
+
       var lockContent
       if (this.state.locked) {
         lockContent =
@@ -232,7 +256,10 @@ export const VideoView = connect(
       var header =
         <View style={styles.titleHeader}>
           {changeActivityButton}
-          {lockToggle}
+          <View style={styles.lockControls}>
+            {lockReset}
+            {lockToggle}
+          </View>
         </View>
     } else {
       header =
@@ -315,6 +342,7 @@ const styles = {
 
   titleHeader: {
     flex: 0,
+    paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     zIndex: 1000
@@ -341,7 +369,8 @@ const styles = {
   titleHeaderIcon: {
     color: 'black',
     fontSize: 24,
-    padding: 10
+    paddingTop: 10,
+    paddingRight: 10
   },
 
   connectButton: {
@@ -359,6 +388,11 @@ const styles = {
   tabBarTextStyle: {
     fontSize: 18,
     fontWeight: '200'
+  },
+
+  lockControls: {
+    flex: 0,
+    flexDirection: 'row'
   }
 }
 

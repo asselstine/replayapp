@@ -21,6 +21,13 @@ export const setVideoStartAt = function (rawVideoData, videoStartAt) {
   }
 }
 
+export const resetVideoStartAt = function (rawVideoData) {
+  return {
+    type: 'RESET_VIDEO_START_AT',
+    rawVideoData: rawVideoData
+  }
+}
+
 export const removeVideo = function (video) {
   return {
     type: 'REMOVE_VIDEO',
