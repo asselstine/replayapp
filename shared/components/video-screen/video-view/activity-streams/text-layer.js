@@ -21,25 +21,28 @@ export class TextLayer extends Component {
   }
 
   render () {
+    var labelTopPadding = 10
+    var labelLeftPadding = 10
+
     return (
       <G>
         <Text
-          fill='black'
-          stroke='black'
-          fontSize='14'
-          fontWeight='bold'
-          x={10}
-          y={this.props.velocityY}>
+          fill={styles.label.fill}
+          stroke={styles.label.stroke}
+          fontSize={styles.label.fontSize}
+          fontWeight={styles.label.fontWeight}
+          x={labelLeftPadding}
+          y={this.props.velocityY + labelTopPadding}>
           {this.state.velocityText}
         </Text>
         <Text
-          fill='black'
-          stroke='black'
-          fontSize='14'
-          fontWeight='bold'
-          x={10}
-          y={this.props.altitudeY}>
-          {this.state.altitudeText}}
+          fill={styles.label.fill}
+          stroke={styles.label.stroke}
+          fontSize={styles.label.fontSize}
+          fontWeight={styles.label.fontWeight}
+          x={labelLeftPadding}
+          y={this.props.altitudeY + labelTopPadding}>
+          {this.state.altitudeText}
         </Text>
       </G>
     )
@@ -51,4 +54,13 @@ TextLayer.propTypes = {
   altitudeText: PropTypes.string,
   velocityY: PropTypes.any,
   altitudeY: PropTypes.any
+}
+
+const styles = {
+  label: {
+    fill: 'black',
+    stroke: 'black',
+    fontSize: '12',
+    fontWeight: '100'
+  }
 }

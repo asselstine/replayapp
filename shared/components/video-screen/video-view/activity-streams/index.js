@@ -113,11 +113,11 @@ export class ActivityStreams extends PureComponent {
       this.updateCursorLocation()
     } else if (touchKeys.length === 1) {
       var locationX = e.nativeEvent.touches[0].locationX
-      var start = this.streamTimeToLocationX(this.props.videoStreamStartTime)
-      var end = this.streamTimeToLocationX(this.props.videoStreamEndTime)
-      if (locationX >= start && locationX <= end) {
-        this.moveCursor(locationX)
-      }
+      // var start = this.streamTimeToLocationX(this.props.videoStreamStartTime)
+      // var end = this.streamTimeToLocationX(this.props.videoStreamEndTime)
+      // if (locationX >= start && locationX <= end) {
+      this.moveCursor(locationX)
+      // }
     }
   }
 
@@ -125,7 +125,7 @@ export class ActivityStreams extends PureComponent {
     // if (nextProps.streams !== this.props.streams ||
     //     nextProps.videoStreamStartTime !== this.props.videoStreamStartTime ||
     //     nextProps.videoStreamEndTime !== this.props.videoStreamEndTime) {
-    this.resizeToVideo(nextProps)
+    // this.resizeToVideo(nextProps)
     // }
   }
 
@@ -319,10 +319,15 @@ export class ActivityStreams extends PureComponent {
   }
 
   _onLayout (event) {
+    var resize = this.state.width === 1
     this.setState({
       width: _.get(event, 'nativeEvent.layout.width') || 1,
       height: _.get(event, 'nativeEvent.layout.height') || 1
-    }, () => { this.resizeToVideo(this.props) })
+    }, () => {
+      if (resize) {
+        this.resizeToVideo(this.props)
+      }
+    })
   }
 
   animateCursorToLocationX (locationX) {
