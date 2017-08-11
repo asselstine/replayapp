@@ -12,6 +12,7 @@ import {
   View
 } from 'react-native'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
+import { Timeline } from './timeline'
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -27,12 +28,15 @@ export class VideoPlayer extends Component {
       muted: true
     }
     this.onLoad = this.onLoad.bind(this)
+    this._onVideoTimeChange = this._onVideoTimeChange.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
     this.hideOverlay = this.hideOverlay.bind(this)
     this.togglePlay = this.togglePlay.bind(this)
     this.toggleMute = this.toggleMute.bind(this)
     this.finishHideOverlay = this.finishHideOverlay.bind(this)
+    this._onTimeInterval = this._onTimeInterval.bind(this)
     this.onClose = this.onClose.bind(this)
+    this._updateLastOnProgress(0)
   }
 
   onClose (e) {
@@ -88,6 +92,11 @@ export class VideoPlayer extends Component {
     this.toggleOverlay()
   }
 
+  _onVideoTimeChange (time) {
+    this.resetOverlayHideTimeout()
+    this.seek(time)
+  }
+
   toggleOverlay () {
     if (!this.state.showOverlay) {
       this.showOverlay()
@@ -107,10 +116,13 @@ export class VideoPlayer extends Component {
       if (this.getCurrentTime() >= this.state.duration) {
         this.player.seek(0)
         this._onPlay({currentTime: 0})
+        this._updateLastOnProgress(0)
       } else {
         this._onPlay({currentTime: this.getCurrentTime()})
       }
       this.hideOverlay()
+    } else {
+      this._onStop()
     }
     this.setState({ paused: !this.state.paused })
   }
@@ -119,14 +131,29 @@ export class VideoPlayer extends Component {
     if (this.props.onPlay) {
       this.props.onPlay(arg)
     }
+    this._timeInterval = this.setInterval(this._onTimeInterval, 30)
+  }
+
+  _onStop () {
+    this.clearInterval(this._timeInterval)
+  }
+
+  _onTimeInterval () {
+    if (this._timeline) {
+      this._timeline.updateCurrentTime(this.getCurrentTime())
+    }
   }
 
   _onProgress (arg) {
     if (this.props.onProgress) {
       this.props.onProgress(arg)
     }
+    this._updateLastOnProgress(arg.currentTime)
+  }
+
+  _updateLastOnProgress (currentTime) {
     this.lastOnProgress = {
-      videoTime: arg.currentTime,
+      videoTime: currentTime,
       realTime: new Date().valueOf()
     }
   }
@@ -144,6 +171,8 @@ export class VideoPlayer extends Component {
 
   seek (time) {
     this.player.seek(time)
+    this._updateLastOnProgress(time)
+    this._onTimeInterval()
   }
 
   _onEnd (arg) {
@@ -208,9 +237,16 @@ export class VideoPlayer extends Component {
           </TouchableOpacity>
         </View>
         <View style={{...styles.overlaySmallBar, ...styles.overlayBottom}}>
-          <TouchableOpacity onPress={this.toggleMute}>
-            {muteToggle}
-          </TouchableOpacity>
+          <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
+            <TouchableOpacity onPress={this.toggleMute}>
+              {muteToggle}
+            </TouchableOpacity>
+            <Timeline
+              ref={(ref) => { this._timeline = ref }}
+              currentTime={this.getCurrentTime()}
+              duration={this.state.duration}
+              onVideoTimeChange={this._onVideoTimeChange} />
+          </View>
         </View>
       </Animated.View>
 
@@ -281,6 +317,10 @@ const styles = {
 
   overlayBottom: {
     alignItems: 'flex-end'
+  },
+
+  contentCenter: {
+    alignItems: 'center'
   },
 
   overlayTop: {
