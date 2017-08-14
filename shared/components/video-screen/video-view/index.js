@@ -29,6 +29,7 @@ import { NavigationEventEmitter } from '../../navigation-event-emitter'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 import * as colours from '../../../colours'
+import { Video } from '../../../video'
 
 import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
@@ -206,20 +207,11 @@ export const VideoView = connect(
   }
 
   streamTimeToVideoTime (streamTime) {
-    var activityStartAt = moment(_.get(this.props, 'video.activity.start_date'))
-    var videoStartAt = moment(_.get(this.props, 'video.startAt'))
-    var deltaMs = videoStartAt.diff(activityStartAt)
-    var videoTime = streamTime - (deltaMs / 1000.0)
-    return videoTime
+    return Video.streamTimeToVideoTime(this.props.video, streamTime)
   }
 
   videoTimeToStreamTime (videoTime) {
-    var streamStartAt = _.get(this.props, 'video.activity.start_date')
-    var videoStartAt = _.get(this.props, 'video.startAt')
-    if (!streamStartAt || !videoStartAt) { return null }
-    var currentVideoTime = moment(videoStartAt).add(videoTime, 's')
-    var result = moment(currentVideoTime).diff(moment(streamStartAt)) / 1000.0
-    return result
+    return Video.videoTimeToStreamTime(this.props.video, videoTime)
   }
 
   render () {
