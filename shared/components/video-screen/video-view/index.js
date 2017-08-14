@@ -215,7 +215,7 @@ export const VideoView = connect(
             onPlay={this.onPlay}
             onClose={this.props.onClose}
             style={styles.videoPlayer}
-            video={this.props.video.src} />
+            video={this.props.video.videoSource} />
         </Rotator>
     }
 

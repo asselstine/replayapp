@@ -2,7 +2,8 @@ import React, {
   PureComponent
 } from 'react'
 import {
-  TouchableHighlight
+  TouchableHighlight,
+  Image
 } from 'react-native'
 import Video from 'react-native-video'
 import PropTypes from 'prop-types'
@@ -25,19 +26,14 @@ export class RawVideoItem extends PureComponent {
   }
 
   render () {
-    // console.log('renderitem: ', this.props.rawVideoData.localIdentifier)
     return (
       <TouchableHighlight
         onPress={() => this.props.onPressVideo(this.props.rawVideoData)}
         style={styles.videoContainer}>
-        <Video
-          source={this.props.rawVideoData.video}
-          onLoadStart={this.onLoadStart.bind(this)}
-          onLoad={this.onLoad.bind(this)}
-          paused
+        <Image
+          source={this.props.rawVideoData.image}
           resizeMode='cover'
-          style={styles.video}
-          />
+          style={styles.video} />
       </TouchableHighlight>
     )
   }
