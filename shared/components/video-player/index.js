@@ -17,17 +17,16 @@ export class VideoPlayer extends Component {
     this.state = {
       paused: true,
       duration: 0,
-      orientation: 'landscape',
       width: 1,
       height: 1,
       overlayOpacity: new Animated.Value(1),
-      showOverlay: true,
+      showPlayerOverlay: true,
       muted: true
     }
     this.onLoad = this.onLoad.bind(this)
     this._onVideoTimeChange = this._onVideoTimeChange.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
-    this.hideOverlay = this.hideOverlay.bind(this)
+    this.hidePlayerOverlay = this.hidePlayerOverlay.bind(this)
     this.togglePlay = this.togglePlay.bind(this)
     this.toggleMute = this.toggleMute.bind(this)
     this.finishHideOverlay = this.finishHideOverlay.bind(this)
@@ -45,17 +44,16 @@ export class VideoPlayer extends Component {
   onLoad (e) {
     this.setState({
       duration: e.duration,
-      orientation: e.naturalSize.orientation,
       width: e.naturalSize.width,
       height: e.naturalSize.height
     })
   }
 
   onError (e) {
-    console.log('ERROR: ', e)
+    console.error('ERROR: ', e)
   }
 
-  showOverlay () {
+  showPlayerOverlay () {
     Animated.timing(
       this.state.overlayOpacity,
       {
@@ -64,10 +62,10 @@ export class VideoPlayer extends Component {
         useNativeDriver: true
       }
     ).start()
-    this.setState({ showOverlay: true })
+    this.setState({ showPlayerOverlay: true })
   }
 
-  hideOverlay () {
+  hidePlayerOverlay () {
     Animated.timing(
       this.state.overlayOpacity,
       {
@@ -79,14 +77,14 @@ export class VideoPlayer extends Component {
   }
 
   finishHideOverlay () {
-    this.setState({ showOverlay: false })
+    this.setState({ showPlayerOverlay: false })
   }
 
   resetOverlayHideTimeout () {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    // this.timeout = this.setTimeout(this.hideOverlay, 3000)
+    // this.timeout = this.setTimeout(this.hidePlayerOverlay, 3000)
   }
 
   onPressVideo (e) {
@@ -99,11 +97,11 @@ export class VideoPlayer extends Component {
   }
 
   toggleOverlay () {
-    if (!this.state.showOverlay) {
-      this.showOverlay()
+    if (!this.state.showPlayerOverlay) {
+      this.showPlayerOverlay()
       this.resetOverlayHideTimeout()
     } else {
-      this.hideOverlay()
+      this.hidePlayerOverlay()
     }
   }
 
@@ -121,7 +119,7 @@ export class VideoPlayer extends Component {
       } else {
         this._onPlay({currentTime: this.getCurrentTime()})
       }
-      this.hideOverlay()
+      this.hidePlayerOverlay()
     } else {
       this._onStop()
     }
@@ -191,7 +189,7 @@ export class VideoPlayer extends Component {
       opacity: this.state.overlayOpacity
     }
 
-    if (this.state.showOverlay) {
+    if (this.state.showPlayerOverlay) {
       var overlayPointerEvents = 'auto'
     } else {
       overlayPointerEvents = 'none'
