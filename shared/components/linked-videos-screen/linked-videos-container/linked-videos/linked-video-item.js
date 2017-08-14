@@ -2,9 +2,9 @@ import React, {
   PureComponent
 } from 'react'
 import {
-  TouchableHighlight
+  TouchableHighlight,
+  Image
 } from 'react-native'
-import Video from 'react-native-video'
 import PropTypes from 'prop-types'
 
 export class LinkedVideoItem extends PureComponent {
@@ -23,15 +23,13 @@ export class LinkedVideoItem extends PureComponent {
   }
 
   render () {
-    console.log('linked video item ', this.props.video.src)
     return (
       <TouchableHighlight
         onPress={this._onPress}
         onLongPress={this._onLongPress}
         style={styles.videoContainer}>
-        <Video
-          source={this.props.video.src}
-          paused
+        <Image
+          source={this.props.video.imageSource}
           resizeMode='cover'
           style={styles.video}
           />

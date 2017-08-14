@@ -54,6 +54,10 @@ export class VideoPlayer extends Component {
     })
   }
 
+  onError (e) {
+    console.log('ERROR: ', e)
+  }
+
   showOverlay () {
     Animated.timing(
       this.state.overlayOpacity,
@@ -257,6 +261,7 @@ export class VideoPlayer extends Component {
             source={this.props.video}
             onLoad={this.onLoad}
             ref={(ref) => { this.player = ref }}
+            onError={(arg) => { this.onError(arg) }}
             onProgress={(arg) => { this._onProgress(arg) }}
             onEnd={(arg) => { this._onEnd(arg) }}
             paused={this.state.paused}
