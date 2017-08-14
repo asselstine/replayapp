@@ -4,15 +4,12 @@ import update from 'immutability-helper'
 import Video from 'react-native-video'
 import TimerMixin from 'react-timer-mixin'
 import reactMixin from 'react-mixin'
-import _ from 'lodash'
 import {
-  TouchableOpacity,
   TouchableWithoutFeedback,
   Animated,
   View
 } from 'react-native'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
-import { Timeline } from './timeline'
+import { PlayerOverlay } from './player-overlay'
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -89,7 +86,7 @@ export class VideoPlayer extends Component {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    this.timeout = this.setTimeout(this.hideOverlay, 3000)
+    // this.timeout = this.setTimeout(this.hideOverlay, 3000)
   }
 
   onPressVideo (e) {
@@ -143,8 +140,8 @@ export class VideoPlayer extends Component {
   }
 
   _onTimeInterval () {
-    if (this._timeline) {
-      this._timeline.updateCurrentTime(this.getCurrentTime())
+    if (this._playerOverlay) {
+      this._playerOverlay.updateCurrentTime(this.getCurrentTime())
     }
   }
 
@@ -190,34 +187,8 @@ export class VideoPlayer extends Component {
       aspectRatio: aspectRatio
     }, { $merge: this.props.style })
 
-    var overlayStyle = _.merge({}, styles.overlay, {
+    var overlayStyle = {
       opacity: this.state.overlayOpacity
-    })
-
-    var playToggle
-    if (this.state.paused) {
-      playToggle =
-        <MaterialIcon
-          name='play-arrow'
-          style={{...styles.overlayIcon, ...styles.playButton}} />
-    } else {
-      playToggle =
-        <MaterialIcon
-          name='pause'
-          style={{...styles.overlayIcon, ...styles.playButton}} />
-    }
-
-    var muteToggle
-    if (this.state.muted) {
-      muteToggle =
-        <MaterialIcon
-          name='volume-off'
-          style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
-    } else {
-      muteToggle =
-        <MaterialIcon
-          name='volume-up'
-          style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
     }
 
     if (this.state.showOverlay) {
@@ -225,34 +196,6 @@ export class VideoPlayer extends Component {
     } else {
       overlayPointerEvents = 'none'
     }
-
-    var overlay =
-      <Animated.View style={overlayStyle} pointerEvents={overlayPointerEvents}>
-        <View style={{...styles.overlaySmallBar, ...styles.overlayTop}}>
-          <TouchableOpacity onPress={this.onClose}>
-            <MaterialIcon
-              name='keyboard-arrow-down'
-              style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.overlayContent}>
-          <TouchableOpacity onPress={this.togglePlay}>
-            {playToggle}
-          </TouchableOpacity>
-        </View>
-        <View style={{...styles.overlaySmallBar, ...styles.overlayBottom}}>
-          <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
-            <TouchableOpacity onPress={this.toggleMute}>
-              {muteToggle}
-            </TouchableOpacity>
-            <Timeline
-              ref={(ref) => { this._timeline = ref }}
-              currentTime={this.getCurrentTime()}
-              duration={this.state.duration}
-              onVideoTimeChange={this._onVideoTimeChange} />
-          </View>
-        </View>
-      </Animated.View>
 
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
@@ -269,12 +212,25 @@ export class VideoPlayer extends Component {
             muted={this.state.muted}
             resizeMode='cover'
             />
-          {overlay}
+          <PlayerOverlay
+            ref={(ref) => { this._playerOverlay = ref }}
+            paused={this.state.paused}
+            muted={this.state.muted}
+            duration={this.state.duration}
+            currentTime={this.getCurrentTime()}
+            onTogglePaused={this.togglePlay}
+            onToggleMuted={this.toggleMute}
+            onVideoTimeChange={this._onVideoTimeChange}
+            onClose={this.onClose}
+            style={overlayStyle}
+            pointerEvents={overlayPointerEvents} />
         </View>
       </TouchableWithoutFeedback>
     )
   }
 }
+
+reactMixin(VideoPlayer.prototype, TimerMixin)
 
 VideoPlayer.propTypes = {
   video: PropTypes.object.isRequired,
@@ -287,53 +243,3 @@ VideoPlayer.propTypes = {
 VideoPlayer.defaultProps = {
   style: {}
 }
-
-const styles = {
-  overlay: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)'
-  },
-
-  overlayIcon: {
-    color: 'white'
-  },
-
-  overlaySmallBar: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-
-  overlaySmallIcon: {
-    fontSize: 30,
-    padding: 10
-  },
-
-  overlayContent: {
-    flex: 2,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-
-  overlayBottom: {
-    alignItems: 'flex-end'
-  },
-
-  contentCenter: {
-    alignItems: 'center'
-  },
-
-  overlayTop: {
-  },
-
-  playButton: {
-    fontSize: 72
-  }
-}
-
-reactMixin(VideoPlayer.prototype, TimerMixin)

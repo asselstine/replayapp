@@ -10,7 +10,7 @@ import {
   Text
 } from 'react-native'
 import moment from 'moment'
-import formatDuration from '../../../format-duration'
+import formatDuration from '../../../../format-duration'
 
 export class Timeline extends Component {
   constructor (props) {
