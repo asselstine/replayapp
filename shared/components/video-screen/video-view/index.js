@@ -53,12 +53,13 @@ export const VideoView = connect(
       locked: true,
       landscape: false,
       videoRotate: new Animated.Value(0),
-      videoPlayerWidth: 1,
-      videoPlayerHeight: 1,
+      width: 1,
+      height: 1,
       showVideo: true
     }
     this.onProgress = this.onProgress.bind(this)
     this.onPlay = this.onPlay.bind(this)
+    this._onLayout = this._onLayout.bind(this)
     this.onToggleLock = this.onToggleLock.bind(this)
     this.onPressStravaConnect = this.onPressStravaConnect.bind(this)
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
@@ -67,6 +68,27 @@ export const VideoView = connect(
     this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
     this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
+    this._onOrientationChange = this._onOrientationChange.bind(this)
+    Orientation.getOrientation((err, orientation) => {
+      if (err) {
+        console.error(err)
+      } else {
+        this._onOrientationChange(orientation)
+      }
+    })
+  }
+
+  _onLayout (event) {
+    this.setState({
+      width: _.get(event, 'nativeEvent.layout.width'),
+      height: _.get(event, 'nativeEvent.layout.height')
+    })
+  }
+
+  _onOrientationChange (orientation) {
+    var landscape =
+      (orientation === 'LANDSCAPE' || orientation === 'UNKNOWN' && this.state.landscape)
+    this.setState({ landscape: landscape })
   }
 
   onPressStravaConnect () {
@@ -128,6 +150,7 @@ export const VideoView = connect(
 
   componentDidMount () {
     Orientation.lockToPortrait()
+    Orientation.addOrientationListener(this._onOrientationChange)
     this.checkSyncModal(this.props)
     if (_.get(this.props, 'video.activity')) {
       StreamsService.retrieveStreams(this.props.video.activity.id)
@@ -138,6 +161,7 @@ export const VideoView = connect(
 
   componentWillUnmount () {
     this._transitionEndListener.remove()
+    Orientation.removeOrientationListener(this._onOrientationChange)
   }
 
   _transitionEnd () {
@@ -206,16 +230,22 @@ export const VideoView = connect(
     var videoStreamStartTime = Math.max(0, Math.min(this.videoTimeToStreamTime(0), activityDuration))
     var videoStreamEndTime = Math.min(activityDuration, videoStreamStartTime + videoDuration)
 
+    var hwAspectRatio = this.props.video.rawVideoData.height / (1.0 * this.props.video.rawVideoData.width)
+    var videoHeight = this.state.width * hwAspectRatio
+
     if (this.props.video && this.state.showVideo) {
       var videoPlayer =
-        <Rotator>
+        <Rotator
+          width={this.state.width}
+          height={videoHeight}
+          landscape={this.state.landscape}>
           <VideoPlayer
             ref={(ref) => { this._videoPlayer = ref }}
             onProgress={this.onProgress}
             onPlay={this.onPlay}
             onClose={this.props.onClose}
             style={styles.videoPlayer}
-            video={this.props.video.videoSource} />
+            video={this.props.video} />
         </Rotator>
     }
 
@@ -317,7 +347,7 @@ export const VideoView = connect(
     }
 
     return (
-      <View style={styles.videoView}>
+      <View style={styles.videoView} onLayout={this._onLayout}>
         <StatusBar hidden />
         {videoPlayer}
         {header}

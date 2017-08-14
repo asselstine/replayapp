@@ -16,14 +16,10 @@ export class VideoPlayer extends Component {
     super(props)
     this.state = {
       paused: true,
-      duration: 0,
-      width: 1,
-      height: 1,
       overlayOpacity: new Animated.Value(1),
       showPlayerOverlay: true,
       muted: true
     }
-    this.onLoad = this.onLoad.bind(this)
     this._onVideoTimeChange = this._onVideoTimeChange.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
     this.hidePlayerOverlay = this.hidePlayerOverlay.bind(this)
@@ -39,14 +35,6 @@ export class VideoPlayer extends Component {
     if (this.props.onClose) {
       this.props.onClose(e)
     }
-  }
-
-  onLoad (e) {
-    this.setState({
-      duration: e.duration,
-      width: e.naturalSize.width,
-      height: e.naturalSize.height
-    })
   }
 
   onError (e) {
@@ -112,7 +100,7 @@ export class VideoPlayer extends Component {
 
   togglePlay () {
     if (this.state.paused) {
-      if (this.getCurrentTime() >= this.state.duration) {
+      if (this.getCurrentTime() >= this.props.video.rawVideoData.duration) {
         this.player.seek(0)
         this._onPlay({currentTime: 0})
         this._updateLastOnProgress(0)
@@ -179,10 +167,10 @@ export class VideoPlayer extends Component {
   }
 
   render () {
-    let aspectRatio = (this.state.width * 1.0) / this.state.height
+    var whAspectRatio = this.props.video.rawVideoData.width / (1.0 * this.props.video.rawVideoData.height)
     let videoStyle = update({
       width: '100%',
-      aspectRatio: aspectRatio
+      aspectRatio: whAspectRatio
     }, { $merge: this.props.style })
 
     var overlayStyle = {
@@ -199,8 +187,7 @@ export class VideoPlayer extends Component {
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
         <View>
           <Video
-            source={this.props.video}
-            onLoad={this.onLoad}
+            source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
             onError={(arg) => { this.onError(arg) }}
             onProgress={(arg) => { this._onProgress(arg) }}
@@ -214,7 +201,7 @@ export class VideoPlayer extends Component {
             ref={(ref) => { this._playerOverlay = ref }}
             paused={this.state.paused}
             muted={this.state.muted}
-            duration={this.state.duration}
+            duration={this.props.video.rawVideoData.duration}
             currentTime={this.getCurrentTime()}
             onTogglePaused={this.togglePlay}
             onToggleMuted={this.toggleMute}
