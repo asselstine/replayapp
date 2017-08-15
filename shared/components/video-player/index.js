@@ -199,6 +199,16 @@ export class VideoPlayer extends Component {
       activityOverlayPointerEvents = 'auto'
     }
 
+    if (this.props.video.activity) {
+      var activityOverlay =
+        <ActivityOverlayContainer
+          eventEmitter={this.state.eventEmitter}
+          activity={this.props.video.activity}
+          currentTimeActivity={this.getCurrentTimeActivity()}
+          style={activityOverlayStyle}
+          pointerEvents={activityOverlayPointerEvents} />
+    }
+
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
         <View>
@@ -225,12 +235,7 @@ export class VideoPlayer extends Component {
             onClose={this.onClose}
             style={playerOverlayStyle}
             pointerEvents={playerOverlayPointerEvents} />
-          <ActivityOverlayContainer
-            eventEmitter={this.state.eventEmitter}
-            activity={this.props.video.activity}
-            currentTimeActivity={this.getCurrentTimeActivity()}
-            style={activityOverlayStyle}
-            pointerEvents={activityOverlayPointerEvents} />
+          {activityOverlay}
         </View>
       </TouchableWithoutFeedback>
     )

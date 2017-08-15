@@ -5,7 +5,7 @@ import _ from 'lodash'
 export const ActivityStreamsContainer = connect(
   (state, ownProps) => {
     return {
-      streams: _.get(state, `activities['${ownProps.activity.id}'].streams`)
+      streams: _.get(state, `activities['${_.get(ownProps, 'activity.id')}'].streams`)
     }
   }
 )(ActivityStreams)
