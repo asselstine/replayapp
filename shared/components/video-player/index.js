@@ -199,6 +199,11 @@ export class VideoPlayer extends Component {
       activityOverlayPointerEvents = 'auto'
     }
 
+    var duration = this.props.video.rawVideoData.duration
+
+    var activityStartTime = Video.videoTimeToStreamTime(this.props.video, 0)
+    var activityEndTime = Video.videoTimeToStreamTime(this.props.video, duration)
+
     if (this.props.video.activity) {
       var activityOverlay =
         <ActivityOverlayContainer
@@ -206,7 +211,9 @@ export class VideoPlayer extends Component {
           activity={this.props.video.activity}
           currentTimeActivity={this.getCurrentTimeActivity()}
           style={activityOverlayStyle}
-          pointerEvents={activityOverlayPointerEvents} />
+          pointerEvents={activityOverlayPointerEvents}
+          activityStartTime={activityStartTime}
+          activityEndTime={activityEndTime} />
     }
 
     return (
@@ -227,7 +234,7 @@ export class VideoPlayer extends Component {
             eventEmitter={this.state.eventEmitter}
             paused={this.state.paused}
             muted={this.state.muted}
-            duration={this.props.video.rawVideoData.duration}
+            duration={duration}
             currentTime={this.getCurrentTime()}
             onTogglePaused={this.togglePlay}
             onToggleMuted={this.toggleMute}

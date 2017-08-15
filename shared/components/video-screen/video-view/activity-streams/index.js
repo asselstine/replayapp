@@ -12,7 +12,7 @@ import Svg, {
 } from 'react-native-svg'
 import { TextLayer } from './text-layer'
 import _ from 'lodash'
-import { StreamPath } from './stream-path'
+import { StreamPath } from '../../../stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import { Activity } from '../../../../activity'
 import * as colours from '../../../../colours'

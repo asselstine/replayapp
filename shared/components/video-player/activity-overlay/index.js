@@ -12,6 +12,7 @@ import { Activity } from '../../../activity'
 import { ActivityService } from '../../../services/activity-service'
 import { round } from '../../../round'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { StreamOverlay } from './stream-overlay'
 
 export class ActivityOverlay extends Component {
   constructor (props) {
@@ -33,6 +34,9 @@ export class ActivityOverlay extends Component {
 
   updateCurrentTime (currentTimeActivity) {
     this.setState({currentTimeActivity: currentTimeActivity})
+    if (this._velocityOverlay) {
+      this._velocityOverlay.updateCurrentTimeActivity(currentTimeActivity)
+    }
   }
 
   _toggleVelocity () {
@@ -42,6 +46,15 @@ export class ActivityOverlay extends Component {
   render () {
     var velocity = round(Activity.velocityAt(this.props.streams, this.state.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.state.currentTimeActivity)} m`
+
+    var velocityOverlay =
+      <StreamOverlay
+        ref={(ref) => { this._velocityOverlay = ref }}
+        activityStartTime={this.props.activityStartTime}
+        activityEndTime={this.props.activityEndTime}
+        timeStream={this.props.streams.time.data}
+        dataStream={this.props.streams.velocity_smooth.data}
+        onActivityTimeChange={this.props.onActivityTimeChange} />
 
     var segmentEffortComparison
 
@@ -57,20 +70,25 @@ export class ActivityOverlay extends Component {
       <Animated.View
         style={{...styles.overlay, ...this.props.style}}
         pointerEvents={this.props.pointerEvents}>
-        <View style={{...styles.overlaySmallBar, ...styles.overlayBottom}}>
-          <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
-            <View style={styles.overlayItem}>
-              <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={this._toggleVelocity}>
-                <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='speedometer' />
-                <Text style={{...styles.overlayText, ...styles.textWidth4}}>{velocity}</Text>
-                <Text style={styles.overlayText}>km/h</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}}>
-                <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='altimeter' />
-                <Text style={styles.overlayText}>{altitude}</Text>
-              </TouchableOpacity>
+        <View style={styles.overlayItemContainer}>
+          <View style={styles.overlayStream}>
+            {velocityOverlay}
+          </View>
+          <View style={{...styles.overlayData, ...styles.overlayBottom}}>
+            <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
+              <View style={styles.overlayItem}>
+                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={this._toggleVelocity}>
+                  <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='speedometer' />
+                  <Text style={{...styles.overlayText, ...styles.textWidth4}}>{velocity}</Text>
+                  <Text style={styles.overlayText}>km/h</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}}>
+                  <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='altimeter' />
+                  <Text style={styles.overlayText}>{altitude}</Text>
+                </TouchableOpacity>
+              </View>
+              {segmentEffortComparison}
             </View>
-            {segmentEffortComparison}
           </View>
         </View>
       </Animated.View>
@@ -85,6 +103,23 @@ const styles = {
     position: 'absolute',
     top: 0,
     left: 0
+  },
+
+  overlayItemContainer: {
+    flexDirection: 'column',
+    flex: 1,
+    justifyContent: 'center'
+  },
+
+  overlayStream: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end'
+  },
+
+  overlayData: {
+    flex: 0,
+    flexDirection: 'row'
   },
 
   overlayButton: {
@@ -138,6 +173,9 @@ ActivityOverlay.propTypes = {
   eventEmitter: PropTypes.object.isRequired,
   currentTimeActivity: PropTypes.any.isRequired,
   activity: PropTypes.object.isRequired,
+  onActivityTimeChange: PropTypes.func,
+  activityStartTime: PropTypes.any,
+  activityEndTime: PropTypes.any,
   style: PropTypes.any,
   pointerEvents: PropTypes.any,
   streams: PropTypes.object
