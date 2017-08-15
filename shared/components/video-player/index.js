@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import update from 'immutability-helper'
-import Video from 'react-native-video'
+import RNVideo from 'react-native-video'
 import TimerMixin from 'react-timer-mixin'
 import reactMixin from 'react-mixin'
+import { Video } from '../../video'
 import {
   TouchableWithoutFeedback,
   Animated,
   View
 } from 'react-native'
 import { PlayerOverlay } from './player-overlay'
+import { ActivityOverlay } from './activity-overlay'
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -126,8 +128,13 @@ export class VideoPlayer extends Component {
   }
 
   _onTimeInterval () {
+    var videoTime = this.getCurrentTime()
     if (this._playerOverlay) {
-      this._playerOverlay.updateCurrentTime(this.getCurrentTime())
+      this._playerOverlay.updateCurrentTime(videoTime)
+    }
+    var activityTime = Video.videoTimeToStreamTime(this.props.video, videoTime)
+    if (this._activityOverlay) {
+      this._activityOverlay.updateCurrentTime(activityTime)
     }
   }
 
@@ -186,7 +193,7 @@ export class VideoPlayer extends Component {
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
         <View>
-          <Video
+          <RNVideo
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
             onError={(arg) => { this.onError(arg) }}
@@ -209,6 +216,9 @@ export class VideoPlayer extends Component {
             onClose={this.onClose}
             style={overlayStyle}
             pointerEvents={overlayPointerEvents} />
+          <ActivityOverlay
+            ref={(ref) => { this._activityOverlay = ref }}
+            activity={this.props.video.activity} />
         </View>
       </TouchableWithoutFeedback>
     )
