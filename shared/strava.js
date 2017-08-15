@@ -37,7 +37,7 @@ export const Strava = {
     )
   },
 
-  retrieveStream (activityId) {
+  retrieveStreams (activityId) {
     return (
       fetch(`${this.baseUrl}/activities/${activityId}/streams/latlng,time,velocity_smooth,altitude`, {
         headers: this.headers()

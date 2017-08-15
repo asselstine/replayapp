@@ -22,7 +22,7 @@ import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
 import { ActivityMap } from './activity-map'
 import { ActivitySegments } from './activity-segments'
-import { StreamsService } from '../../../services/streams-service'
+import { ActivityService } from '../../../services/activity-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
@@ -41,7 +41,7 @@ export const VideoView = connect(
     }
     var activity = _.get(video, 'activity')
     if (activity) {
-      result['streams'] = _.get(state, `streams['${activity.id}']`)
+      result['streams'] = _.get(state, `activities['${activity.id}'].streams`)
     }
     return result
   }
@@ -154,7 +154,7 @@ export const VideoView = connect(
     Orientation.addOrientationListener(this._onOrientationChange)
     this.checkSyncModal(this.props)
     if (_.get(this.props, 'video.activity')) {
-      StreamsService.retrieveStreams(this.props.video.activity.id)
+      ActivityService.retrieveStreams(this.props.video.activity.id)
     }
     this.checkStreams(this.props)
     this._transitionEndListener = NavigationEventEmitter.addListener('transitionEnd', this._transitionEnd.bind(this))
@@ -178,7 +178,8 @@ export const VideoView = connect(
 
   checkStreams (props) {
     if (_.get(props, 'video.activity.id') && !props.streams) {
-      StreamsService.retrieveStreams(_.get(props, 'video.activity.id'))
+      console.log('RETRIEVE STREAMS')
+      ActivityService.retrieveStreams(_.get(props, 'video.activity.id'))
     }
   }
 

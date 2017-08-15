@@ -190,6 +190,12 @@ export class VideoPlayer extends Component {
       overlayPointerEvents = 'none'
     }
 
+    /*
+    <ActivityOverlay
+      ref={(ref) => { this._activityOverlay = ref }}
+      activity={this.props.video.activity} />
+      */
+
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
         <View>
@@ -216,9 +222,6 @@ export class VideoPlayer extends Component {
             onClose={this.onClose}
             style={overlayStyle}
             pointerEvents={overlayPointerEvents} />
-          <ActivityOverlay
-            ref={(ref) => { this._activityOverlay = ref }}
-            activity={this.props.video.activity} />
         </View>
       </TouchableWithoutFeedback>
     )

@@ -10,7 +10,7 @@ import Video from 'react-native-video'
 import _ from 'lodash'
 import moment from 'moment'
 import { ActivityMap } from '../activity-map'
-import { StreamsService } from '../../../services/streams-service'
+import { ActivityService } from '../../../services/activity-service'
 
 export class SyncModal extends Component {
   constructor (props) {
@@ -69,20 +69,20 @@ export class SyncModal extends Component {
   }
 
   componentDidMount () {
-    this.retrieveStream(this.props)
+    this.retrieveStreams(this.props)
   }
 
   componentWillReceiveProps (nextProps) {
     if (_.get(this.props, 'activity.id') !== _.get(nextProps, 'activity.id')) {
-      this.retrieveStream(nextProps)
+      this.retrieveStreams(nextProps)
     }
   }
 
-  retrieveStream (props) {
+  retrieveStreams (props) {
     if (!_.get(props, 'activity.id')) {
       return
     }
-    StreamsService.retrieveStreams(props.activity.id)
+    ActivityService.retrieveStreams(props.activity.id)
   }
 
   _onStreamTimeChange (streamTime) {

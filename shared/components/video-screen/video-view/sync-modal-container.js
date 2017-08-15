@@ -6,8 +6,8 @@ export const SyncModalContainer = connect(
   (state, ownProps) => {
     var result = {}
     if (ownProps.activity) {
-      result['latlngStream'] = _.get(state, `streams['${ownProps.activity.id}'].latlng`)
-      result['timeStream'] = _.get(state, `streams['${ownProps.activity.id}'].time`)
+      result['latlngStream'] = _.get(state, `activities['${ownProps.activity.id}'].streams.latlng`)
+      result['timeStream'] = _.get(state, `activities['${ownProps.activity.id}'].streams.time`)
     }
     return result
   }

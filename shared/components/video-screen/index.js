@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { VideoView } from './video-view'
 import { connect } from 'react-redux'
-import { store } from '../../store'
 import _ from 'lodash'
 
 export const VideoScreen = connect(

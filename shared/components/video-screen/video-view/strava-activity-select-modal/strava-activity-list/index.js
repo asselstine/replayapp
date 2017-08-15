@@ -18,10 +18,6 @@ export class StravaActivityList extends Component {
     this._renderItem = this._renderItem.bind(this)
   }
 
-  componentDidMount () {
-    // this.getNextPage()
-  }
-
   getNextPage () {
     var nextPage = this.state.page + 1
     Strava
