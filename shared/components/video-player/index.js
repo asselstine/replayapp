@@ -24,6 +24,7 @@ export class VideoPlayer extends Component {
       muted: true,
       eventEmitter: new EventEmitter()
     }
+    this._onActivityTimeChange = this._onActivityTimeChange.bind(this)
     this._onVideoTimeChange = this._onVideoTimeChange.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
     this.hidePlayerOverlay = this.hidePlayerOverlay.bind(this)
@@ -86,6 +87,10 @@ export class VideoPlayer extends Component {
   _onVideoTimeChange (time) {
     this.resetOverlayHideTimeout()
     this.seek(time)
+  }
+
+  _onActivityTimeChange (time) {
+    this.seek(Video.streamTimeToVideoTime(this.props.video, time))
   }
 
   toggleOverlay () {
@@ -193,10 +198,14 @@ export class VideoPlayer extends Component {
 
     if (this.state.showPlayerOverlay) {
       var playerOverlayPointerEvents = 'auto'
-      var activityOverlayPointerEvents = 'none'
     } else {
       playerOverlayPointerEvents = 'none'
-      activityOverlayPointerEvents = 'auto'
+    }
+
+    if (!this.state.showPlayerOverlay && !this.props.hideActivityOverlay) {
+      var activityOverlayPointerEvents = 'auto'
+    } else {
+      activityOverlayPointerEvents = 'none'
     }
 
     var duration = this.props.video.rawVideoData.duration
@@ -204,12 +213,13 @@ export class VideoPlayer extends Component {
     var activityStartTime = Video.videoTimeToStreamTime(this.props.video, 0)
     var activityEndTime = Video.videoTimeToStreamTime(this.props.video, duration)
 
-    if (this.props.video.activity) {
+    if (this.props.video.activity && !this.props.hideActivityOverlay) {
       var activityOverlay =
         <ActivityOverlayContainer
           eventEmitter={this.state.eventEmitter}
           activity={this.props.video.activity}
           currentTimeActivity={this.getCurrentTimeActivity()}
+          onActivityTimeChange={this._onActivityTimeChange}
           style={activityOverlayStyle}
           pointerEvents={activityOverlayPointerEvents}
           activityStartTime={activityStartTime}
@@ -256,7 +266,8 @@ VideoPlayer.propTypes = {
   onClose: PropTypes.func,
   onProgress: PropTypes.func,
   onPlay: PropTypes.func,
-  style: PropTypes.object
+  style: PropTypes.object,
+  hideActivityOverlay: PropTypes.bool
 }
 
 VideoPlayer.defaultProps = {

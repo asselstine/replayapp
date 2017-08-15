@@ -234,6 +234,7 @@ export const VideoView = connect(
           landscape={this.state.landscape}>
           <VideoPlayer
             ref={(ref) => { this._videoPlayer = ref }}
+            hideActivityOverlay={!this.state.landscape}
             onProgress={this.onProgress}
             onPlay={this.onPlay}
             onClose={this.props.onClose}

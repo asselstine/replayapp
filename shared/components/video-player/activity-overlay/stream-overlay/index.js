@@ -12,6 +12,9 @@ import Svg, {
   Rect,
   G
 } from 'react-native-svg'
+import {
+  PanResponder
+} from 'react-native'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import {
   mergeStreams,
@@ -33,6 +36,24 @@ export class StreamOverlay extends Component {
       points: points,
       path: pointsToPath(points)
     }
+    this._panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onPanResponderTerminationRequest: (evt, gestureState) => false,
+      onPanResponderGrant: (evt, gestureState) => {
+        this._moveCursor(evt)
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        this._moveCursor(evt)
+      }
+    })
+  }
+
+  _moveCursor (event) {
+    var timeV = this.transform(event.nativeEvent.locationX, 0, this.state.inverse)
+    this.props.onActivityTimeChange(timeV[0])
   }
 
   _onLayout (e) {
@@ -41,18 +62,18 @@ export class StreamOverlay extends Component {
     var transform = createBoundsTransform(this.props.timeStream, this.props.dataStream, 0, height, width, -height)
     var activityStartTime = this.props.activityStartTime || this.props.timeStream[0]
     var activityEndTime = this.props.activityEndTime || this.props.timeStream[ this.props.timeStream.length - 1 ]
-
-    console.log('?????: ', activityStartTime, activityEndTime)
     var viewStart = this.transform(activityStartTime, 0, transform)
     var viewEnd = this.transform(activityEndTime, 0, transform)
     var viewWidth = viewEnd[0] - viewStart[0]
-    var viewport = viewportTransform(viewStart[0], viewWidth, 0, this.state.width)
+    var viewport = viewportTransform(viewStart[0], viewWidth, 0, width)
     MatrixMath.multiplyInto(transform, viewport, transform)
     var points = transformPoints(this.state.originalPoints, transform)
+    var inverse = MatrixMath.inverse(transform)
     this.setState({
       width: width,
       height: height,
       transform: transform,
+      inverse: inverse,
       points: points,
       path: pointsToPath(points)
     })
@@ -82,17 +103,20 @@ export class StreamOverlay extends Component {
         d={this.state.path}
         fill='white' />
 
+    var clipWidth = this.transform(this.props.currentTimeActivity || 0, 0)[0].toString()
+
     return (
       <Svg
         height={this.props.height}
         width='100%'
-        onLayout={this._onLayout}>
+        onLayout={this._onLayout}
+        {...this._panResponder.panHandlers}>
         <ClipPath id='timeClip'>
           <Rect
             ref={(ref) => { this._timeClippingRect = ref }}
             x={0}
             y={0}
-            width={'0'}
+            width={clipWidth}
             height={this.state.height} />
         </ClipPath>
         <G>
@@ -107,6 +131,7 @@ export class StreamOverlay extends Component {
 }
 
 StreamOverlay.propTypes = {
+  currentTimeActivity: PropTypes.any,
   timeStream: PropTypes.array.isRequired,
   dataStream: PropTypes.array.isRequired,
   height: PropTypes.number,

@@ -18,7 +18,9 @@ export class ActivityOverlay extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      currentTimeActivity: props.currentTimeActivity
+      currentTimeActivity: props.currentTimeActivity,
+      showVelocity: false,
+      streamOverlayProgress: new Animated.Value(0)
     }
     this._toggleVelocity = this._toggleVelocity.bind(this)
   }
@@ -40,21 +42,52 @@ export class ActivityOverlay extends Component {
   }
 
   _toggleVelocity () {
-
+    if (this.state.showVelocity) {
+      Animated.timing(
+        this.state.streamOverlayProgress,
+        {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true
+        }
+      ).start(() => {
+        this.setState({ showVelocity: false })
+      })
+    } else {
+      this.setState({ showVelocity: true }, () => {
+        Animated.timing(
+          this.state.streamOverlayProgress,
+          {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true
+          }
+        ).start()
+      })
+    }
   }
 
   render () {
     var velocity = round(Activity.velocityAt(this.props.streams, this.state.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.state.currentTimeActivity)} m`
 
-    var velocityOverlay =
-      <StreamOverlay
-        ref={(ref) => { this._velocityOverlay = ref }}
-        activityStartTime={this.props.activityStartTime}
-        activityEndTime={this.props.activityEndTime}
-        timeStream={this.props.streams.time.data}
-        dataStream={this.props.streams.velocity_smooth.data}
-        onActivityTimeChange={this.props.onActivityTimeChange} />
+    var velocityOverlayStyle = {
+      opacity: this.state.streamOverlayProgress
+    }
+
+    if (this.state.showVelocity) {
+      var velocityOverlay =
+        <Animated.View style={velocityOverlayStyle}>
+          <StreamOverlay
+            ref={(ref) => { this._velocityOverlay = ref }}
+            activityStartTime={this.props.activityStartTime}
+            activityEndTime={this.props.activityEndTime}
+            currentTimeActivity={this.props.currentTimeActivity}
+            timeStream={this.props.streams.time.data}
+            dataStream={this.props.streams.velocity_smooth.data}
+            onActivityTimeChange={this.props.onActivityTimeChange} />
+        </Animated.View>
+    }
 
     var segmentEffortComparison
 
