@@ -18,7 +18,7 @@ export class VideoPlayer extends Component {
     super(props)
     this.state = {
       paused: true,
-      overlayOpacity: new Animated.Value(1),
+      playerOverlayProgress: new Animated.Value(1),
       showPlayerOverlay: true,
       muted: true
     }
@@ -45,7 +45,7 @@ export class VideoPlayer extends Component {
 
   showPlayerOverlay () {
     Animated.timing(
-      this.state.overlayOpacity,
+      this.state.playerOverlayProgress,
       {
         toValue: 1,
         duration: 400,
@@ -57,7 +57,7 @@ export class VideoPlayer extends Component {
 
   hidePlayerOverlay () {
     Animated.timing(
-      this.state.overlayOpacity,
+      this.state.playerOverlayProgress,
       {
         toValue: 0,
         duration: 400,
@@ -74,7 +74,7 @@ export class VideoPlayer extends Component {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    // this.timeout = this.setTimeout(this.hidePlayerOverlay, 3000)
+    this.timeout = this.setTimeout(this.hidePlayerOverlay, 3000)
   }
 
   onPressVideo (e) {
@@ -128,13 +128,11 @@ export class VideoPlayer extends Component {
   }
 
   _onTimeInterval () {
-    var videoTime = this.getCurrentTime()
     if (this._playerOverlay) {
-      this._playerOverlay.updateCurrentTime(videoTime)
+      this._playerOverlay.updateCurrentTime(this.getCurrentTime())
     }
-    var activityTime = Video.videoTimeToStreamTime(this.props.video, videoTime)
     if (this._activityOverlay) {
-      this._activityOverlay.updateCurrentTime(activityTime)
+      this._activityOverlay.updateCurrentTime(this.getCurrentTimeActivity())
     }
   }
 
@@ -163,6 +161,10 @@ export class VideoPlayer extends Component {
     }
   }
 
+  getCurrentTimeActivity () {
+    return Video.videoTimeToStreamTime(this.props.video, this.getCurrentTime())
+  }
+
   seek (time) {
     this.player.seek(time)
     this._updateLastOnProgress(time)
@@ -180,21 +182,24 @@ export class VideoPlayer extends Component {
       aspectRatio: whAspectRatio
     }, { $merge: this.props.style })
 
-    var overlayStyle = {
-      opacity: this.state.overlayOpacity
+    var playerOverlayStyle = {
+      opacity: this.state.playerOverlayProgress
+    }
+
+    var activityOverlayStyle = {
+      opacity: this.state.playerOverlayProgress.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0]
+      })
     }
 
     if (this.state.showPlayerOverlay) {
-      var overlayPointerEvents = 'auto'
+      var playerOverlayPointerEvents = 'auto'
+      var activityOverlayPointerEvents = 'none'
     } else {
-      overlayPointerEvents = 'none'
+      playerOverlayPointerEvents = 'none'
+      activityOverlayPointerEvents = 'auto'
     }
-
-    /*
-    <ActivityOverlay
-      ref={(ref) => { this._activityOverlay = ref }}
-      activity={this.props.video.activity} />
-      */
 
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
@@ -220,8 +225,14 @@ export class VideoPlayer extends Component {
             onToggleMuted={this.toggleMute}
             onVideoTimeChange={this._onVideoTimeChange}
             onClose={this.onClose}
-            style={overlayStyle}
-            pointerEvents={overlayPointerEvents} />
+            style={playerOverlayStyle}
+            pointerEvents={playerOverlayPointerEvents} />
+          <ActivityOverlay
+            ref={(ref) => { this._activityOverlay = ref }}
+            activity={this.props.video.activity}
+            currentTimeActivity={this.getCurrentTimeActivity()}
+            style={activityOverlayStyle}
+            pointerEvents={activityOverlayPointerEvents} />
         </View>
       </TouchableWithoutFeedback>
     )
