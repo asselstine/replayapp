@@ -12,6 +12,14 @@ import _ from 'lodash'
 import { Timeline } from './timeline'
 
 export class PlayerOverlay extends Component {
+  componentDidMount () {
+    this.listener = this.props.eventEmitter.addListener('progressVideoTime', this.updateCurrentTime.bind(this))
+  }
+
+  componentWillUnmount () {
+    this.listener.remove()
+  }
+
   updateCurrentTime (currentTime) {
     this._timeline.updateCurrentTime(currentTime)
   }
@@ -125,6 +133,7 @@ const styles = {
 }
 
 PlayerOverlay.propTypes = {
+  eventEmitter: PropTypes.object.isRequired,
   paused: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
   duration: PropTypes.number,

@@ -11,7 +11,8 @@ import {
   View
 } from 'react-native'
 import { PlayerOverlay } from './player-overlay'
-import { ActivityOverlay } from './activity-overlay'
+import { ActivityOverlayContainer } from './activity-overlay-container'
+import EventEmitter from 'EventEmitter'
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -20,7 +21,8 @@ export class VideoPlayer extends Component {
       paused: true,
       playerOverlayProgress: new Animated.Value(1),
       showPlayerOverlay: true,
-      muted: true
+      muted: true,
+      eventEmitter: new EventEmitter()
     }
     this._onVideoTimeChange = this._onVideoTimeChange.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
@@ -128,12 +130,8 @@ export class VideoPlayer extends Component {
   }
 
   _onTimeInterval () {
-    if (this._playerOverlay) {
-      this._playerOverlay.updateCurrentTime(this.getCurrentTime())
-    }
-    if (this._activityOverlay) {
-      this._activityOverlay.updateCurrentTime(this.getCurrentTimeActivity())
-    }
+    this.state.eventEmitter.emit('progressVideoTime', this.getCurrentTime())
+    this.state.eventEmitter.emit('progressActivityTime', this.getCurrentTimeActivity())
   }
 
   _onProgress (arg) {
@@ -216,7 +214,7 @@ export class VideoPlayer extends Component {
             resizeMode='cover'
             />
           <PlayerOverlay
-            ref={(ref) => { this._playerOverlay = ref }}
+            eventEmitter={this.state.eventEmitter}
             paused={this.state.paused}
             muted={this.state.muted}
             duration={this.props.video.rawVideoData.duration}
@@ -227,8 +225,8 @@ export class VideoPlayer extends Component {
             onClose={this.onClose}
             style={playerOverlayStyle}
             pointerEvents={playerOverlayPointerEvents} />
-          <ActivityOverlay
-            ref={(ref) => { this._activityOverlay = ref }}
+          <ActivityOverlayContainer
+            eventEmitter={this.state.eventEmitter}
             activity={this.props.video.activity}
             currentTimeActivity={this.getCurrentTimeActivity()}
             style={activityOverlayStyle}
