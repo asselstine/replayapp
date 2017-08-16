@@ -1,19 +1,19 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
 import {
   Polyline
 } from 'react-native-svg'
-import { streamPoints, transformPoints } from '../../../../svg'
+import {
+  streamPoints,
+  transformPoints,
+  pointsToPolyline
+} from '../../../../svg'
 
 export class StreamPolyline extends PureComponent {
   render () {
-    var points = ''
     var sPoints = streamPoints(this.props.height, this.props.width, this.props.timeStream, this.props.dataStream)
     sPoints = transformPoints(sPoints, this.props.transform)
-    _.each(sPoints, (point) => {
-      points += `${point[0]},${point[1]} `
-    })
+    var points = pointsToPolyline(sPoints)
     return (
       <Polyline
         x={this.props.x}

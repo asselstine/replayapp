@@ -61,7 +61,6 @@ export class RaceGraph extends Component {
     var v = [evt.nativeEvent.locationX, 0, 0, 1]
     v = MatrixMath.multiplyVectorByMatrix(v, this.state.inverseTransform)
     if (this.props.onStreamTimeChange) {
-      console.log(`move: ${evt.nativeEvent.locationX} ${v[0]}`)
       this.props.onStreamTimeChange(v[0])
     }
   }

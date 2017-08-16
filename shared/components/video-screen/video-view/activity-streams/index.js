@@ -12,10 +12,9 @@ import Svg, {
 } from 'react-native-svg'
 import { TextLayer } from './text-layer'
 import _ from 'lodash'
-import { StreamPath } from './stream-path'
+import { StreamPath } from '../../../stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
-import { linear } from '../../../../streams'
-import { round } from '../../../../round'
+import { Activity } from '../../../../activity'
 import * as colours from '../../../../colours'
 
 const IDENTITY = MatrixMath.createIdentityMatrix()
@@ -380,16 +379,11 @@ export class ActivityStreams extends PureComponent {
   }
 
   timeToCurrentKmh (streamTime) {
-    var times = _.get(this.props, 'streams.time.data', [])
-    var velocitySmooth = _.get(this.props, 'streams.velocity_smooth.data', [])
-    var speed = linear(streamTime, times, velocitySmooth)
-    return round((speed * 3600.0) / 1000.0, 2)
+    return Activity.velocityAt(this.props.streams, streamTime)
   }
 
   timeToCurrentAltitude (streamTime) {
-    var times = _.get(this.props, 'streams.time.data', [])
-    var altitude = _.get(this.props, 'streams.altitude.data', [])
-    return Math.round(linear(streamTime, times, altitude))
+    return Activity.altitudeAt(this.props.streams, streamTime)
   }
 
   render () {

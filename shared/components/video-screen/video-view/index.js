@@ -22,13 +22,14 @@ import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
 import { ActivityMap } from './activity-map'
 import { ActivitySegments } from './activity-segments'
-import { StreamsService } from '../../../services/streams-service'
+import { ActivityService } from '../../../services/activity-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 import * as colours from '../../../colours'
+import { Video } from '../../../video'
 
 import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
@@ -40,7 +41,7 @@ export const VideoView = connect(
     }
     var activity = _.get(video, 'activity')
     if (activity) {
-      result['streams'] = _.get(state, `streams['${activity.id}']`)
+      result['streams'] = _.get(state, `activities['${activity.id}'].streams`)
     }
     return result
   }
@@ -53,12 +54,13 @@ export const VideoView = connect(
       locked: true,
       landscape: false,
       videoRotate: new Animated.Value(0),
-      videoPlayerWidth: 1,
-      videoPlayerHeight: 1,
+      width: 1,
+      height: 1,
       showVideo: true
     }
     this.onProgress = this.onProgress.bind(this)
     this.onPlay = this.onPlay.bind(this)
+    this._onLayout = this._onLayout.bind(this)
     this.onToggleLock = this.onToggleLock.bind(this)
     this.onPressStravaConnect = this.onPressStravaConnect.bind(this)
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
@@ -67,6 +69,27 @@ export const VideoView = connect(
     this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
     this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
+    this._onOrientationChange = this._onOrientationChange.bind(this)
+    Orientation.getOrientation((err, orientation) => {
+      if (err) {
+        console.error(err)
+      } else {
+        this._onOrientationChange(orientation)
+      }
+    })
+  }
+
+  _onLayout (event) {
+    this.setState({
+      width: _.get(event, 'nativeEvent.layout.width'),
+      height: _.get(event, 'nativeEvent.layout.height')
+    })
+  }
+
+  _onOrientationChange (orientation) {
+    var landscape =
+      (orientation === 'LANDSCAPE' || orientation === 'UNKNOWN' && this.state.landscape)
+    this.setState({ landscape: landscape })
   }
 
   onPressStravaConnect () {
@@ -128,9 +151,10 @@ export const VideoView = connect(
 
   componentDidMount () {
     Orientation.lockToPortrait()
+    Orientation.addOrientationListener(this._onOrientationChange)
     this.checkSyncModal(this.props)
     if (_.get(this.props, 'video.activity')) {
-      StreamsService.retrieveStreams(this.props.video.activity.id)
+      ActivityService.retrieveStreams(this.props.video.activity.id)
     }
     this.checkStreams(this.props)
     this._transitionEndListener = NavigationEventEmitter.addListener('transitionEnd', this._transitionEnd.bind(this))
@@ -138,6 +162,7 @@ export const VideoView = connect(
 
   componentWillUnmount () {
     this._transitionEndListener.remove()
+    Orientation.removeOrientationListener(this._onOrientationChange)
   }
 
   _transitionEnd () {
@@ -153,7 +178,8 @@ export const VideoView = connect(
 
   checkStreams (props) {
     if (_.get(props, 'video.activity.id') && !props.streams) {
-      StreamsService.retrieveStreams(_.get(props, 'video.activity.id'))
+      console.log('RETRIEVE STREAMS')
+      ActivityService.retrieveStreams(_.get(props, 'video.activity.id'))
     }
   }
 
@@ -182,20 +208,11 @@ export const VideoView = connect(
   }
 
   streamTimeToVideoTime (streamTime) {
-    var activityStartAt = moment(_.get(this.props, 'video.activity.start_date'))
-    var videoStartAt = moment(_.get(this.props, 'video.startAt'))
-    var deltaMs = videoStartAt.diff(activityStartAt)
-    var videoTime = streamTime - (deltaMs / 1000.0)
-    return videoTime
+    return Video.streamTimeToVideoTime(this.props.video, streamTime)
   }
 
   videoTimeToStreamTime (videoTime) {
-    var streamStartAt = _.get(this.props, 'video.activity.start_date')
-    var videoStartAt = _.get(this.props, 'video.startAt')
-    if (!streamStartAt || !videoStartAt) { return null }
-    var currentVideoTime = moment(videoStartAt).add(videoTime, 's')
-    var result = moment(currentVideoTime).diff(moment(streamStartAt)) / 1000.0
-    return result
+    return Video.videoTimeToStreamTime(this.props.video, videoTime)
   }
 
   render () {
@@ -206,16 +223,23 @@ export const VideoView = connect(
     var videoStreamStartTime = Math.max(0, Math.min(this.videoTimeToStreamTime(0), activityDuration))
     var videoStreamEndTime = Math.min(activityDuration, videoStreamStartTime + videoDuration)
 
+    var hwAspectRatio = this.props.video.rawVideoData.height / (1.0 * this.props.video.rawVideoData.width)
+    var videoHeight = this.state.width * hwAspectRatio
+
     if (this.props.video && this.state.showVideo) {
       var videoPlayer =
-        <Rotator>
+        <Rotator
+          width={this.state.width}
+          height={videoHeight}
+          landscape={this.state.landscape}>
           <VideoPlayer
             ref={(ref) => { this._videoPlayer = ref }}
+            hideActivityOverlay={!this.state.landscape}
             onProgress={this.onProgress}
             onPlay={this.onPlay}
             onClose={this.props.onClose}
             style={styles.videoPlayer}
-            video={this.props.video.videoSource} />
+            video={this.props.video} />
         </Rotator>
     }
 
@@ -317,7 +341,7 @@ export const VideoView = connect(
     }
 
     return (
-      <View style={styles.videoView}>
+      <View style={styles.videoView} onLayout={this._onLayout}>
         <StatusBar hidden />
         {videoPlayer}
         {header}
