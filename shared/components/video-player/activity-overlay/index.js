@@ -19,10 +19,9 @@ export class ActivityOverlay extends Component {
     super(props)
     this.state = {
       currentTimeActivity: props.currentTimeActivity,
-      showVelocity: false,
+      streamOverlay: false,
       streamOverlayProgress: new Animated.Value(0)
     }
-    this._toggleVelocity = this._toggleVelocity.bind(this)
   }
 
   componentDidMount () {
@@ -41,8 +40,8 @@ export class ActivityOverlay extends Component {
     }
   }
 
-  _toggleVelocity () {
-    if (this.state.showVelocity) {
+  _toggleOverlay (overlay) {
+    if (overlay === this.state.streamOverlay) {
       Animated.timing(
         this.state.streamOverlayProgress,
         {
@@ -51,10 +50,10 @@ export class ActivityOverlay extends Component {
           useNativeDriver: true
         }
       ).start(() => {
-        this.setState({ showVelocity: false })
+        this.setState({ streamOverlay: false })
       })
     } else {
-      this.setState({ showVelocity: true }, () => {
+      this.setState({ streamOverlay: overlay }, () => {
         Animated.timing(
           this.state.streamOverlayProgress,
           {
@@ -71,20 +70,29 @@ export class ActivityOverlay extends Component {
     var velocity = round(Activity.velocityAt(this.props.streams, this.state.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.state.currentTimeActivity)} m`
 
-    var velocityOverlayStyle = {
+    var streamOverlayStyle = {
       opacity: this.state.streamOverlayProgress
     }
 
-    if (this.state.showVelocity) {
+    switch (this.state.streamOverlay) {
+      case 'velocity':
+        var overlayData = this.props.streams.velocity_smooth.data
+        break
+      case 'altitude':
+        overlayData = this.props.streams.altitude.data
+        break
+    }
+
+    if (this.state.streamOverlay) {
       var velocityOverlay =
-        <Animated.View style={velocityOverlayStyle}>
+        <Animated.View style={streamOverlayStyle}>
           <StreamOverlay
             ref={(ref) => { this._velocityOverlay = ref }}
             activityStartTime={this.props.activityStartTime}
             activityEndTime={this.props.activityEndTime}
             currentTimeActivity={this.props.currentTimeActivity}
             timeStream={this.props.streams.time.data}
-            dataStream={this.props.streams.velocity_smooth.data}
+            dataStream={overlayData}
             onActivityTimeChange={this.props.onActivityTimeChange} />
         </Animated.View>
     }
@@ -110,12 +118,12 @@ export class ActivityOverlay extends Component {
           <View style={{...styles.overlayData, ...styles.overlayBottom}}>
             <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
               <View style={styles.overlayItem}>
-                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={this._toggleVelocity}>
+                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={() => { this._toggleOverlay('velocity') }}>
                   <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='speedometer' />
                   <Text style={{...styles.overlayText, ...styles.textWidth4}}>{velocity}</Text>
                   <Text style={styles.overlayText}>km/h</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}}>
+                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={() => { this._toggleOverlay('altitude') }}>
                   <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='altimeter' />
                   <Text style={styles.overlayText}>{altitude}</Text>
                 </TouchableOpacity>

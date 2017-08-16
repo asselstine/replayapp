@@ -27,14 +27,10 @@ export class StreamOverlay extends Component {
   constructor (props) {
     super(props)
     this._onLayout = this._onLayout.bind(this)
-    var points = mergeStreams(this.props.timeStream, this.props.dataStream)
     this.state = {
       width: 1,
       height: 1,
-      transform: MatrixMath.createIdentityMatrix(),
-      originalPoints: points,
-      points: points,
-      path: pointsToPath(points)
+      transform: this.createTransform(this.props, 1, 1)
     }
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gestureState) => true,
@@ -51,31 +47,37 @@ export class StreamOverlay extends Component {
     })
   }
 
+  componentWillReceiveProps (props) {
+    this.setState({
+      transform: this.createTransform(props)
+    })
+  }
+
   _moveCursor (event) {
-    var timeV = this.transform(event.nativeEvent.locationX, 0, this.state.inverse)
+    var inverse = MatrixMath.inverse(this.createTransform())
+    var timeV = this.transform(event.nativeEvent.locationX, 0, inverse)
     this.props.onActivityTimeChange(timeV[0])
   }
 
-  _onLayout (e) {
-    var width = _.get(e, 'nativeEvent.layout.width')
-    var height = _.get(e, 'nativeEvent.layout.height')
-    var transform = createBoundsTransform(this.props.timeStream, this.props.dataStream, 0, height, width, -height)
-    var activityStartTime = this.props.activityStartTime || this.props.timeStream[0]
-    var activityEndTime = this.props.activityEndTime || this.props.timeStream[ this.props.timeStream.length - 1 ]
+  createTransform (props = this.props, width = this.state.width, height = this.state.height) {
+    var transform = createBoundsTransform(props.timeStream, props.dataStream, 0, height, width, -height)
+    var activityStartTime = props.activityStartTime || props.timeStream[0]
+    var activityEndTime = props.activityEndTime || props.timeStream[ props.timeStream.length - 1 ]
     var viewStart = this.transform(activityStartTime, 0, transform)
     var viewEnd = this.transform(activityEndTime, 0, transform)
     var viewWidth = viewEnd[0] - viewStart[0]
     var viewport = viewportTransform(viewStart[0], viewWidth, 0, width)
     MatrixMath.multiplyInto(transform, viewport, transform)
-    var points = transformPoints(this.state.originalPoints, transform)
-    var inverse = MatrixMath.inverse(transform)
+    return transform
+  }
+
+  _onLayout (e) {
+    var width = _.get(e, 'nativeEvent.layout.width')
+    var height = _.get(e, 'nativeEvent.layout.height')
     this.setState({
       width: width,
       height: height,
-      transform: transform,
-      inverse: inverse,
-      points: points,
-      path: pointsToPath(points)
+      transform: this.createTransform(this.props, width, height)
     })
   }
 
@@ -90,17 +92,23 @@ export class StreamOverlay extends Component {
   }
 
   render () {
+    var points = mergeStreams(this.props.timeStream, this.props.dataStream)
+    points = transformPoints(points, this.state.transform)
+    points.unshift([0, this.state.height])
+    points.push([this.state.width, this.state.height])
+    var path = pointsToPath(points)
+
     var streamPath =
       <Path
         x={0}
         y={0}
-        d={this.state.path}
+        d={path}
         fill='grey' />
     var streamCurrentTimePath =
       <Path
         x={0}
         y={0}
-        d={this.state.path}
+        d={path}
         fill='white' />
 
     var clipWidth = this.transform(this.props.currentTimeActivity || 0, 0)[0].toString()
