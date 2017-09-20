@@ -23,9 +23,11 @@ export class RawVideoList extends PureComponent {
   }
 
   fetch () {
+    var currentIndex = this.state.assets.length
+    var pageSize = 10
     RNPhotosFramework.getAssets({
-      startIndex: 0,
-      endIndex: 20,
+      startIndex: currentIndex,
+      endIndex: currentIndex + pageSize,
       includeMetadata: true,
       fetchOptions: {
         mediaTypes: ['video'],
@@ -37,9 +39,12 @@ export class RawVideoList extends PureComponent {
         ]
       }
     }).then((response) => {
+      if (this.state.assets.length !== currentIndex) { return }
       var newState = {}
       newState.assets = this.state.assets.concat(response.assets)
-      newState.noMore = true
+      if (response.assets.length < pageSize) {
+        newState.noMore = true
+      }
       this.setState(newState)
     })
   }
