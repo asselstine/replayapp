@@ -286,6 +286,8 @@ export class ActivityStreams extends PureComponent {
     var times = _.get(props, 'streams.time.data')
     if (!(times && props.videoStreamStartTime && props.videoStreamEndTime && this.state.width > 1)) { return }
 
+    if (props.videoStreamStartTime === props.videoStreamEndTime) { return }
+
     var matrix = this.newTransform
     var completeTransform = this.combinedTransforms()
     // duration / length
