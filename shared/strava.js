@@ -57,25 +57,25 @@ export const Strava = {
     )
   },
 
-  // retrieveLeaderboard (segmentId) {
-  //   return (
-  //     fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?&page=1&per_page=1`, {
-  //       headers: this.headers()
-  //     }).catch((error) => {
-  //       console.error(error)
-  //     })
-  //   )
-  // },
-
   retrieveLeaderboard (segmentId) {
     return (
-      fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?following=true&page=1&per_page=1`, {
+      fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?&page=1&per_page=1`, {
         headers: this.headers()
       }).catch((error) => {
         console.error(error)
       })
     )
   },
+
+  // retrieveLeaderboard (segmentId) {
+  //   return (
+  //     fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?following=true&page=1&per_page=1`, {
+  //       headers: this.headers()
+  //     }).catch((error) => {
+  //       console.error(error)
+  //     })
+  //   )
+  // },
 
   retrieveSegmentEffortStream (segmentEffortId) {
     return (

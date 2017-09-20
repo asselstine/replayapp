@@ -30,6 +30,7 @@ export class SegmentRace extends Component {
       .retrieveLeaderboard(segmentId)
       .then((response) => {
         response.json().then((json) => {
+          // console.log(`Retreived leaderboard for ${segmentId}: with ${json.entries.length} entry `, json.entries[0])
           this.setState({
             versusSegmentEffortId: json.entries[0].effort_id
           }, this.updateCompareEfforts)
@@ -44,6 +45,7 @@ export class SegmentRace extends Component {
         .then((response) => {
           // console.log(response)
           response.json().then((json) => {
+            // console.log('compare efforts response: ', json)
             this.setState({
               versusDeltaTimes: json.delta_time
             })
@@ -80,7 +82,6 @@ export class SegmentRace extends Component {
         <RaceGraph
           eventEmitter={this.props.eventEmitter}
           timeStream={this.state.times}
-          distanceStream={this.state.distances}
           deltaTimeStream={this.state.versusDeltaTimes}
           onStreamTimeChange={this.props.onStreamTimeChange}
           width='100%'
