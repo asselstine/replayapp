@@ -43,7 +43,7 @@ export class Timeline extends Component {
   }
 
   updateCurrentTime (currentTime) {
-    // console.log(`Timeline updateCurrentTime: ${currentTime}`)
+    currentTime = Math.max(0, Math.min(currentTime, this.props.duration))
     this.setState({
       currentTime: currentTime
     })
