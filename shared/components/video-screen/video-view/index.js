@@ -88,7 +88,7 @@ export const VideoView = connect(
 
   _onOrientationChange (orientation) {
     var landscape =
-      (orientation === 'LANDSCAPE' || orientation === 'UNKNOWN' && this.state.landscape)
+      (orientation === 'LANDSCAPE' || (orientation === 'UNKNOWN' && this.state.landscape))
     this.setState({ landscape: landscape })
   }
 
@@ -277,13 +277,16 @@ export const VideoView = connect(
           {lockContent}
         </TouchableOpacity>
 
+      var lockControls =
+        <View style={styles.lockControls}>
+          {lockReset}
+          {lockToggle}
+        </View>
+
       var header =
         <View style={styles.titleHeader}>
           {changeActivityButton}
-          <View style={styles.lockControls}>
-            {lockReset}
-            {lockToggle}
-          </View>
+          {lockControls}
         </View>
     } else {
       header =
@@ -366,22 +369,22 @@ const styles = {
 
   titleHeader: {
     flex: 0,
-    paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     zIndex: 1000
   },
 
   connectHeader: {
-    flex: 0,
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center'
   },
 
   activityButton: {
-    flex: 1,
-    padding: 10
+    flex: 0,
+    padding: 10,
+    paddingRight: 40
   },
 
   activityButtonText: {
@@ -415,8 +418,10 @@ const styles = {
   },
 
   lockControls: {
-    flex: 0,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    position: 'absolute',
+    top: 0,
+    right: 0
   }
 }
 
