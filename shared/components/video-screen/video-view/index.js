@@ -27,6 +27,7 @@ import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import Orientation from 'react-native-orientation'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
@@ -77,6 +78,16 @@ export const VideoView = connect(
         this._onOrientationChange(orientation)
       }
     })
+  }
+
+  _showTimestampWarning () {
+    Alert.alert(
+      'Manual time alignment required',
+      'The file creation date for the video is way off from the activity date.  You will need to synchronize the times by unlocking the video then scrubbing',
+      [
+        { text: 'Ok' },
+      ]
+    )
   }
 
   _onLayout (event) {
@@ -223,6 +234,15 @@ export const VideoView = connect(
     var videoStreamStartTime = Math.max(0, Math.min(this.videoTimeToStreamTime(0), activityDuration))
     var videoStreamEndTime = Math.min(activityDuration, videoStreamStartTime + videoDuration)
 
+    if (videoStreamStartTime === videoStreamEndTime) {
+      var warning =
+        <TouchableOpacity onPress={this._showTimestampWarning}>
+          <MaterialIcon
+            name='warning'
+            style={{...styles.titleHeaderIcon, ...styles.titleWarningIcon}} />
+        </TouchableOpacity>
+    }
+
     var hwAspectRatio = this.props.video.rawVideoData.height / (1.0 * this.props.video.rawVideoData.width)
     var videoHeight = this.state.width * hwAspectRatio
 
@@ -245,13 +265,13 @@ export const VideoView = connect(
 
     if (activity) {
       var changeActivityButton =
-        <TouchableOpacity onPress={this.onPressStravaConnect}>
-          <View style={styles.activityButton}>
+        <View style={styles.activityButton}>
+          <TouchableOpacity onPress={this.onPressStravaConnect}>
             <Text style={styles.activityButtonText}>
               {activity.name}
             </Text>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
 
       var lockReset =
         <TouchableOpacity onPress={this._onPressReset}>
@@ -279,14 +299,17 @@ export const VideoView = connect(
 
       var lockControls =
         <View style={styles.lockControls}>
+          {warning}
           {lockReset}
           {lockToggle}
         </View>
 
       var header =
-        <View style={styles.titleHeader}>
-          {changeActivityButton}
-          {lockControls}
+        <View style={styles.header}>
+          <View style={styles.titleHeader}>
+            {changeActivityButton}
+            {lockControls}
+          </View>
         </View>
     } else {
       header =
@@ -367,8 +390,11 @@ const styles = {
     width: 193
   },
 
+  header: {
+    flex: 0
+  },
+
   titleHeader: {
-    flex: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     zIndex: 1000
@@ -384,11 +410,12 @@ const styles = {
   activityButton: {
     flex: 0,
     padding: 10,
-    paddingRight: 40
+    paddingRight: 100,
+    flexDirection: 'row'
   },
 
   activityButtonText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '300',
     color: 'black'
   },
@@ -398,6 +425,10 @@ const styles = {
     fontSize: 24,
     paddingTop: 10,
     paddingRight: 10
+  },
+
+  titleWarningIcon: {
+    color: 'red'
   },
 
   connectButton: {
