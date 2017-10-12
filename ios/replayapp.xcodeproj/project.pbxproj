@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -607,6 +608,7 @@
 				C2EB86283B4AF676E87EBD25 /* Pods */,
 				B1F90D6B49B024A43AA58504 /* Frameworks */,
 				8A01988FB5BA4DFB9C61741A /* Resources */,
+				C68E52571F8EDBCD00ED3AA8 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -704,6 +706,19 @@
 				C65BFC6B1F19493600870444 /* libRCTOrientation.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C68E52571F8EDBCD00ED3AA8 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				0476ED34B18043BF8B2CC583 /* libReactNativeConfig.a */,
+				64CA393C8500441BBEA42BE0 /* libRNPhotosFramework.a */,
+				78BD3AE99C43442BB60D0B72 /* libAirMaps.a */,
+				8AFC6F46C6D74FF7B89F6544 /* libRNSVG.a */,
+				A39CBC57C35E44949C6CA994 /* libRCTOrientation.a */,
+				84188CD4F98345F6A24FEB7E /* libRNVectorIcons.a */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		C6B14C901EB1B8C2001BD503 /* Products */ = {
