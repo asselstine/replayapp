@@ -14,13 +14,13 @@ import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import {
   mergeStreams,
   transformPoints
-} from '../../../../../svg'
+} from '../../../../../../svg'
 import {
   linearIndex,
   minValueIndex,
   maxValueIndex,
   createBoundsTransform
-} from '../../../../../streams'
+} from '../../../../../../streams'
 import { InfoLine } from './info-line'
 import {
   PanResponder
