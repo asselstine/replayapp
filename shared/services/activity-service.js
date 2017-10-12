@@ -8,7 +8,7 @@ import {
 export const ActivityService = {
   retrieveActivity (activityId) {
     return (
-      Strava.retrieveActivity(this.props.activity.id).then((response) => {
+      Strava.retrieveActivity(activityId).then((response) => {
         response.json().then((json) => {
           store.dispatch(receiveActivity(activityId, json))
         }).catch((error) => {

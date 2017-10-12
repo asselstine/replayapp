@@ -13,6 +13,7 @@ import { ActivityService } from '../../../services/activity-service'
 import { round } from '../../../round'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { StreamOverlay } from './stream-overlay'
+import _ from 'lodash'
 
 export class ActivityOverlay extends Component {
   constructor (props) {
@@ -26,6 +27,7 @@ export class ActivityOverlay extends Component {
 
   componentDidMount () {
     ActivityService.retrieveStreams(this.props.activity.id)
+    ActivityService.retrieveActivity(this.props.activity.id)
     this.listener = this.props.eventEmitter.addListener('progressActivityTime', this.updateCurrentTime.bind(this))
   }
 
@@ -66,6 +68,19 @@ export class ActivityOverlay extends Component {
     }
   }
 
+  currentSegmentEffort () {
+    var currentTime = this.state.currentTimeActivity
+    var times = this.props.streams.time.data
+    return _.first(this.props.segmentEfforts.reduce((matchingSegmentEfforts, segmentEffort) => {
+      if (times &&
+          times[segmentEffort.start_index] <= currentTime &&
+          times[segmentEffort.end_index] >= currentTime) {
+            matchingSegmentEfforts.push(segmentEffort)
+      }
+      return matchingSegmentEfforts
+    }, []))
+  }
+
   render () {
     var velocity = round(Activity.velocityAt(this.props.streams, this.state.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.state.currentTimeActivity)} m`
@@ -97,15 +112,11 @@ export class ActivityOverlay extends Component {
         </Animated.View>
     }
 
-    var segmentEffortComparison
-
-    /*
-    segmentEffortComparison =
+    var segmentEffort = this.currentSegmentEffort()
+    var segmentEffortComparison =
       <TouchableOpacity style={{...styles.overlayItem, ...styles.overlaySplitItem, ...styles.overlayButton}}>
-        <Text style={styles.overlayText}>1/2 </Text>
-        <Text style={styles.overlayText}>Patrick Thibodeau +0:04</Text>
+        <Text style={styles.overlayText}>{segmentEffort.name}</Text>
       </TouchableOpacity>
-    */
 
     return (
       <Animated.View
@@ -118,6 +129,7 @@ export class ActivityOverlay extends Component {
           <View style={{...styles.overlayData, ...styles.overlayBottom}}>
             <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
               <View style={styles.overlayItem}>
+                {segmentEffortComparison}
                 <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={() => { this._toggleOverlay('velocity') }}>
                   <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='speedometer' />
                   <Text style={{...styles.overlayText, ...styles.textWidth4}}>{velocity}</Text>
@@ -128,7 +140,6 @@ export class ActivityOverlay extends Component {
                   <Text style={styles.overlayText}>{altitude}</Text>
                 </TouchableOpacity>
               </View>
-              {segmentEffortComparison}
             </View>
           </View>
         </View>
@@ -219,7 +230,8 @@ ActivityOverlay.propTypes = {
   activityEndTime: PropTypes.any,
   style: PropTypes.any,
   pointerEvents: PropTypes.any,
-  streams: PropTypes.object
+  streams: PropTypes.object,
+  segmentEfforts: PropTypes.object
 }
 
 ActivityOverlay.defaultProps = {

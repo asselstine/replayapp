@@ -8,23 +8,17 @@ import {
 import _ from 'lodash'
 import { SegmentEffort } from './segment-effort'
 import { Strava } from '../../../../strava'
+import { ActivityService } from '../../../../services/activity-service'
 
 export class ActivitySegments extends Component {
   componentDidMount () {
-    Strava.retrieveActivity(this.props.activity.id).then((response) => {
-      response.json().then((json) => {
-        this.setState({
-          detailedActivity: json
-        })
-      })
-    })
+    ActivityService.retrieveActivity(this.props.activity.id)
   }
 
   render () {
-    var segmentEfforts = _.get(this.state, 'detailedActivity.segment_efforts', [])
     return (
       <ScrollView style={styles.view}>
-        {segmentEfforts.map((segmentEffort) => {
+        {this.props.segmentEfforts.map((segmentEffort) => {
           return (
             <SegmentEffort
               eventEmitter={this.props.eventEmitter}
@@ -47,5 +41,6 @@ const styles = {
 ActivitySegments.propTypes = {
   activity: PropTypes.object,
   eventEmitter: PropTypes.object.isRequired,
-  onStreamTimeChange: PropTypes.func
+  onStreamTimeChange: PropTypes.func,
+  segmentEfforts: PropTypes.array
 }

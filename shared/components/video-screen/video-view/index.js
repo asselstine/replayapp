@@ -21,7 +21,7 @@ import { login } from '../../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
 import { ActivityMap } from './activity-map'
-import { ActivitySegments } from './activity-segments'
+import { ActivitySegmentsContainer } from './activity-segments-container'
 import { ActivityService } from '../../../services/activity-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
@@ -335,7 +335,7 @@ export const VideoView = connect(
           activity={activity}
           streams={this.props.streams} />
       activitySegments =
-        <ActivitySegments
+        <ActivitySegmentsContainer
           tabLabel='Race'
           eventEmitter={this.eventEmitter}
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}

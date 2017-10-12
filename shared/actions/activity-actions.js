@@ -1,4 +1,4 @@
-export function receiveActivity (activityId, activity) {
+export const receiveActivity = function (activityId, activity) {
   return {
     type: 'RECEIVE_ACTIVITY',
     activityId: activityId,
