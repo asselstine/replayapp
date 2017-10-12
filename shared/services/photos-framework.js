@@ -1,5 +1,8 @@
 import EventEmitter from 'EventEmitter'
 import RNPhotosFramework from 'react-native-photos-framework'
+import { store } from '../store'
+import { removeVideo } from '../actions/video-actions'
+import _ from 'lodash'
 
 export const PhotosFramework = {
   auth () {
@@ -14,12 +17,29 @@ export const PhotosFramework = {
 
   init () {
     if (!this._libraryUnsubscribe) {
-      // this._libraryUnsubscribe = RNPhotosFramework.onLibraryChange(this._onLibraryChange.bind(this))
+      this._libraryUnsubscribe = RNPhotosFramework.onLibraryChange(this._onLibraryChange.bind(this))
     }
   },
 
   _onLibraryChange () {
     this.emitter().emit('onLibraryChange')
+    this.checkVideos(_.values(store.getState().videos))
+  },
+
+  checkVideos (videos) {
+    var localIdentifiers = _.map(videos, 'rawVideoData.localIdentifier')
+    RNPhotosFramework
+      .getAssetsResourcesMetadata(localIdentifiers)
+      .then((assets) => {
+        var deleted = _.difference(localIdentifiers, _.keys(assets))
+        deleted.forEach((localIdentifier) => {
+          store.dispatch(removeVideo({
+            rawVideoData: {
+              localIdentifier: localIdentifier
+            }
+          }))
+        })
+      })
   },
 
   emitter () {
