@@ -10,7 +10,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Strava } from '../../../../../../strava'
 import { RaceGraph } from './race-graph'
-import { SegmentEffortSelectModal } from './segment-effort-select-modal'
+import { SegmentEffortSelectModal } from '../../../../../segment-effort-select-modal'
 import Icon from 'react-native-vector-icons/Ionicons'
 
 export class SegmentRace extends Component {
@@ -22,7 +22,6 @@ export class SegmentRace extends Component {
       distances: null,
       leaderboard: [],
       versusSegmentEffort: null,
-      versusTimes: null,
       versusDistances: null
     }
     this.updateCompareEfforts = this.updateCompareEfforts.bind(this)
@@ -87,10 +86,8 @@ export class SegmentRace extends Component {
           return map
         }, {})
         this.setState({
-          times: streams.time.data,
-          distances: streams.distance.data,
-          moving: streams.moving.data
-        }, this._updateDeltaTimes)
+          times: streams.time.data
+        })
       })
     })
   }
@@ -106,7 +103,7 @@ export class SegmentRace extends Component {
           </TouchableOpacity>
         </View>
     }
-    if (this.state.versusDeltaTimes && this.state.distances) {
+    if (this.state.versusDeltaTimes && this.state.times) {
       var versusDeltaTimes =
         <RaceGraph
           eventEmitter={this.props.eventEmitter}

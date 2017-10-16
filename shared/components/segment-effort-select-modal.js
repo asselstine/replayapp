@@ -8,7 +8,7 @@ import {
   Button,
   Text
 } from 'react-native'
-import { Strava } from '../../../../../../strava'
+import { Strava } from '../strava'
 import PropTypes from 'prop-types'
 
 export class SegmentEffortSelectModal extends Component {
