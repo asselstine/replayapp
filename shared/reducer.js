@@ -3,9 +3,11 @@ import { combineReducers } from 'redux'
 import videos from './reducers/videos-reducer'
 import strava from './reducers/strava-reducer'
 import activities from './reducers/activity-reducer'
+import segments from './reducers/segments-reducer'
 
 export default combineReducers({
   videos,
   strava,
-  activities
+  activities,
+  segments
 })

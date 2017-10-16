@@ -13,6 +13,7 @@ import { ActivityService } from '../../../services/activity-service'
 import { round } from '../../../round'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { StreamOverlay } from './stream-overlay'
+import { VersusDetailContainer } from './versus-detail-container'
 import _ from 'lodash'
 
 export class ActivityOverlay extends Component {
@@ -81,6 +82,22 @@ export class ActivityOverlay extends Component {
     }, []))
   }
 
+  currentLeaderboardComparison (segmentEffort) {
+    //need the leaderboard for this particular segment
+    // Strava
+    //   .retrieveLeaderboard(segmentEffort.segment.id)
+    //   .then((response) => {
+    //     response.json().then((json) => {
+    //       // console.log(`Retreived leaderboard for ${segmentId}: with ${json.entries.length} entry `, json.entries[0])
+    //       this.setState({
+    //         versusLeaderboardEntry: json.entries[0],
+    //         leaderboard: json.entries
+    //       }, this.updateCompareEfforts)
+    //     })
+    //   })
+    // VS blah
+  }
+
   render () {
     var velocity = round(Activity.velocityAt(this.props.streams, this.state.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.state.currentTimeActivity)} m`
@@ -116,9 +133,13 @@ export class ActivityOverlay extends Component {
     if (segmentEffort) {
       var segmentEffortComparison =
         <TouchableOpacity style={{...styles.overlayItem, ...styles.overlaySplitItem, ...styles.overlayButton}}>
-          <Text style={styles.overlayText}>{segmentEffort.name}</Text>
+          <Text style={{...styles.segmentEffort}}>{segmentEffort.name}</Text>
         </TouchableOpacity>
+      var versusSelect =
+        <VersusDetailContainer style={{...styles.segmentEffort}} segmentEffort={segmentEffort} currentStreamTime={this.state.currentTimeActivity} />
     }
+
+    // var leaderboardComparison = this.currentLeaderboardComparison(segmentEffort)
 
     return (
       <Animated.View
@@ -132,6 +153,7 @@ export class ActivityOverlay extends Component {
             <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
               <View style={styles.overlayItem}>
                 {segmentEffortComparison}
+                {versusSelect}
                 <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={() => { this._toggleOverlay('velocity') }}>
                   <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='speedometer' />
                   <Text style={{...styles.overlayText, ...styles.textWidth4}}>{velocity}</Text>
@@ -157,6 +179,12 @@ const styles = {
     position: 'absolute',
     top: 0,
     left: 0
+  },
+
+  segmentEffort: {
+    backgroundColor: 'white',
+    color: 'black',
+    fontSize: 16
   },
 
   overlayItemContainer: {
@@ -233,7 +261,7 @@ ActivityOverlay.propTypes = {
   style: PropTypes.any,
   pointerEvents: PropTypes.any,
   streams: PropTypes.object,
-  segmentEfforts: PropTypes.object
+  segmentEfforts: PropTypes.array
 }
 
 ActivityOverlay.defaultProps = {

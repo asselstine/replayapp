@@ -48,7 +48,7 @@ export const linearIndex = function (index, values) {
 
   NOTE: normalizes the versus distance as well; this may skew results.
 */
-export const versusDeltaTimes = function (times, distances, versusTimes, versusDistances) {
+export const versusDeltaTimes = function (times, distances, VersusDetails, versusDistances) {
   var distanceMax = distances[distances.length - 1]
   var versusDistanceMax = versusDistances[versusDistances.length - 1]
   var distanceMin = distances[0]
@@ -58,8 +58,8 @@ export const versusDeltaTimes = function (times, distances, versusTimes, versusD
   return _.map(distances, (distance, index) => {
     var versusDistance = (distance - distanceMin) * distanceScale
     versusIndex = valueToIndex(versusDistanceMin + versusDistance, versusDistances, versusIndex)
-    var versusTime = linearIndex(versusIndex, versusTimes)
-    var deltaTime = (times[index] - times[0]) - (versusTime - versusTimes[0])
+    var VersusDetail = linearIndex(versusIndex, VersusDetails)
+    var deltaTime = (times[index] - times[0]) - (VersusDetail - VersusDetails[0])
     return deltaTime
   })
 }

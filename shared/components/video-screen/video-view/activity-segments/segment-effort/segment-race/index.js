@@ -10,7 +10,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Strava } from '../../../../../../strava'
 import { RaceGraph } from './race-graph'
-import { SegmentEffortSelectModal } from './segment-effort-select-modal'
+import { SegmentEffortSelectModal } from '../../../../../segment-effort-select-modal'
 import Icon from 'react-native-vector-icons/Ionicons'
 
 export class SegmentRace extends Component {
@@ -22,7 +22,6 @@ export class SegmentRace extends Component {
       distances: null,
       leaderboard: [],
       versusSegmentEffort: null,
-      versusTimes: null,
       versusDistances: null
     }
     this.updateCompareEfforts = this.updateCompareEfforts.bind(this)
