@@ -33,8 +33,6 @@ export const VideoScreen = connect(
 })
 
 VideoScreen.navigationOptions = (props) => {
-  // const { params } = props.navigation.state
-  // var activityName = _.get(store.getState(), `videos[${params.localIdentifier}].activity.name`)
   return {
     header: null
   }

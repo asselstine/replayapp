@@ -188,9 +188,9 @@ export const VideoView = connect(
   }
 
   checkStreams (props) {
-    if (_.get(props, 'video.activity.id') && !props.streams) {
-      console.log('RETRIEVE STREAMS')
-      ActivityService.retrieveStreams(_.get(props, 'video.activity.id'))
+    var videoActivityId = _.get(props, 'video.activity.id')
+    if (videoActivityId && !props.streams) { //needs props.streams to prevent recursion.
+      ActivityService.retrieveStreams(videoActivityId)
     }
   }
 

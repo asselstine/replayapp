@@ -93,6 +93,7 @@ export class ActivityMap extends Component {
   }
 
   latLngs () {
+    // console.log('_latLngs/streams: ', this._latLngs, this.props.streams)
     this._latLngs = this._latLngs ||
       _.map(_.get(this.props, 'streams.latlng.data', []), (pair) => {
         return {
@@ -112,7 +113,9 @@ export class ActivityMap extends Component {
   }
 
   recenter () {
-    this.mapRef.fitToElements(false)
+    if (this.mapRef) {
+      this.mapRef.fitToElements(false)
+    }
   }
 
   onLayout () {

@@ -70,7 +70,7 @@ export class ActivityOverlay extends Component {
 
   currentSegmentEffort () {
     var currentTime = this.state.currentTimeActivity
-    var times = this.props.streams.time.data
+    var times = _.get(this.props, 'streams.time.data')
     return _.first(this.props.segmentEfforts.reduce((matchingSegmentEfforts, segmentEffort) => {
       if (times &&
           times[segmentEffort.start_index] <= currentTime &&
@@ -113,10 +113,12 @@ export class ActivityOverlay extends Component {
     }
 
     var segmentEffort = this.currentSegmentEffort()
-    var segmentEffortComparison =
-      <TouchableOpacity style={{...styles.overlayItem, ...styles.overlaySplitItem, ...styles.overlayButton}}>
-        <Text style={styles.overlayText}>{segmentEffort.name}</Text>
-      </TouchableOpacity>
+    if (segmentEffort) {
+      var segmentEffortComparison =
+        <TouchableOpacity style={{...styles.overlayItem, ...styles.overlaySplitItem, ...styles.overlayButton}}>
+          <Text style={styles.overlayText}>{segmentEffort.name}</Text>
+        </TouchableOpacity>
+    }
 
     return (
       <Animated.View

@@ -31,10 +31,10 @@ export default function (state, action) {
       }
       state = updateActivity(state, action.activityId, cmd)
       break
-    case 'RECEIVE_SEGMENTS':
+    case 'RECEIVE_STREAMS':
       cmd = {}
       cmd[action.activityId] = {
-        segments: {
+        streams: {
           '$set': _.reduce(action.streams, (hash, stream) => {
             hash[stream.type] = stream
             return hash
