@@ -87,10 +87,8 @@ export class SegmentRace extends Component {
           return map
         }, {})
         this.setState({
-          times: streams.time.data,
-          distances: streams.distance.data,
-          moving: streams.moving.data
-        }, this._updateDeltaTimes)
+          times: streams.time.data
+        })
       })
     })
   }
@@ -106,7 +104,7 @@ export class SegmentRace extends Component {
           </TouchableOpacity>
         </View>
     }
-    if (this.state.versusDeltaTimes && this.state.distances) {
+    if (this.state.versusDeltaTimes && this.state.times) {
       var versusDeltaTimes =
         <RaceGraph
           eventEmitter={this.props.eventEmitter}
