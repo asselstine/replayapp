@@ -51,6 +51,19 @@ export class PlayerOverlay extends Component {
           style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
     }
 
+    var fullscreenToggle
+    if (this.props.fullscreen) {
+      fullscreenToggle =
+        <MaterialIcon
+          name='fullscreen-exit'
+          style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
+    } else {
+      fullscreenToggle =
+        <MaterialIcon
+          name='fullscreen'
+          style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
+    }
+
     return (
       <Animated.View
         style={_.merge({}, styles.overlay, this.props.style)}
@@ -60,6 +73,9 @@ export class PlayerOverlay extends Component {
             <MaterialIcon
               name='keyboard-arrow-down'
               style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.props.onToggleFullscreen}>
+            {fullscreenToggle}
           </TouchableOpacity>
           <TouchableOpacity onPress={this.props.onToggleMuted}>
             {muteToggle}
@@ -136,6 +152,7 @@ PlayerOverlay.propTypes = {
   eventEmitter: PropTypes.object.isRequired,
   paused: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
+  fullscreen: PropTypes.bool.isRequired,
   duration: PropTypes.number,
   currentTime: PropTypes.any,
   onTogglePaused: PropTypes.func.isRequired,

@@ -30,6 +30,7 @@ export class VideoPlayer extends Component {
     this.hidePlayerOverlay = this.hidePlayerOverlay.bind(this)
     this.togglePlay = this.togglePlay.bind(this)
     this.toggleMute = this.toggleMute.bind(this)
+    this.toggleFullscreen = this.toggleFullscreen.bind(this)
     this.finishHideOverlay = this.finishHideOverlay.bind(this)
     this._onTimeInterval = this._onTimeInterval.bind(this)
     this.onClose = this.onClose.bind(this)
@@ -99,6 +100,13 @@ export class VideoPlayer extends Component {
       this.resetOverlayHideTimeout()
     } else {
       this.hidePlayerOverlay()
+    }
+  }
+
+  toggleFullscreen () {
+    if (this.props.onToggleFullscreen) {
+      this.props.onToggleFullscreen()
+      this.resetOverlayHideTimeout()
     }
   }
 
@@ -181,9 +189,13 @@ export class VideoPlayer extends Component {
   render () {
     var whAspectRatio = this.props.video.rawVideoData.width / (1.0 * this.props.video.rawVideoData.height)
     let videoStyle = update({
+      backgroundColor: 'black',
       width: '100%',
-      aspectRatio: whAspectRatio
     }, { $merge: this.props.style })
+
+    if (!videoStyle.height) {
+      videoStyle.aspectRatio = whAspectRatio
+    }
 
     var playerOverlayStyle = {
       opacity: this.state.playerOverlayProgress
@@ -228,7 +240,7 @@ export class VideoPlayer extends Component {
 
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
-        <View>
+        <View style={this.props.style}>
           <RNVideo
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
@@ -238,14 +250,16 @@ export class VideoPlayer extends Component {
             paused={this.state.paused}
             style={videoStyle}
             muted={this.state.muted}
-            resizeMode='cover'
+            resizeMode='fill'
             />
           <PlayerOverlay
             eventEmitter={this.state.eventEmitter}
             paused={this.state.paused}
             muted={this.state.muted}
+            fullscreen={this.props.fullscreen}
             duration={duration}
             currentTime={this.getCurrentTime()}
+            onToggleFullscreen={this.toggleFullscreen}
             onTogglePaused={this.togglePlay}
             onToggleMuted={this.toggleMute}
             onVideoTimeChange={this._onVideoTimeChange}
@@ -267,9 +281,12 @@ VideoPlayer.propTypes = {
   onProgress: PropTypes.func,
   onPlay: PropTypes.func,
   style: PropTypes.object,
+  fullscreen: PropTypes.bool,
+  onToggleFullscreen: PropTypes.func,
   hideActivityOverlay: PropTypes.bool
 }
 
 VideoPlayer.defaultProps = {
-  style: {}
+  style: {},
+  fullscreen: false
 }

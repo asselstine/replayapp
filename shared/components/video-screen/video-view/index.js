@@ -53,7 +53,9 @@ export const VideoView = connect(
       stravaActivityModalIsOpen: false,
       syncModalIsOpen: false,
       locked: true,
-      landscape: false,
+      fullscreen: false,
+      landscape: true,
+      layoutLandscape: false,
       videoRotate: new Animated.Value(0),
       width: 1,
       height: 1,
@@ -63,6 +65,7 @@ export const VideoView = connect(
     this.onPlay = this.onPlay.bind(this)
     this._onLayout = this._onLayout.bind(this)
     this.onToggleLock = this.onToggleLock.bind(this)
+    this.onToggleFullscreen = this.onToggleFullscreen.bind(this)
     this.onPressStravaConnect = this.onPressStravaConnect.bind(this)
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
@@ -83,7 +86,7 @@ export const VideoView = connect(
   _showTimestampWarning () {
     Alert.alert(
       'Manual time alignment required',
-      'The file creation date for the video is way off from the activity date.  You will need to synchronize the times by unlocking the video then scrubbing',
+      'The file creation date does not match the activity date.  You will need to synchronize the times by pressing the unlock icon and tapping on the data',
       [
         { text: 'Ok' },
       ]
@@ -91,9 +94,12 @@ export const VideoView = connect(
   }
 
   _onLayout (event) {
+    var width = _.get(event, 'nativeEvent.layout.width')
+    var height = _.get(event, 'nativeEvent.layout.height')
     this.setState({
-      width: _.get(event, 'nativeEvent.layout.width'),
-      height: _.get(event, 'nativeEvent.layout.height')
+      width: width,
+      height: height,
+      layoutLandscape: width > height
     })
   }
 
@@ -121,6 +127,15 @@ export const VideoView = connect(
         { text: 'OK', onPress: () => { this.resetTime() } }
       ]
     )
+  }
+
+  onToggleFullscreen () {
+    this.setState({ fullscreen: !this.state.fullscreen })
+    if (this.state.fullscreen) {
+      Orientation.lockToPortrait()
+    } else {
+      Orientation.unlockAllOrientations()
+    }
   }
 
   resetTime () {
@@ -161,7 +176,6 @@ export const VideoView = connect(
   }
 
   componentDidMount () {
-    Orientation.lockToPortrait()
     Orientation.addOrientationListener(this._onOrientationChange)
     this.checkSyncModal(this.props)
     if (_.get(this.props, 'video.activity')) {
@@ -246,21 +260,29 @@ export const VideoView = connect(
     var hwAspectRatio = this.props.video.rawVideoData.height / (1.0 * this.props.video.rawVideoData.width)
     var videoHeight = this.state.width * hwAspectRatio
 
+    var videoPlayerStyle = styles.videoPlayer
+    var videoPlayerContainerStyle = {}
+
+    if (this.state.fullscreen) {
+      videoPlayerContainerStyle = { width: '100%', height: '100%' }
+    } else {
+      videoPlayerContainerStyle = { maxHeight: 210 }
+    }
+
     if (this.props.video && this.state.showVideo) {
       var videoPlayer =
-        <Rotator
-          width={this.state.width}
-          height={videoHeight}
-          landscape={this.state.landscape}>
+        <View style={videoPlayerContainerStyle}>
           <VideoPlayer
+            fullscreen={this.state.fullscreen}
+            onToggleFullscreen={this.onToggleFullscreen}
+            style={videoPlayerStyle}
             ref={(ref) => { this._videoPlayer = ref }}
-            hideActivityOverlay={!this.state.landscape}
+            hideActivityOverlay={!this.state.fullscreen}
             onProgress={this.onProgress}
             onPlay={this.onPlay}
             onClose={this.props.onClose}
-            style={styles.videoPlayer}
             video={this.props.video} />
-        </Rotator>
+        </View>
     }
 
     if (activity) {
@@ -453,6 +475,11 @@ const styles = {
     position: 'absolute',
     top: 0,
     right: 0
+  },
+
+  videoPlayer: {
+    width: '100%',
+    height: '100%'
   }
 }
 

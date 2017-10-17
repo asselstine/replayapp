@@ -1,9 +1,9 @@
 import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import Orientation from 'react-native-orientation'
 import { PhotosFramework } from '../../../../services/photos-framework'
 import { RawVideoItem } from './raw-video-item'
+import Orientation from 'react-native-orientation'
 
 import {
   FlatList,

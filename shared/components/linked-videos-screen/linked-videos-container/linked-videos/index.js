@@ -7,6 +7,7 @@ import {
 import PropTypes from 'prop-types'
 import { LinkedVideoItem } from './linked-video-item'
 import { PhotosFramework } from '../../../../services/photos-framework'
+import Orientation from 'react-native-orientation'
 
 export class LinkedVideos extends Component {
   constructor (props) {
@@ -17,6 +18,10 @@ export class LinkedVideos extends Component {
     this.state = {
       showVideos: false
     }
+  }
+
+  componentWillMount () {
+    Orientation.lockToPortrait()
   }
 
   componentDidMount () {

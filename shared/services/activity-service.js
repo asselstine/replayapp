@@ -10,7 +10,6 @@ export const ActivityService = {
     return (
       Strava.retrieveActivity(activityId).then((response) => {
         response.json().then((json) => {
-          console.log('received activity ', activityId, json)
           store.dispatch(receiveActivity(activityId, json))
         }).catch((error) => {
           console.error(error)

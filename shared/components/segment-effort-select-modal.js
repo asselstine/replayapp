@@ -43,6 +43,7 @@ export class SegmentEffortSelectModal extends Component {
       <Modal
         animationType='slide'
         visible={this.props.isOpen}
+        supportedOrientations={['portrait', 'landscape']}
         onRequestClose={this.props.onClose}>
         {content}
         <Button title='close' onPress={this.props.onClose} />

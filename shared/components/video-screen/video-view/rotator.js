@@ -19,6 +19,7 @@ export class Rotator extends Component {
     this.state = {
       progress: new Animated.Value(toValue)
     }
+    this.onComplete = this.onComplete.bind(this)
   }
 
   componentWillReceiveProps (props) {
@@ -33,7 +34,13 @@ export class Rotator extends Component {
         toValue: toValue,
         duration: 400
       }
-    ).start()
+    ).start(this.onComplete)
+  }
+
+  onComplete () {
+    if (this.props.onComplete) {
+      this.props.onComplete()
+    }
   }
 
   render () {
@@ -106,5 +113,6 @@ export class Rotator extends Component {
 Rotator.propTypes = {
   landscape: PropTypes.bool.isRequired,
   width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired
+  height: PropTypes.number.isRequired,
+  onComplete: PropTypes.func
 }
