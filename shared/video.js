@@ -17,5 +17,14 @@ export const Video = {
     var currentVideoTime = moment(videoStartAt).add(videoTime, 's')
     var result = moment(currentVideoTime).diff(moment(streamStartAt)) / 1000.0
     return result
+  },
+
+  startAt (video) {
+    return moment(_.get(video, 'startAt'))
+  },
+
+  endAt (video) {
+    var videoStartAt = this.startAt(video)
+    return moment(videoStartAt).add(_.get(video, 'rawVideoData.duration', 0), 's')
   }
 }

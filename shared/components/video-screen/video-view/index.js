@@ -361,6 +361,7 @@ export const VideoView = connect(
           tabLabel='Race'
           eventEmitter={this.eventEmitter}
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
+          video={this.props.video}
           activity={activity} />
 
       if (this.props.streams) {
