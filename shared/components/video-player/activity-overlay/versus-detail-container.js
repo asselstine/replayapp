@@ -1,12 +1,11 @@
 import { connect } from 'react-redux'
 import { VersusDetail } from './versus-detail'
-import _ from 'lodash'
+import { SegmentsFinder } from '../../../finders/segments-finder'
 
 export const VersusDetailContainer = connect(
   (state, ownProps) => {
     return {
-      // totalEntries: _.get(state, `segments[${ownProps.segmentEffort.segment.id}].leaderboard.entry_count`),
-      leaderboardEntries: _.get(state, `segments[${ownProps.segmentEffort.segment.id}].leaderboard.entries`, [])
+      leaderboardEntries: SegmentsFinder.findLeaderboardEntries(state, ownProps.segmentEffort.segment.id)
     }
   }
 )(VersusDetail)

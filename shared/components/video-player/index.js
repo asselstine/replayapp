@@ -244,6 +244,7 @@ export class VideoPlayer extends Component {
           <RNVideo
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
+            onLoad={(arg) => { this._onTimeInterval() }}
             onError={(arg) => { this.onError(arg) }}
             onProgress={(arg) => { this._onProgress(arg) }}
             onEnd={(arg) => { this._onEnd(arg) }}

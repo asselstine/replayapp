@@ -41,7 +41,9 @@ export class RaceGraph extends Component {
   }
 
   componentWillMount () {
-    this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
+    if (this.props.eventEmitter) {
+      this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
+    }
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gestureState) => true,
       onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
@@ -78,7 +80,9 @@ export class RaceGraph extends Component {
   }
 
   componentWillUnmount () {
-    this.onStreamTimeProgressSubscriber.remove()
+    if (this.onStreamTimeProgressSubscriber) {
+      this.onStreamTimeProgressSubscriber.remove()
+    }
   }
 
   componentDidMount () {
@@ -183,6 +187,6 @@ RaceGraph.propTypes = {
   deltaTimeStream: PropTypes.array.isRequired,
   width: PropTypes.any.isRequired,
   height: PropTypes.any.isRequired,
-  eventEmitter: PropTypes.object.isRequired,
+  eventEmitter: PropTypes.object,
   onStreamTimeChange: PropTypes.func
 }
