@@ -10,7 +10,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { SegmentRace } from './segment-race'
 
-export class SegmentEffort extends Component {
+export class SegmentEffortItem extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -98,7 +98,7 @@ const styles = {
   }
 }
 
-SegmentEffort.propTypes = {
+SegmentEffortItem.propTypes = {
   segmentEffort: PropTypes.object,
   eventEmitter: PropTypes.object,
   onStreamTimeChange: PropTypes.func

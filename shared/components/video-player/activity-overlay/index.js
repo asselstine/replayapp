@@ -82,22 +82,6 @@ export class ActivityOverlay extends Component {
     }, []))
   }
 
-  currentLeaderboardComparison (segmentEffort) {
-    //need the leaderboard for this particular segment
-    // Strava
-    //   .retrieveLeaderboard(segmentEffort.segment.id)
-    //   .then((response) => {
-    //     response.json().then((json) => {
-    //       // console.log(`Retreived leaderboard for ${segmentId}: with ${json.entries.length} entry `, json.entries[0])
-    //       this.setState({
-    //         versusLeaderboardEntry: json.entries[0],
-    //         leaderboard: json.entries
-    //       }, this.updateCompareEfforts)
-    //     })
-    //   })
-    // VS blah
-  }
-
   render () {
     var velocity = round(Activity.velocityAt(this.props.streams, this.state.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.state.currentTimeActivity)} m`
@@ -136,10 +120,11 @@ export class ActivityOverlay extends Component {
           <Text style={{...styles.segmentEffort}}>{segmentEffort.name}</Text>
         </TouchableOpacity>
       var versusSelect =
-        <VersusDetailContainer style={{...styles.segmentEffort}} segmentEffort={segmentEffort} currentStreamTime={this.state.currentTimeActivity} />
+        <VersusDetailContainer
+          style={{...styles.segmentEffort}}
+          segmentEffort={segmentEffort}
+          currentStreamTime={this.state.currentTimeActivity} />
     }
-
-    // var leaderboardComparison = this.currentLeaderboardComparison(segmentEffort)
 
     return (
       <Animated.View
