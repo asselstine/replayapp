@@ -424,7 +424,7 @@ const styles = {
   },
 
   connectHeader: {
-    flex: 1,
+    flex: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center'

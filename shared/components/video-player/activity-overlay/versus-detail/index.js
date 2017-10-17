@@ -43,7 +43,7 @@ export class VersusDetail extends Component {
   render () {
     if (this.state.versusLeaderboardEntry) {
       var result =
-        <View style={styles.container}>
+        <View style={styles.versusContainer}>
           <VersusTimeContainer
             segmentEffort={this.props.segmentEffort}
             versusLeaderboardEntry={this.state.versusLeaderboardEntry}
@@ -69,7 +69,7 @@ VersusDetail.propTypes = {
 }
 
 const styles = {
-  container: {
+  versusContainer: {
     flexDirection: 'row'
   },
 
