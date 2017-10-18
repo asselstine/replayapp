@@ -355,6 +355,7 @@ export const VideoView = connect(
           tabLabel='Map'
           ref={(ref) => { this._activityMap = ref }}
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
+          streamTime={this.videoTimeToStreamTime(0)}
           eventEmitter={this.eventEmitter}
           activity={activity}
           streams={this.props.streams} />
