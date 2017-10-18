@@ -16,6 +16,7 @@ import { StreamPath } from '../../../stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import { Activity } from '../../../../activity'
 import * as colours from '../../../../colours'
+import { streamPath } from '../../../../svg'
 
 const IDENTITY = MatrixMath.createIdentityMatrix()
 
@@ -394,23 +395,16 @@ export class ActivityStreams extends PureComponent {
     var velocityStreamPath, velocityStreamCurrentTimePath
 
     if (_.get(this.props, 'streams.velocity_smooth')) {
+      var velocityPath = streamPath(80, this.state.width, this.props.streams.time.data, this.props.streams.velocity_smooth.data, this.state.transform)
       velocityStreamPath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.velocity_smooth.data}
-          transform={this.state.transform}
+          d={velocityPath}
           fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
       velocityStreamCurrentTimePath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.velocity_smooth.data}
-          transform={this.state.transform}
+          d={velocityPath}
           fill={colours.STRAVA_BRAND_COLOUR} />
       y += 100
     }
@@ -418,23 +412,16 @@ export class ActivityStreams extends PureComponent {
     var altitudeStreamPath, altitudeStreamCurrentTimePath
 
     if (_.get(this.props, 'streams.altitude')) {
+      var altitudePath = streamPath(80, this.state.width, this.props.streams.time.data, this.props.streams.altitude.data, this.state.transform)
       altitudeStreamPath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.altitude.data}
-          transform={this.state.transform}
+          d={altitudePath}
           fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
       altitudeStreamCurrentTimePath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.altitude.data}
-          transform={this.state.transform}
+          d={altitudePath}
           fill={colours.STRAVA_BRAND_COLOUR} />
     }
 
