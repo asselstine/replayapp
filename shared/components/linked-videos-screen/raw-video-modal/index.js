@@ -2,10 +2,12 @@ import React, { Component } from 'react'
 import {
   Modal,
   View,
+  Text,
   Button
 } from 'react-native'
 import PropTypes from 'prop-types'
 import { RawVideoList } from './raw-video-list'
+import ModalStyle from '../../../styles/modal'
 
 export class RawVideoModal extends Component {
   constructor (props) {
@@ -30,7 +32,12 @@ export class RawVideoModal extends Component {
         visible={this.props.isOpen}
         onShow={this._onShow}
         onRequestClose={this.props.onClose}>
-        <RawVideoList onPressVideo={this.props.onPressVideo} />
+        <View style={ModalStyle.header}>
+          <Text style={ModalStyle.title}>Select Video</Text>
+        </View>
+        <View style={ModalStyle.body}>
+          <RawVideoList onPressVideo={this.props.onPressVideo} />
+        </View>
         <View style={{height: 40}}>
           <Button
             style={{width: '100%'}}

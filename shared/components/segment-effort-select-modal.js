@@ -14,6 +14,7 @@ import PropTypes from 'prop-types'
 import formatDuration from '../format-duration'
 import moment from 'moment'
 import Ionicon from 'react-native-vector-icons/Ionicons'
+import ModalStyle from '../styles/modal'
 
 export class SegmentEffortSelectModal extends Component {
   constructor (props) {
@@ -79,13 +80,13 @@ export class SegmentEffortSelectModal extends Component {
         visible={this.props.isOpen}
         supportedOrientations={['portrait', 'landscape']}
         onRequestClose={this.props.onClose}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>Compare Effort</Text>
+        <View style={ModalStyle.header}>
+          <Text style={ModalStyle.title}>Compare Effort</Text>
         </View>
-        <View style={styles.modalBody}>
+        <View style={ModalStyle.body}>
           {content}
         </View>
-        <View style={styles.modalFooter}>
+        <View style={ModalStyle.footer}>
           <Button title='Close' onPress={this.props.onClose} style={styles.closeButton}/>
         </View>
       </Modal>
@@ -130,21 +131,6 @@ const styles = {
 
   genderIconUnknown: {
     color: 'purple'
-  },
-
-  modalTitle: {
-    fontSize: 32,
-    fontWeight: '200',
-    padding: 10,
-    textAlign: 'center'
-  },
-
-  modalBody: {
-    flex: 1,
-    padding: 10
-  },
-
-  modalFooter: {
   },
 
   rankLabel: {

@@ -1,7 +1,14 @@
 import React, { Component } from 'react'
 import { StravaActivityList } from './strava-activity-list'
-import { Modal, TouchableHighlight, Text, View } from 'react-native'
+import {
+  Modal,
+  TouchableHighlight,
+  Button,
+  Text,
+  View
+} from 'react-native'
 import PropTypes from 'prop-types'
+import ModalStyle from '../../../../styles/modal'
 
 export class StravaActivitySelectModal extends Component {
   constructor (props) {
@@ -18,11 +25,18 @@ export class StravaActivitySelectModal extends Component {
         transparent={false}
         visible={this.props.isOpen}
         onRequestClose={this.props.onClose}>
-        <StravaActivityList onPress={this.props.onSelect} />
-        <View>
-          <TouchableHighlight onPress={this.props.onClose}>
-            <Text>Cancel</Text>
-          </TouchableHighlight>
+        <View style={ModalStyle.header}>
+          <Text style={ModalStyle.title}>Attach Activity</Text>
+        </View>
+        <View style={ModalStyle.body}>
+          <StravaActivityList onPress={this.props.onSelect} />
+        </View>
+        <View style={ModalStyle.footer}>
+          <Button
+            style={{width: '100%'}}
+            title='Cancel'
+            onPress={this.props.onClose}
+            color='red' />
         </View>
       </Modal>
     )
