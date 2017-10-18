@@ -5,11 +5,15 @@ import {
   Modal,
   FlatList,
   TouchableOpacity,
+  View,
   Button,
   Text
 } from 'react-native'
 import { Strava } from '../strava'
 import PropTypes from 'prop-types'
+import formatDuration from '../format-duration'
+import moment from 'moment'
+import Ionicon from 'react-native-vector-icons/Ionicons'
 
 export class SegmentEffortSelectModal extends Component {
   constructor (props) {
@@ -18,13 +22,43 @@ export class SegmentEffortSelectModal extends Component {
   }
 
   _renderItem ({ item, index, separators }) {
+    switch (item.athlete_gender) {
+      case 'M':
+        var genderIcon = <Ionicon name='ios-male' style={{...styles.genderIcon, ...styles.genderIconMale}} />
+        break
+      case 'F':
+        genderIcon = <Ionicon name='ios-female' style={{...styles.genderIcon, ...styles.genderIconFemale}} />
+        break
+      default:
+        genderIcon = <Text style={{...styles.genderIcon, ...styles.genderIconUnknown}}>?</Text>
+    }
+
+    var trophyStyle = styles.trophy
+    if (item.rank < 10) {
+      var trophyIcon =
+        <View style={styles.rank}>
+          <Ionicon name='md-trophy' style={styles.trophy} />
+          <View style={styles.trophyRankLabelContainer}>
+            <Text style={styles.trophyRankLabel}>{item.rank}</Text>
+          </View>
+        </View>
+    } else {
+      trophyIcon =
+        <View style={styles.rank}>
+          <Text style={styles.rankLabel}>#{item.rank}</Text>
+        </View>
+    }
+
     return (
       <TouchableOpacity
         onPress={() => { this.props.onSelect(item) }}
         style={styles.leaderboardEntry}>
-        <Text style={styles.leaderboardEntryRank}>{item.rank}</Text>
-        <Text style={styles.leaderboardEntryName}>{item.athlete_name} ({item.athlete_gender})</Text>
-        <Text style={styles.leaderboardEntryTime}>{item.moving_time}s</Text>
+        <View style={styles.entrant}>
+          {trophyIcon}
+          {genderIcon}
+          <Text style={styles.leaderboardEntryName}>{item.athlete_name}</Text>
+        </View>
+        <Text style={styles.leaderboardEntryTime}>{formatDuration(moment.duration(item.moving_time * 1000))}s</Text>
       </TouchableOpacity>
     )
   }
@@ -45,8 +79,15 @@ export class SegmentEffortSelectModal extends Component {
         visible={this.props.isOpen}
         supportedOrientations={['portrait', 'landscape']}
         onRequestClose={this.props.onClose}>
-        {content}
-        <Button title='close' onPress={this.props.onClose} />
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>Compare Effort</Text>
+        </View>
+        <View style={styles.modalBody}>
+          {content}
+        </View>
+        <View style={styles.modalFooter}>
+          <Button title='Close' onPress={this.props.onClose} style={styles.closeButton}/>
+        </View>
       </Modal>
     )
   }
@@ -60,16 +101,96 @@ SegmentEffortSelectModal.propTypes = {
 }
 
 const styles = {
-  leaderbardEntry: {
-
+  leaderboardEntry: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 60,
   },
-  leaderbardEntryRank: {
 
+  entrant: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  leaderbardEntryName: {
 
+  genderIcon: {
+    fontSize: 32,
+    paddingLeft: 10,
+    paddingRight: 10
   },
-  leaderbardEntryTime: {
 
+  genderIconMale: {
+    color: '#2B60DE'
+  },
+
+  genderIconFemale: {
+    color: 'pink'
+  },
+
+  genderIconUnknown: {
+    color: 'purple'
+  },
+
+  modalTitle: {
+    fontSize: 32,
+    fontWeight: '200',
+    padding: 10,
+    textAlign: 'center'
+  },
+
+  modalBody: {
+    flex: 1,
+    padding: 10
+  },
+
+  modalFooter: {
+  },
+
+  rankLabel: {
+    fontSize: 18
+  },
+
+  trophy: {
+    fontSize: 48,
+    color: 'gold'
+  },
+
+  trophyRankLabelContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    position: 'absolute',
+    top: -20,
+    right: 0,
+    left: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  rankNumberBackground: {
+    backgroundColor: 'white',
+    borderColor: 'white',
+    borderRadius: 50,
+  },
+
+  trophyRankLabel: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    textAlign: 'center',
+    color: 'white',
+    lineHeight: 40,
+    width: 40,
+    height: 40,
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  leaderboardEntryName: {
+    fontSize: 22
+  },
+  leaderboardEntryTime: {
+    fontSize: 24
+  },
+
+  closeButton: {
+    color: 'red'
   }
 }

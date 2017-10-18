@@ -382,6 +382,7 @@ export const VideoView = connect(
           tabBarTextStyle={styles.tabBarTextStyle}
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}
+          prerenderingSiblingsNumber={1}
           style={styles.streamsContainer}>
           {activitySegments}
           {activityStreams}

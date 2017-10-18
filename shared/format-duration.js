@@ -6,6 +6,9 @@ export default function (duration) {
   var hours = ''
   if (duration.asHours() >= 1) {
     hours = `${duration.hours()}:`
+    var minutes = pad2(duration.minutes())
+  } else {
+    minutes = duration.minutes()
   }
-  return `${hours}${pad2(duration.minutes())}:${pad2(duration.seconds())}`
+  return `${hours}${minutes}:${pad2(duration.seconds())}`
 }
