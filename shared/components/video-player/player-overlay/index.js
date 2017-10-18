@@ -68,32 +68,40 @@ export class PlayerOverlay extends Component {
       <Animated.View
         style={_.merge({}, styles.overlay, this.props.style)}
         pointerEvents={this.props.pointerEvents}>
-        <View style={{...styles.overlaySmallBar, ...styles.overlayTop}}>
-          <TouchableOpacity onPress={this.props.onClose}>
-            <MaterialIcon
-              name='keyboard-arrow-down'
-              style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.props.onToggleFullscreen}>
-            {fullscreenToggle}
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.props.onToggleMuted}>
-            {muteToggle}
-          </TouchableOpacity>
-        </View>
-        <View style={styles.overlayContent}>
-          <TouchableOpacity onPress={this.props.onTogglePaused}>
-            {playToggle}
-          </TouchableOpacity>
-        </View>
-        <View style={{...styles.overlaySmallBar, ...styles.overlayBottom}}>
-          <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
-            <Timeline
-              ref={(ref) => { this._timeline = ref }}
-              currentTime={this.props.currentTime}
-              duration={this.props.duration}
-              onVideoTimeChange={this.props.onVideoTimeChange} />
+        <View style={styles.overlayBody}>
+
+          <View style={styles.overlayTop}>
+            <View style={styles.overlaySmallBar}>
+              <TouchableOpacity onPress={this.props.onClose}>
+                <MaterialIcon
+                  name='keyboard-arrow-down'
+                  style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={this.props.onToggleFullscreen}>
+                {fullscreenToggle}
+              </TouchableOpacity>
+            </View>
           </View>
+
+          <View style={styles.overlayContent}>
+            <TouchableOpacity onPress={this.props.onTogglePaused}>
+              {playToggle}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.overlayBottom}>
+            <View style={{...styles.overlaySmallBar}}>
+              <TouchableOpacity onPress={this.props.onToggleMuted}>
+                {muteToggle}
+              </TouchableOpacity>
+              <Timeline
+                ref={(ref) => { this._timeline = ref }}
+                currentTime={this.props.currentTime}
+                duration={this.props.duration}
+                onVideoTimeChange={this.props.onVideoTimeChange} />
+            </View>
+          </View>
+
         </View>
       </Animated.View>
     )
@@ -107,7 +115,14 @@ const styles = {
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)'
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+
+  overlayBody: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
   },
 
   overlayIcon: {
@@ -115,7 +130,6 @@ const styles = {
   },
 
   overlaySmallBar: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
@@ -125,22 +139,21 @@ const styles = {
     padding: 10
   },
 
+  overlayTop: {
+    flex: 1
+  },
+
   overlayContent: {
-    flex: 2,
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center'
   },
 
   overlayBottom: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'flex-end'
-  },
-
-  contentCenter: {
-    alignItems: 'center'
-  },
-
-  overlayTop: {
   },
 
   playButton: {
