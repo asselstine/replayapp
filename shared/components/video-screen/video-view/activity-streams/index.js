@@ -16,6 +16,10 @@ import { StreamPath } from '../../../stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import { Activity } from '../../../../activity'
 import * as colours from '../../../../colours'
+import {
+  streamToPoints,
+  transformStreamPointsToPath
+} from '../../../../svg'
 
 const IDENTITY = MatrixMath.createIdentityMatrix()
 
@@ -59,11 +63,6 @@ export class ActivityStreams extends PureComponent {
       onResponderTerminate: (e) => { /* console.log('terminate'); */ this.handleResponderTerminate(e) },
       onResponderTerminationRequest: () => { /* console.log('terminate request'); */ return false }
     }
-  }
-
-  componentDidMount () {
-    this.updateCursorLocation()
-    this.resizeToVideo(this.props)
   }
 
   storeOriginalTouches (touches) {
@@ -112,20 +111,12 @@ export class ActivityStreams extends PureComponent {
       this.updateCursorLocation()
     } else if (touchKeys.length === 1) {
       var locationX = e.nativeEvent.touches[0].locationX
-      // var start = this.streamTimeToLocationX(this.props.videoStreamStartTime)
-      // var end = this.streamTimeToLocationX(this.props.videoStreamEndTime)
-      // if (locationX >= start && locationX <= end) {
       this.moveCursor(locationX)
-      // }
     }
   }
 
   componentWillReceiveProps (nextProps) {
-    // if (nextProps.streams !== this.props.streams ||
-    //     nextProps.videoStreamStartTime !== this.props.videoStreamStartTime ||
-    //     nextProps.videoStreamEndTime !== this.props.videoStreamEndTime) {
-    // this.resizeToVideo(nextProps)
-    // }
+    this.initStreamPaths()
   }
 
   handleResponderRelease (e, gestureState) {
@@ -325,7 +316,9 @@ export class ActivityStreams extends PureComponent {
       width: _.get(event, 'nativeEvent.layout.width') || 1,
       height: _.get(event, 'nativeEvent.layout.height') || 1
     }, () => {
-      if (resize) {
+      if (resize) { // then it hasn't been initialized
+        this.initStreamPaths()
+        this.updateCursorLocation()
         this.resizeToVideo(this.props)
       }
     })
@@ -388,53 +381,45 @@ export class ActivityStreams extends PureComponent {
     return Activity.altitudeAt(this.props.streams, streamTime)
   }
 
+  initStreamPaths () {
+    var timeData = _.get(this.props, 'streams.time.data', [])
+    this.setState({
+      velocityPath: streamToPoints(80, this.state.width, timeData, _.get(this.props, 'streams.velocity_smooth.data', [])),
+      altitudePath: streamToPoints(80, this.state.width, timeData, _.get(this.props, 'streams.altitude.data', [])),
+    })
+  }
+
   render () {
     var y = 0
 
-    var velocityStreamPath, velocityStreamCurrentTimePath
-
-    if (_.get(this.props, 'streams.velocity_smooth')) {
-      velocityStreamPath =
+    if (this.state.velocityPath) {
+      var velocityPath = transformStreamPointsToPath(this.state.velocityPath, this.state.transform)
+      var velocityStreamPath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.velocity_smooth.data}
-          transform={this.state.transform}
+          d={velocityPath}
           fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
-      velocityStreamCurrentTimePath =
+      var velocityStreamCurrentTimePath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.velocity_smooth.data}
-          transform={this.state.transform}
+          d={velocityPath}
           fill={colours.STRAVA_BRAND_COLOUR} />
       y += 100
     }
 
     var altitudeStreamPath, altitudeStreamCurrentTimePath
 
-    if (_.get(this.props, 'streams.altitude')) {
+    if (this.state.altitudePath) {
+      var altitudePath = transformStreamPointsToPath(this.state.altitudePath, this.state.transform)
       altitudeStreamPath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.altitude.data}
-          transform={this.state.transform}
+          d={altitudePath}
           fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
       altitudeStreamCurrentTimePath =
         <StreamPath
-          width={this.state.width}
           y={y + 20}
-          height={80}
-          timeStream={this.props.streams.time.data}
-          dataStream={this.props.streams.altitude.data}
-          transform={this.state.transform}
+          d={altitudePath}
           fill={colours.STRAVA_BRAND_COLOUR} />
     }
 

@@ -17,6 +17,10 @@ export const Activity = {
     return Math.round(linear(streamTime, times, altitude))
   },
 
+  streamEndAt (activity) {
+    return _.get(activity, 'elapsed_time', 0)
+  },
+
   startAt (activity) {
     return moment(_.get(activity, 'start_date'))
   },

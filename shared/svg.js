@@ -43,8 +43,8 @@ export const viewportTransform = function (x1, width1, x2, width2) {
   return result
 }
 
-export const transformPoints = function (streamPoints, transform) {
-  return streamPoints.map((point) => {
+export const transformPoints = function (points, transform) {
+  return points.map((point) => {
     var vx = MatrixMath.multiplyVectorByMatrix([point[0], point[1], 0, 1], transform)
     return [vx[0], vx[1]]
   })
@@ -59,6 +59,26 @@ export const streamPoints = function (height, width, xStream, yStream) {
   var transform = createBoundsTransform(xStream, yStream, 0, height, width, -height)
   var points = mergeStreams(xStream, yStream)
   return transformPoints(points, transform)
+  // return []
+}
+
+export const streamToPoints = function (height, width, timeStream, dataStream) {
+  var boundsTransform = createBoundsTransform(timeStream, dataStream, 0, height, width, -height)
+  var points = mergeStreams(timeStream, dataStream)
+  points = transformPoints(points, boundsTransform)
+  points.unshift([0, height])
+  points.push([width, height])
+  return points
+}
+
+export const transformStreamPointsToPath = function (points, transform) {
+  var points = transformPoints(points, transform)
+  return pointsToPath(points)
+}
+
+export const streamPath = function (height, width, timeStream, dataStream, transform) {
+  var points = streamToPoints(height, width, timeStream, dataStream)
+  return transformStreamPointsToPath(points, transform)
 }
 
 export const zeroScreenY = function (height, yStream) {

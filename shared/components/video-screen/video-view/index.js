@@ -252,6 +252,11 @@ export const VideoView = connect(
             name='warning'
             style={{...styles.titleHeaderIcon, ...styles.titleWarningIcon}} />
         </TouchableOpacity>
+      var videoStreamStartTime = 0
+      var videoStreamEndTime = Activity.streamEndAt(activity)
+    } else {
+      videoStreamStartTime = this.videoTimeToStreamTime(0)
+      videoStreamEndTime = this.videoTimeToStreamTime(videoDuration)
     }
 
     var hwAspectRatio = this.props.video.rawVideoData.height / (1.0 * this.props.video.rawVideoData.width)
@@ -369,8 +374,8 @@ export const VideoView = connect(
             eventEmitter={this.eventEmitter}
             activity={activity}
             streams={this.props.streams}
-            videoStreamStartTime={this.videoTimeToStreamTime(0)}
-            videoStreamEndTime={this.videoTimeToStreamTime(videoDuration)} />
+            videoStreamStartTime={videoStreamStartTime}
+            videoStreamEndTime={videoStreamEndTime} />
       }
 
       activityInfo =
