@@ -93,7 +93,6 @@ export class ActivityMap extends Component {
   }
 
   latLngs () {
-    // console.log('_latLngs/streams: ', this._latLngs, this.props.streams)
     this._latLngs = this._latLngs ||
       _.map(_.get(this.props, 'streams.latlng.data', []), (pair) => {
         return {
@@ -126,7 +125,8 @@ export class ActivityMap extends Component {
     let latLngs = this.latLngs()
     if (latLngs.length) {
       if (!this.positionCircleCoordinates) {
-        this.positionCircleCoordinates = new MapView.AnimatedRegion({ latitude: latLngs[0].latitude, longitude: latLngs[0].longitude })
+        var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(this.props.streamTime))
+        this.positionCircleCoordinates = new MapView.AnimatedRegion(mapCurrentLatLng)
       }
 
       if (!this.polyLine) {
