@@ -1,5 +1,6 @@
 import moment from 'moment'
 import _ from 'lodash'
+import { Activity } from './activity'
 
 export const Video = {
   streamTimeToVideoTime (video, streamTime) {
@@ -26,5 +27,15 @@ export const Video = {
   endAt (video) {
     var videoStartAt = this.startAt(video)
     return moment(videoStartAt).add(_.get(video, 'rawVideoData.duration', 0), 's')
+  },
+
+  isOutOfSync (video) {
+    var activityStartAt = Activity.startAt(video.activity)
+    var activityEndAt = Activity.endAt(video.activity)
+
+    var videoStartAt = Video.startAt(video)
+    var videoEndAt = Video.endAt(video)
+
+    return videoEndAt.isBefore(activityStartAt) || videoStartAt.isAfter(activityEndAt)
   }
 }

@@ -31,6 +31,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import Orientation from 'react-native-orientation'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
+import { Activity } from '../../../activity'
 
 import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
@@ -243,12 +244,8 @@ export const VideoView = connect(
   render () {
     var activity = _.get(this.props, 'video.activity')
     var videoDuration = _.get(this.props, 'video.rawVideoData.duration') || 0
-    var activityDuration = _.get(this.props, 'video.activity.elapsed_time') || 0
 
-    var videoStreamStartTime = Math.max(0, Math.min(this.videoTimeToStreamTime(0), activityDuration))
-    var videoStreamEndTime = Math.min(activityDuration, videoStreamStartTime + videoDuration)
-
-    if (videoStreamStartTime === videoStreamEndTime) {
+    if (Video.isOutOfSync(this.props.video)) {
       var warning =
         <TouchableOpacity onPress={this._showTimestampWarning}>
           <MaterialIcon
@@ -372,8 +369,8 @@ export const VideoView = connect(
             eventEmitter={this.eventEmitter}
             activity={activity}
             streams={this.props.streams}
-            videoStreamStartTime={videoStreamStartTime}
-            videoStreamEndTime={videoStreamEndTime} />
+            videoStreamStartTime={this.videoTimeToStreamTime(0)}
+            videoStreamEndTime={this.videoTimeToStreamTime(videoDuration)} />
       }
 
       activityInfo =
