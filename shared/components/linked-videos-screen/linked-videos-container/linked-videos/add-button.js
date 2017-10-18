@@ -4,10 +4,11 @@ import React, {
 import {
   TouchableOpacity
 } from 'react-native'
-import { store } from '../../store'
-import { newVideo } from '../../actions/video-actions'
+import { store } from '../../../../store'
+import { newVideo } from '../../../../actions/video-actions'
 import Icon from 'react-native-vector-icons/Ionicons'
-import { RawVideoModal } from './raw-video-modal'
+import { RawVideoModal } from '../../raw-video-modal'
+import PropTypes from 'prop-types'
 
 export class AddButton extends Component {
   constructor (props) {
@@ -35,15 +36,12 @@ export class AddButton extends Component {
   onPressVideo (rawVideoData) {
     this.setState({
       visible: false
-    }, () => {
-      store.dispatch(newVideo(rawVideoData))
-      this.props.navigation.navigate('Video', { localIdentifier: rawVideoData.localIdentifier })
-    })
+    }, () => { this.props.onSelectRawVideo(rawVideoData) })
   }
 
   render () {
     return (
-      <TouchableOpacity onPress={this.onPress}>
+      <TouchableOpacity onPress={this.onPress} style={styles.buttonContainer}>
         <Icon name='ios-add' style={styles.addIcon} />
         <RawVideoModal
           isOpen={this.state.visible}
@@ -54,9 +52,22 @@ export class AddButton extends Component {
   }
 }
 
+AddButton.propTypes = {
+  onSelectRawVideo: PropTypes.func.isRequired
+}
+
 const styles = {
+  buttonContainer: {
+    width: '50%',
+    aspectRatio: 1.0,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-around'
+  },
+
   addIcon: {
-    fontSize: 32,
-    padding: 16
+    textAlign: 'center',
+    fontSize: 72,
+    fontWeight: '500'
   }
 }

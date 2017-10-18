@@ -33,7 +33,7 @@ export const VideoScreen = connect(
 })
 
 VideoScreen.navigationOptions = (props) => {
-  // return {
-  //   header: null
-  // }
+  return {
+    header: null
+  }
 }
