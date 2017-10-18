@@ -10,6 +10,6 @@ describe('formatDuration', () => {
 
   it('expects to format with no hour', () => {
     expect(formatDuration(moment.duration(3 * 60 * 1000 + 34 * 1000)))
-      .toEqual('03:34')
+      .toEqual('3:34')
   })
 })
