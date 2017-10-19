@@ -16,6 +16,7 @@ import { SegmentsFinder } from '../../../finders/segments-finder'
 import { ActivitiesFinder } from '../../../finders/activities-finder'
 import { round } from '../../../round'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { StreamOverlay } from './stream-overlay'
 import { VersusDetailContainer } from './versus-detail-container'
@@ -33,6 +34,8 @@ export class ActivityOverlay extends Component {
       currentTimeActivity: props.currentTimeActivity,
       streamOverlay: false,
       streamOverlayProgress: new Animated.Value(0),
+      leaderboardCount: 0,
+      athleteLeaderboardEntry: null,
       leaderboardEntry: null,
       leaderboardEntries: [],
       versusDeltaTimes: [],
@@ -130,10 +133,16 @@ export class ActivityOverlay extends Component {
   updateLeaderboardData () {
     var leaderboardEntries = SegmentsFinder.findLeaderboardEntries(store.getState(), this.state.segmentEffort.segment.id)
     var leaderboardEntry = _.first(leaderboardEntries)
-    // console.log('updateLeaderboardData: ', leaderboardEntries.length)
+    var leaderboardCount = SegmentsFinder.findLeaderboardCount(store.getState(), this.state.segmentEffort.segment.id)
+    var athleteLeaderboardEntry = _.find(leaderboardEntries, (leaderboardEntry) => {
+      console.log(leaderboardEntry, this.props.activity)
+      return leaderboardEntry.athlete_id == this.props.activity.athlete.id
+    })
     this.setState({
+      leaderboardCount,
       leaderboardEntry,
-      leaderboardEntries
+      leaderboardEntries,
+      athleteLeaderboardEntry
     }, this.updateLeaderboardComparisonData)
   }
 
@@ -182,17 +191,17 @@ export class ActivityOverlay extends Component {
 
     switch (this.state.streamOverlay) {
       case 'velocity':
-        var velocityOverlay = this.buildStreamGraph(streamOverlayStyle,
+        var streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
                                                 this.props.streams.velocity_smooth.data,
                                                 this.props.streams.time.data)
         break
       case 'altitude':
-        velocityOverlay = this.buildStreamGraph(streamOverlayStyle,
+        streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
                                                 this.props.streams.altitude.data,
                                                 this.props.streams.time.data)
         break
       case 'leaderboardComparison':
-        velocityOverlay =
+        streamGraphOverlay =
           <RaceGraph
             ref={(ref) => { this._raceOverlay = ref }}
             timeStream={this.state.segmentEffortTimeStream}
@@ -203,10 +212,20 @@ export class ActivityOverlay extends Component {
         break
     }
 
+    var rank = _.get(this.state, 'athleteLeaderboardEntry.rank', '?')
+    var total = _.get(this.state, 'leaderboardCount') || '?'
+
     if (this.state.segmentEffort) {
-      var segmentEffortComparison =
-        <View style={{...styles.overlayItem, ...styles.overlaySplitItem, ...styles.overlayButton}}>
-          <Text style={{...styles.segmentEffort}}>{this.state.segmentEffort.name}</Text>
+      var segmentEffortTitle =
+        <View style={styles.titleContainer}>
+          <Text style={{...styles.segmentName, ...styles.overlayBottomItem}}>{this.state.segmentEffort.name}</Text>
+        </View>
+      var segmentEffortRank =
+        <View style={{...styles.telemetryItem, ...styles.overlayBottomItem}}>
+          <View style={styles.telemetryIconContainer}>
+            <FontAwesome style={styles.telemetryIcon} name='flag-checkered' />
+          </View>
+          <Text style={styles.telemetryLabel}>{rank} | {total}</Text>
         </View>
     }
 
@@ -215,20 +234,37 @@ export class ActivityOverlay extends Component {
         var versusTime =
           <TouchableOpacity onPress={() => this._toggleOverlay('leaderboardComparison')}>
             <VersusTime
+              positiveStyle={styles.versusDeltaTimePositive}
+              negativeStyle={styles.versusDeltaTimeNegative}
               segmentEffort={this.state.segmentEffort}
               segmentEffortTimeStream={this.state.segmentEffortTimeStream}
               versusLeaderboardEntry={this.state.leaderboardEntry}
               versusDeltaTimes={this.state.versusDeltaTimes}
-              currentStreamTime={this.state.currentTimeActivity} />
+              currentStreamTime={this.state.currentTimeActivity}
+              style={styles.telemetryLabel} />
           </TouchableOpacity>
       }
+
       var versusSelect =
-        <View style={styles.versusContainer}>
-          {versusTime}
-          <VersusSelect onSelectLeaderboardEntry={(entry) => { this.onSelectLeaderboardEntry(entry) }} leaderboardEntries={this.state.leaderboardEntries}>
-            <Text>{_.get(this.state.leaderboardEntry, 'athlete_name', 'Select Athlete')}</Text>
-            <Icon name='md-arrow-dropdown' style={styles.opponentIcon}/>
+        <View style={{flexDirection: 'row'}}>
+          <VersusSelect
+            style={{...styles.telemetryItem, ...styles.overlayBottomItem}}
+            onSelectLeaderboardEntry={(entry) => { this.onSelectLeaderboardEntry(entry) }}
+            leaderboardEntries={this.state.leaderboardEntries}>
+            <View style={styles.telemetryIconContainer}>
+              <FontAwesome style={styles.telemetryIcon} name='arrows-h' />
+            </View>
+            <View
+              style={styles.versusOpponent}>
+              <Text style={styles.telemetryLabel}>{_.get(this.state, 'leaderboardEntry.rank', 0)} | {_.get(this.state.leaderboardEntry, 'athlete_name', 'Select Athlete')}</Text>
+            </View>
           </VersusSelect>
+          <View style={{...styles.telemetryItem, ...styles.overlayBottomItem}}>
+            <View style={styles.telemetryIconContainer}>
+              <MaterialCommunityIcon style={styles.telemetryIcon} name='clock' />
+            </View>
+            {versusTime}
+          </View>
         </View>
     }
 
@@ -236,28 +272,37 @@ export class ActivityOverlay extends Component {
       <Animated.View
         style={{...styles.overlay, ...this.props.style}}
         pointerEvents={this.props.pointerEvents}>
-        <View style={styles.overlayItemContainer}>
-          <View style={styles.overlayStream}>
-            <Animated.View style={streamOverlayStyle}>
-              {velocityOverlay}
-            </Animated.View>
-          </View>
-          <View style={{...styles.overlayData, ...styles.overlayBottom}}>
-            <View style={{...styles.overlaySmallBar, ...styles.contentCenter}}>
-              <View style={styles.overlayItem}>
-                {segmentEffortComparison}
-                {versusSelect}
-                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={() => { this._toggleOverlay('velocity') }}>
-                  <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='speedometer' />
-                  <Text style={{...styles.overlayText, ...styles.textWidth4}}>{velocity}</Text>
-                  <Text style={styles.overlayText}>km/h</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{...styles.dataItem, ...styles.overlayButton}} onPress={() => { this._toggleOverlay('altitude') }}>
-                  <MaterialCommunityIcon style={{...styles.overlayText, ...styles.icon}} name='altimeter' />
-                  <Text style={styles.overlayText}>{altitude}</Text>
-                </TouchableOpacity>
+        <View style={styles.overlayTop}>
+          <View style={styles.overlayTopLeft}>
+            <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('velocity') }}>
+              <View style={styles.telemetryIconContainer}>
+                <MaterialCommunityIcon style={styles.telemetryIcon} name='speedometer' />
               </View>
-            </View>
+              <Text style={styles.telemetryLabel}>{velocity} km/h</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('altitude') }}>
+              <View style={styles.telemetryIconContainer}>
+                <MaterialCommunityIcon style={styles.telemetryIcon} name='altimeter' />
+              </View>
+              <Text style={styles.telemetryLabel}>{altitude}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.overlayTopRight}>
+          </View>
+        </View>
+        <View style={styles.overlayMiddle}>
+          <Animated.View style={streamOverlayStyle}>
+            {streamGraphOverlay}
+          </Animated.View>
+        </View>
+        <View style={styles.overlayBottom}>
+          <View style={styles.titleContainer}>
+            <Text style={{...styles.activityName, ...styles.overlayBottomItem}}>{this.props.activity.name}</Text>
+          </View>
+          {segmentEffortTitle}
+          <View style={{...styles.overlayBottomItem, ...styles.versusTelemetryContainer}}>
+            {segmentEffortRank}
+            {versusSelect}
           </View>
         </View>
       </Animated.View>
@@ -271,85 +316,127 @@ const styles = {
     height: '100%',
     position: 'absolute',
     top: 0,
-    left: 0
-  },
-
-  segmentEffort: {
-    backgroundColor: 'white',
-    color: 'black',
-    fontSize: 16
-  },
-
-  overlayItemContainer: {
+    left: 0,
     flexDirection: 'column',
-    flex: 1,
-    justifyContent: 'center'
   },
 
-  overlayStream: {
+  overlayTop: {
     flex: 1,
+    flexDirection: 'row',
+    padding: 5
+  },
+
+  overlayTopLeft: {
     flexDirection: 'column',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-start',
   },
 
-  overlayData: {
-    flex: 0,
-    flexDirection: 'row'
-  },
-
-  overlayButton: {
-    padding: 10
-  },
-
-  overlayItem: {
-    flex: 1,
-    flexDirection: 'row'
-  },
-
-  dataItem: {
-    flex: 1,
-    flexDirection: 'row'
-  },
-
-  overlaySplitItem: {
-    flex: 2
-  },
-
-  overlayText: {
-    color: 'white',
-    backgroundColor: 'transparent',
-    fontSize: 16
-  },
-
-  icon: {
-    fontSize: 18,
-    paddingRight: 4
-  },
-
-  textWidth4: {
-    width: 36
-  },
-
-  overlaySmallBar: {
-    flex: 1,
-    flexDirection: 'row'
+  overlayTopRight: {
+    flex: 2,
   },
 
   overlayBottom: {
-    alignItems: 'flex-end'
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+    padding: 5
   },
 
-  contentCenter: {
-    justifyContent: 'flex-start'
+  overlayTopItem: {
+    marginBottom: 5
+  },
+
+  overlayBottomItem: {
+    marginTop: 5,
+    marginRight: 5
+  },
+
+  telemetryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderTopLeftRadius: 50,
+    borderBottomLeftRadius: 50,
+    padding: 1,
+    paddingRight: 10
+  },
+
+  telemetryIconContainer: {
+    backgroundColor: 'white',
+    borderRadius: 50,
+    width: 24,
+    height: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  telemetryIcon: {
+    color: 'black',
+    backgroundColor: 'transparent',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+
+  telemetryLabel: {
+    marginLeft: 5,
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600'
+  },
+
+  telemetrySecondaryLabel: {
+    marginLeft: 10
+  },
+
+  activityName: {
+    color: 'white',
+    backgroundColor: 'transparent',
+    padding: 4,
+    textShadowColor: 'black',
+    textShadowOffset: {
+      width: 1,
+      height: 1
+    },
+    textShadowRadius: 10,
+    fontWeight: '700'
+  },
+
+  segmentName: {
+    backgroundColor: '#ffa500',
+    color: 'black',
+    padding: 4,
+    fontWeight: '700'
   },
 
   versusContainer: {
-    flexDirection: 'row'
+    marginLeft: 5,
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    alignItems: 'center'
   },
 
-  opponentIcon: {
-    fontSize: 18,
-  }
+  versusDeltaTime: {
+    fontSize: 14,
+    backgroundColor: 'transparent',
+    color: 'white'
+  },
+
+  versusOpponent: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+
+  versusOpponentTitle: {
+    fontSize: 14,
+    backgroundColor: 'transparent',
+  },
+
+  versusTelemetryContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  },
 }
 
 ActivityOverlay.propTypes = {

@@ -8,5 +8,9 @@ export const SegmentsFinder = {
 
   findLeaderboardEntries (state, segmentId) {
     return _.get(state, `segments[${segmentId}].leaderboard.entries`, [])
+  },
+
+  findLeaderboardCount (state, segmentId) {
+    return _.get(state, `segments[${segmentId}].leaderboard.entry_count`, 0)
   }
 }
