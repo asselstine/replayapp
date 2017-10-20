@@ -386,9 +386,9 @@ export const VideoView = connect(
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}
           style={styles.streamsContainer}>
-          {activitySegments}
           {activityStreams}
           {activityMap}
+          {activitySegments}
         </ScrollableTabView>
     }
 
