@@ -29,8 +29,29 @@ export const maxValueIndex = function (values) {
 
 // assume times are sorted
 export const linear = function (time, times, values, fromIndex = 0) {
-  var index = valueToIndex(time, times)
-  return linearIndex(index, values)
+  var index = valueToIndex(time, times, fromIndex)
+  return linearIndex(index, values) // index with linear interpolation
+}
+
+export const interpolate = function ({times, values, density = 320}) {
+  // values are indexed by the times array (so that jumps in time are distinguished vs array index units
+  var start = times[0]
+  var end = times[times.length - 1]
+  var step = (end - start) / density
+  var interpolatedTimes = []
+  var interpolatedValues = []
+  var timeToIndex = 0;
+  while (start < end) {
+    var timeToIndex = valueToIndex(start, times, timeToIndex)
+    var value = linearIndex(timeToIndex, values)
+    interpolatedTimes.push(start)
+    interpolatedValues.push(value)
+    start += step
+  }
+  return {
+    times: interpolatedTimes,
+    values: interpolatedValues
+  }
 }
 
 export const linearIndex = function (index, values) {

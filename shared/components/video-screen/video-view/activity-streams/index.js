@@ -4,6 +4,9 @@ import {
   View,
   Animated
 } from 'react-native'
+import {
+  interpolate
+} from '../../../../streams'
 import Svg, {
   Line,
   ClipPath,
@@ -383,9 +386,14 @@ export class ActivityStreams extends PureComponent {
 
   initStreamPaths () {
     var timeData = _.get(this.props, 'streams.time.data', [])
+    var velocityData = _.get(this.props, 'streams.velocity_smooth.data', [])
+    var altitudeData = _.get(this.props, 'streams.altitude.data', [])
+    var newVelocity = interpolate({ times: timeData, values: velocityData })
+    var newAltitude = interpolate({ times: timeData, values: altitudeData })
+
     this.setState({
-      velocityPath: streamToPoints(80, this.state.width, timeData, _.get(this.props, 'streams.velocity_smooth.data', [])),
-      altitudePath: streamToPoints(80, this.state.width, timeData, _.get(this.props, 'streams.altitude.data', [])),
+      velocityPath: streamToPoints(80, this.state.width, newVelocity.times, newVelocity.values),
+      altitudePath: streamToPoints(80, this.state.width, newAltitude.times, newAltitude.values),
     })
   }
 
