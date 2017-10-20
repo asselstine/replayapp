@@ -10,6 +10,7 @@ import {
 import PropTypes from 'prop-types'
 import { store } from '../../../store'
 import { Activity } from '../../../activity'
+import { interpolate } from '../../../streams'
 import { ActivityService } from '../../../services/activity-service'
 import { SegmentService } from '../../../services/segment-service'
 import { SegmentsFinder } from '../../../finders/segments-finder'
@@ -30,7 +31,7 @@ import _ from 'lodash'
 export class ActivityOverlay extends Component {
   constructor (props) {
     super(props)
-    this.state = {
+    this.state = _.merge({}, {
       currentTimeActivity: props.currentTimeActivity,
       streamOverlay: false,
       streamOverlayProgress: new Animated.Value(0),
@@ -40,11 +41,30 @@ export class ActivityOverlay extends Component {
       leaderboardEntries: [],
       versusDeltaTimes: [],
       segmentEffortTimeStream: []
-    }
+    }, this.interpolateStreams(props))
     this.onChangeSegmentEffort = this.onChangeSegmentEffort.bind(this)
     this.checkCurrentSegmentEffort = this.checkCurrentSegmentEffort.bind(this)
     this.updateLeaderboardComparisonData = this.updateLeaderboardComparisonData.bind(this)
     this.updateLeaderboardData = this.updateLeaderboardData.bind(this)
+  }
+
+  componentWillReceiveProps (newProps) {
+    this.interpolateStreams(newProps)
+  }
+
+  updateStreamState (newProps) {
+    this.setState(interpolateStreams(newProps))
+  }
+
+  interpolateStreams (props) {
+    if (!props.streams) { return {} }
+    var newVelocity = interpolate({ times: props.streams.time.data, values: props.streams.velocity_smooth.data })
+    var newAltitude = interpolate({ times: props.streams.time.data, values: props.streams.altitude.data })
+    return {
+      timeStream: newVelocity.times,
+      velocityStream: newVelocity.values,
+      altitudeStream: newAltitude.values
+    }
   }
 
   componentDidMount () {
@@ -191,13 +211,13 @@ export class ActivityOverlay extends Component {
     switch (this.state.streamOverlay) {
       case 'velocity':
         var streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
-                                                this.props.streams.velocity_smooth.data,
-                                                this.props.streams.time.data)
+                                                this.state.velocityStream,
+                                                this.state.timeStream)
         break
       case 'altitude':
         streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
-                                                this.props.streams.altitude.data,
-                                                this.props.streams.time.data)
+                                                this.state.altitudeStream,
+                                                this.state.timeStream)
         break
       case 'leaderboardComparison':
         streamGraphOverlay =
