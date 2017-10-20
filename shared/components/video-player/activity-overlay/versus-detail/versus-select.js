@@ -34,7 +34,7 @@ export class VersusSelect extends Component {
 
   render () {
     return (
-      <TouchableOpacity onPress={() => { this.openSegmentEffortModal() }}>
+      <TouchableOpacity onPress={() => { this.openSegmentEffortModal() }} style={this.props.style}>
         {this.props.children}
         <SegmentEffortSelectModal
           isOpen={this.state.segmentEffortModalOpen}
