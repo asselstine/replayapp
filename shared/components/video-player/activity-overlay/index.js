@@ -135,7 +135,6 @@ export class ActivityOverlay extends Component {
     var leaderboardEntry = _.first(leaderboardEntries)
     var leaderboardCount = SegmentsFinder.findLeaderboardCount(store.getState(), this.state.segmentEffort.segment.id)
     var athleteLeaderboardEntry = _.find(leaderboardEntries, (leaderboardEntry) => {
-      console.log(leaderboardEntry, this.props.activity)
       return leaderboardEntry.athlete_id == this.props.activity.athlete.id
     })
     this.setState({
