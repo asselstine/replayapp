@@ -40,7 +40,10 @@ export class ActivityOverlay extends Component {
       leaderboardEntry: null,
       leaderboardEntries: [],
       versusDeltaTimes: [],
-      segmentEffortTimeStream: []
+      segmentEffortTimeStream: [],
+      timeStream: [],
+      velocityStream: [],
+      altitudeStream: []
     }, this.interpolateStreams(props))
     this.onChangeSegmentEffort = this.onChangeSegmentEffort.bind(this)
     this.checkCurrentSegmentEffort = this.checkCurrentSegmentEffort.bind(this)
