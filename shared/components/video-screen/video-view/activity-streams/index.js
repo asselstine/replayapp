@@ -19,6 +19,7 @@ import { StreamPath } from '../../../stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import { Activity } from '../../../../activity'
 import * as colours from '../../../../colours'
+import { PinchZoomResponder } from './pinch-zoom-responder'
 import {
   streamToPoints,
   transformStreamPointsToPath
@@ -54,6 +55,31 @@ export class ActivityStreams extends PureComponent {
 
   componentWillMount () {
     this._subscription = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
+    this.pinchZoomResponder = new PinchZoomResponder({
+      onPinchZoomStart: (e) => {
+        console.log('Pinch zoome start++++')
+      },
+
+      onPinchZoomEnd: (e) => {
+        console.log('Pinch zoome END-----')
+        this.applyTransform()
+      },
+
+      onResponderMove: (e, gestureState) => {
+        var touchKeys = _.keys(e.nativeEvent.touches)
+        if (gestureState.transform) {
+          this.newTransform = gestureState.transform.slice()
+          this.addBoundaryTransformTo(this.newTransform)
+          this.setTransform(this.newTransform)
+          // NOTE: should only update if it's not playing
+          this.updateCursorLocation()
+        }
+        if (touchKeys.length === 1) {
+          var locationX = e.nativeEvent.touches[0].locationX
+          this.moveCursor(locationX)
+        }
+      },
+    })
     this.responders = {
       onStartShouldSetResponder: () => { /* console.log('start should set'); */ return true },
       onMoveShouldSetResponder: () => { /* console.log('move should set'); */ return true },
@@ -91,38 +117,46 @@ export class ActivityStreams extends PureComponent {
     })
   }
 
-  handleResponderGrant (e, gestureState) {
+  handleResponderGrant (e) {
     this.storeOriginalTouches(e.nativeEvent.touches)
   }
-
-  handleResponderMove (e, gestureState) {
-    var oldTouchKeys = _.keys(this.touches)
-    this.clearOldTouches(e.nativeEvent.touches)
-    var touchKeys = _.keys(this.touches)
-    if (oldTouchKeys.length > touchKeys.length) {
-      this.applyTransform()
-    } else { // => oldTouchKeys <= touchKeys.length (recenter on change to 2)
-      this.scaleCenterX = this.centerX(e.nativeEvent)
-    }
-    if (e.nativeEvent.touches.length === 2) {
-      this.storeOriginalTouches(e.nativeEvent.touches)
-      this.newTransform = MatrixMath.createIdentityMatrix()
-      this.translateAndScale(this.newTransform, e, gestureState)
-      this.addBoundaryTransformTo(this.newTransform)
-      this.setTransform(this.newTransform)
-      // NOTE: should only update if it's not playing
-      this.updateCursorLocation()
-    } else if (touchKeys.length === 1) {
-      var locationX = e.nativeEvent.touches[0].locationX
-      this.moveCursor(locationX)
-    }
-  }
+  //
+  // handleResponderMove (e) {
+  //   if (gestureState.pinchZoomTransform) {
+  //     this.addBoundaryTransformTo(gestureState.pinchZoomTransform)
+  //     this.setTransform(gestureState.pinchZoomTransform)
+  //     // NOTE: should only update if it's not playing
+  //     this.updateCursorLocation()
+  //   }
+  //
+  //
+  //   var oldTouchKeys = _.keys(this.touches)
+  //   this.clearOldTouches(e.nativeEvent.touches)
+  //   var touchKeys = _.keys(this.touches)
+  //   if (oldTouchKeys.length > touchKeys.length) {
+  //     this.applyTransform()
+  //   } else { // => oldTouchKeys <= touchKeys.length (recenter on change to 2)
+  //     this.scaleCenterX = this.centerX(e.nativeEvent)
+  //   }
+  //   if (e.nativeEvent.touches.length === 2) {
+  //     this.storeOriginalTouches(e.nativeEvent.touches)
+  //     this.newTransform = MatrixMath.createIdentityMatrix()
+  //     this.translateAndScale(this.newTransform, e)
+  //     this.addBoundaryTransformTo(this.newTransform)
+  //     this.setTransform(this.newTransform)
+  //     // NOTE: should only update if it's not playing
+  //     this.updateCursorLocation()
+  //   } else if (touchKeys.length === 1) {
+  //     var locationX = e.nativeEvent.touches[0].locationX
+  //     this.moveCursor(locationX)
+  //   }
+  // }
 
   componentWillReceiveProps (nextProps) {
     this.initStreamPaths()
   }
 
-  handleResponderRelease (e, gestureState) {
+  handleResponderRelease (e) {
     this.applyTransform()
     this.touches = {}
   }
@@ -181,10 +215,10 @@ export class ActivityStreams extends PureComponent {
     return matrix
   }
 
-  handleResponderTerminate (e, gestureState) {
+  handleResponderTerminate (e) {
   }
 
-  translateAndScale (command, e, gestureState) {
+  translateAndScale (command, e) {
     var translate
 
     var scale = this.scale(e.nativeEvent)
@@ -472,7 +506,7 @@ export class ActivityStreams extends PureComponent {
 
     return (
       <View
-        {...this.responders}
+        {...this.pinchZoomResponder.handlers}
         style={this.props.style}
         onLayout={this._onLayout}>
         <View
