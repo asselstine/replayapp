@@ -1,8 +1,10 @@
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 
 export class PinchZoomResponder {
-  constructor (responders) {
+  constructor (responders, options = {}) {
     this.responders = responders
+    this.transformX = options.transformX || true
+    this.transformY = options.transformY || false
     this.handlers = {
       onStartShouldSetResponder: this.onStartShouldSetResponder.bind(this),
       onMoveShouldSetResponder: this.onMoveShouldSetResponder.bind(this),
@@ -65,14 +67,13 @@ export class PinchZoomResponder {
     var newTouchCount = Object.keys(this.touches).length
     if (oldTouchCount < 2 && newTouchCount >= 2) {
       this.onPinchZoomStart(e)
-      this.scaleCenterX = this.centerX(e.nativeEvent)
     } else if (oldTouchCount >= 2 && newTouchCount < 2) {
       this.onPinchZoomEnd(e)
     }
     if (newTouchCount < 2) {
       this.touches = {}
     }
-    this.scaleCenterX = this.centerX(e.nativeEvent)
+    this.storeCenter(e)
   }
 
   onResponderMove (e) {
@@ -84,7 +85,8 @@ export class PinchZoomResponder {
     if (this.responders.onResponderMove) {
       return this.responders.onResponderMove(e, {
         transform: newTransform,
-        centerX: this.scaleCenterX
+        centerX: this.scaleCenterX,
+        centerY: this.scaleCenterY
       })
     }
   }
@@ -108,37 +110,55 @@ export class PinchZoomResponder {
   onResponderTerminate (e) {
   }
 
+  storeCenter (e) {
+    this.scaleCenterX = this.center(e.nativeEvent, 'locationX')
+    this.scaleCenterY = this.center(e.nativeEvent, 'locationY')
+  }
+
   translateAndScale (command, e) {
     var translate
 
-    var scale = this.scaleX(e.nativeEvent)
-    var dx = this.deltaX(e.nativeEvent)
+    var scaleX = 1
+    var dx = 0
+    var cx = 0
 
-    translate = MatrixMath.createTranslate2d(dx, 0)
+    if (this.transformX) {
+      scaleX = this.scale(e.nativeEvent, 'locationX')
+      dx = this.delta(e.nativeEvent, 'locationX')
+      cx = this.scaleCenterX;
+    }
+
+    var scaleY = 1
+    var dy = 0
+    var cy = 0
+
+    if (this.transformY) {
+      scaleY = this.scale(e.nativeEvent, 'locationY')
+      dy = this.delta(e.nativeEvent, 'locationY')
+      cy = this.scaleCenterY
+    }
+
+    translate = MatrixMath.createTranslate2d(dx, dy)
     MatrixMath.multiplyInto(command, translate, command)
 
-    translate = MatrixMath.createTranslate2d(-this.scaleCenterX, 0)
+    translate = MatrixMath.createTranslate2d(-cx, -cy)
     MatrixMath.multiplyInto(command, translate, command)
 
     translate = MatrixMath.createIdentityMatrix()
-    MatrixMath.reuseScaleXCommand(translate, scale)
+    MatrixMath.reuseScale3dCommand(translate, scaleX, scaleY, 1)
     MatrixMath.multiplyInto(command, translate, command)
 
     translate = MatrixMath.createIdentityMatrix()
-    MatrixMath.reuseTranslate2dCommand(translate, this.scaleCenterX, 0)
+    MatrixMath.reuseTranslate2dCommand(translate, cx, cy)
     MatrixMath.multiplyInto(command, translate, command)
 
     return command
   }
 
-  deltaX (nativeEvent) {
-    return nativeEvent.touches.reduce((totalDeltaX, touch) => {
-      return totalDeltaX + (touch.locationX - this.touches[touch.identifier].locationX)
+  delta (nativeEvent, field) {
+    return nativeEvent.touches.reduce((totalDelta, touch) => {
+      return totalDelta + (touch[field] - this.touches[touch.identifier][field])
     }, 0) / nativeEvent.touches.length
-  }
-
-  scaleX (nativeEvent) {
-    return this.scale(nativeEvent, 'locationX')
   }
 
   scale (nativeEvent, field) {
@@ -152,14 +172,6 @@ export class PinchZoomResponder {
     return _scale
   }
 
-  startSpreadX (nativeEvent) {
-    return this.startSpread(nativeEvent, 'locationX')
-  }
-
-  spreadX (nativeEvent) {
-    return this.spread(nativeEvent, 'locationX')
-  }
-
   startSpread (nativeEvent, field) {
     var locations = nativeEvent.touches.map((touch) => this.touches[touch.identifier][field])
     return Math.max(...locations) - Math.min(...locations)
@@ -170,11 +182,7 @@ export class PinchZoomResponder {
     return Math.max(...locations) - Math.min(...locations)
   }
 
-  centerX (nativeEvent, identifierSet) {
-    return this.center(nativeEvent, identifierSet, 'locationX')
-  }
-
-  center (nativeEvent, identifierSet, field) {
+  center (nativeEvent, field) {
     var totalPage = nativeEvent.touches.reduce((total, touch) => {
       return total + touch[field]
     }, 0)

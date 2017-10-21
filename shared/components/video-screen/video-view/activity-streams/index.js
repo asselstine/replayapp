@@ -41,7 +41,6 @@ export class ActivityStreams extends PureComponent {
     this.moveCursor = _.throttle(this.moveCursor.bind(this), 20)
     this.setTransform = _.throttle(this.setTransform.bind(this), 20)
     this._onLayout = this._onLayout.bind(this)
-    this.touches = {}
     this.state = {
       width: 1,
       height: 1,
@@ -57,11 +56,9 @@ export class ActivityStreams extends PureComponent {
     this._subscription = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
     this.pinchZoomResponder = new PinchZoomResponder({
       onPinchZoomStart: (e) => {
-        console.log('Pinch zoome start++++')
       },
 
       onPinchZoomEnd: (e) => {
-        console.log('Pinch zoome END-----')
         this.applyTransform()
       },
 
@@ -80,85 +77,10 @@ export class ActivityStreams extends PureComponent {
         }
       },
     })
-    this.responders = {
-      onStartShouldSetResponder: () => { /* console.log('start should set'); */ return true },
-      onMoveShouldSetResponder: () => { /* console.log('move should set'); */ return true },
-      onStartShouldSetResponderCapture: () => { /* console.log('start set capture'); */ return true },
-      onMoveShouldSetResponderCapture: () => { /* console.log('move set capture'); */ return true },
-      onResponderGrant: (e) => { /* console.log('grant'); */ this.handleResponderGrant(e) },
-      onResponderMove: (e) => { /* console.log('move'); */ this.handleResponderMove(e) },
-      onResponderReject: (e) => { /* console.log('reject') */ },
-      onResponderRelease: (e) => { /* console.log('release'); */ this.handleResponderRelease(e) },
-      onResponderTerminate: (e) => { /* console.log('terminate'); */ this.handleResponderTerminate(e) },
-      onResponderTerminationRequest: () => { /* console.log('terminate request'); */ return false }
-    }
   }
-
-  storeOriginalTouches (touches) {
-    touches.forEach((touch) => {
-      if (!this.touches[touch.identifier]) {
-        this.touches[touch.identifier] = touch
-      }
-      if (!touch.touches) { return }
-      touch.touches.forEach((secondaryTouch) => {
-        if (secondaryTouch.identifier !== touch.identifier &&
-            !this.touches[secondaryTouch.identifier]) {
-          this.touches[secondaryTouch.identifier] = secondaryTouch
-        }
-      })
-    })
-  }
-
-  clearOldTouches (touches) {
-    _.keys(this.touches).forEach((key) => {
-      if (_.findIndex(touches, {'identifier': +key}) === -1) {
-        delete this.touches[key]
-      }
-    })
-  }
-
-  handleResponderGrant (e) {
-    this.storeOriginalTouches(e.nativeEvent.touches)
-  }
-  //
-  // handleResponderMove (e) {
-  //   if (gestureState.pinchZoomTransform) {
-  //     this.addBoundaryTransformTo(gestureState.pinchZoomTransform)
-  //     this.setTransform(gestureState.pinchZoomTransform)
-  //     // NOTE: should only update if it's not playing
-  //     this.updateCursorLocation()
-  //   }
-  //
-  //
-  //   var oldTouchKeys = _.keys(this.touches)
-  //   this.clearOldTouches(e.nativeEvent.touches)
-  //   var touchKeys = _.keys(this.touches)
-  //   if (oldTouchKeys.length > touchKeys.length) {
-  //     this.applyTransform()
-  //   } else { // => oldTouchKeys <= touchKeys.length (recenter on change to 2)
-  //     this.scaleCenterX = this.centerX(e.nativeEvent)
-  //   }
-  //   if (e.nativeEvent.touches.length === 2) {
-  //     this.storeOriginalTouches(e.nativeEvent.touches)
-  //     this.newTransform = MatrixMath.createIdentityMatrix()
-  //     this.translateAndScale(this.newTransform, e)
-  //     this.addBoundaryTransformTo(this.newTransform)
-  //     this.setTransform(this.newTransform)
-  //     // NOTE: should only update if it's not playing
-  //     this.updateCursorLocation()
-  //   } else if (touchKeys.length === 1) {
-  //     var locationX = e.nativeEvent.touches[0].locationX
-  //     this.moveCursor(locationX)
-  //   }
-  // }
 
   componentWillReceiveProps (nextProps) {
     this.initStreamPaths()
-  }
-
-  handleResponderRelease (e) {
-    this.applyTransform()
-    this.touches = {}
   }
 
   applyTransform () {
@@ -170,7 +92,6 @@ export class ActivityStreams extends PureComponent {
     this.setState({
       transform: newTransform
     })
-    this.touches = {}
   }
 
   moveCursor (locationX) {
@@ -215,66 +136,6 @@ export class ActivityStreams extends PureComponent {
     return matrix
   }
 
-  handleResponderTerminate (e) {
-  }
-
-  translateAndScale (command, e) {
-    var translate
-
-    var scale = this.scale(e.nativeEvent)
-    var dx = this.deltaX(e.nativeEvent)
-
-    translate = MatrixMath.createTranslate2d(dx, 0)
-    MatrixMath.multiplyInto(command, translate, command)
-
-    translate = MatrixMath.createTranslate2d(-this.scaleCenterX, 0)
-    MatrixMath.multiplyInto(command, translate, command)
-
-    translate = MatrixMath.createIdentityMatrix()
-    MatrixMath.reuseScaleXCommand(translate, scale)
-    MatrixMath.multiplyInto(command, translate, command)
-
-    translate = MatrixMath.createIdentityMatrix()
-    MatrixMath.reuseTranslate2dCommand(translate, this.scaleCenterX, 0)
-    MatrixMath.multiplyInto(command, translate, command)
-
-    return command
-  }
-
-  centerX (nativeEvent, identifierSet) {
-    var totalPageX = nativeEvent.touches.reduce((centerX, touch) => {
-      return centerX + touch.locationX
-    }, 0)
-    return totalPageX / nativeEvent.touches.length
-  }
-
-  startSpreadX (nativeEvent) {
-    var locationXs = _.map(nativeEvent.touches, (touch) => this.touches[touch.identifier].locationX)
-    return Math.max(...locationXs) - Math.min(...locationXs)
-  }
-
-  spreadX (nativeEvent) {
-    var locationXs = _.map(nativeEvent.touches, (touch) => touch.locationX)
-    return Math.max(...locationXs) - Math.min(...locationXs)
-  }
-
-  deltaX (nativeEvent) {
-    return _.reduce(nativeEvent.touches, (totalDeltaX, touch) => {
-      return totalDeltaX + (touch.locationX - this.touches[touch.identifier].locationX)
-    }, 0) / nativeEvent.touches.length
-  }
-
-  scale (nativeEvent) {
-    var spreadX = this.spreadX(nativeEvent)
-    var startSpreadX = this.startSpreadX(nativeEvent)
-    if (startSpreadX === 0) {
-      var _scale = 1
-    } else {
-      _scale = spreadX / (this.startSpreadX(nativeEvent) * 1.0)
-    }
-    return _scale
-  }
-
   setTransform (matrix) {
     this.transformView.setNativeProps({ style: { transform: [{perspective: 1000}, { matrix: this.addOriginTransformTo(matrix) }] } })
   }
@@ -297,6 +158,7 @@ export class ActivityStreams extends PureComponent {
     if (originDifference[0] > 0) {
       MatrixMath.multiplyInto(matrix, MatrixMath.createTranslate2d(-originDifference[0], 0), matrix)
     }
+
     // Update current complete matrix
     MatrixMath.multiplyInto(completeTransform, matrix, this.state.transform)
 
