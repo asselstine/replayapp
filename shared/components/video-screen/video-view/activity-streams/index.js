@@ -77,7 +77,7 @@ export class ActivityStreams extends PureComponent {
           this.moveCursor(locationX)
         }
       },
-    })
+    }, { transformY: false })
   }
 
   componentWillReceiveProps (nextProps) {
