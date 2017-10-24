@@ -17,6 +17,7 @@ import { TextLayer } from './text-layer'
 import _ from 'lodash'
 import { StreamPath } from '../../../stream-path'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
+import { MatrixBounds } from '../../../../matrix-bounds'
 import { Activity } from '../../../../activity'
 import * as colours from '../../../../colours'
 import { PinchZoomResponder } from './pinch-zoom-responder'
@@ -121,9 +122,8 @@ export class ActivityStreams extends PureComponent {
   moveClippingRectToLocationX (streamTime) {
     if (!this._timeClippingRect) { return }
     var originalEnd = this.streamTimeToOriginalX(streamTime)
-    var transform = this.state.transform
-    var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], transform)[0]
-    var clipEnd = MatrixMath.multiplyVectorByMatrix([originalEnd, 0, 0, 1], transform)[0]
+    var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], this.state.transform)[0]
+    var clipEnd = MatrixMath.multiplyVectorByMatrix([originalEnd, 0, 0, 1], this.state.transform)[0]
     this._timeClippingRect.setNativeProps({
       x: clipOrigin.toString(),
       width: (clipEnd - clipOrigin).toString()
@@ -141,34 +141,20 @@ export class ActivityStreams extends PureComponent {
   }
 
   addBoundaryTransformTo (matrix) {
-    var completeTransform = this.combinedTransforms()
-    // console.log(completeTransform)
+    // matrix is the newTransform
+    var originalTransform = this.combinedTransforms()
+    var boundedTransform = originalTransform.slice()
+    var boundaryTransform = MatrixMath.createIdentityMatrix()
 
-    // Fix the scale
-    if (completeTransform[0] < 1) {
-      var minScale = MatrixMath.createIdentityMatrix()
-      minScale[0] = 1.0 / completeTransform[0]
-      MatrixMath.multiplyInto(matrix, minScale, matrix)
-    }
-    // Update current complete matrix
-    MatrixMath.multiplyInto(completeTransform, matrix, this.state.transform)
+    MatrixBounds.applyMinXScaleOf1(boundaryTransform, originalTransform)
+    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, originalTransform)
 
-    // Fix the origin
-    var originDifference = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], completeTransform)
-    if (originDifference[0] > 0) {
-      MatrixMath.multiplyInto(matrix, MatrixMath.createTranslate2d(-originDifference[0], 0), matrix)
-    }
+    MatrixBounds.applyMinOriginZero(boundaryTransform, boundedTransform)
+    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, originalTransform)
 
-    // Update current complete matrix
-    MatrixMath.multiplyInto(completeTransform, matrix, this.state.transform)
+    MatrixBounds.applyMaxX(this.state.width, boundaryTransform, boundedTransform)
 
-    // Fix the end
-    var endPointDifference = MatrixMath.multiplyVectorByMatrix([this.state.width, 0, 0, 1], completeTransform)
-    var diff = endPointDifference[0] - this.state.width
-    if (diff < 0) {
-      MatrixMath.multiplyInto(matrix, MatrixMath.createTranslate2d(-diff, 0), matrix)
-    }
-
+    MatrixMath.multiplyInto(matrix, boundaryTransform, matrix)
     return matrix
   }
 
