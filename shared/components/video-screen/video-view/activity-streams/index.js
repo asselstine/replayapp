@@ -20,7 +20,7 @@ import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import { MatrixBounds } from '../../../../matrix-bounds'
 import { Activity } from '../../../../activity'
 import * as colours from '../../../../colours'
-import { PinchZoomResponder } from './pinch-zoom-responder'
+import PinchZoomResponder from 'react-native-pinch-zoom-responder'
 import {
   streamToPoints,
   transformStreamPointsToPath
