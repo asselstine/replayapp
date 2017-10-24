@@ -65,7 +65,7 @@ export class ActivityStreams extends PureComponent {
 
       onResponderMove: (e, gestureState) => {
         var touchKeys = _.keys(e.nativeEvent.touches)
-        if (gestureState.transform) {
+        if (gestureState) {
           this.newTransform = gestureState.transform.slice()
           this.addBoundaryTransformTo(this.newTransform)
           this.setTransform(this.newTransform)

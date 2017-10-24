@@ -18,6 +18,8 @@ export class PinchZoomResponder {
       onResponderTerminationRequest: this.onResponderTerminationRequest.bind(this)
     }
     this.touches = {}
+    this.transform = MatrixMath.createIdentityMatrix()
+    this.tempTransformMatrix = MatrixMath.createIdentityMatrix()
   }
 
   onStartShouldSetResponder () { /* console.log('start should set'); */ return true }
@@ -79,15 +81,10 @@ export class PinchZoomResponder {
   onResponderMove (e) {
     this.updateTouchState(e)
     if (e.nativeEvent.touches.length === 2) {
-      var newTransform = MatrixMath.createIdentityMatrix()
-      this.translateAndScale(newTransform, e)
+      var gestureState = this.gestureState(e)
     }
     if (this.responders.onResponderMove) {
-      return this.responders.onResponderMove(e, {
-        transform: newTransform,
-        centerX: this.scaleCenterX,
-        centerY: this.scaleCenterY
-      })
+      return this.responders.onResponderMove(e, gestureState)
     }
   }
 
@@ -115,8 +112,9 @@ export class PinchZoomResponder {
     this.scaleCenterY = this.center(e.nativeEvent, 'locationY')
   }
 
-  translateAndScale (command, e) {
-    var translate
+  gestureState (e) {
+    this.reuseIdentityMatrix(this.transform)
+    var transform = this.transform
 
     var scaleX = 1
     var dx = 0
@@ -138,21 +136,25 @@ export class PinchZoomResponder {
       cy = this.scaleCenterY
     }
 
-    translate = MatrixMath.createTranslate2d(dx, dy)
-    MatrixMath.multiplyInto(command, translate, command)
+    this.reuseIdentityMatrix(this.tempTransformMatrix)
+    MatrixMath.reuseTranslate2dCommand(this.tempTransformMatrix, dx, dy)
+    MatrixMath.multiplyInto(transform, this.tempTransformMatrix, transform)
 
-    translate = MatrixMath.createTranslate2d(-cx, -cy)
-    MatrixMath.multiplyInto(command, translate, command)
+    this.reuseIdentityMatrix(this.tempTransformMatrix)
+    MatrixMath.reuseTranslate2dCommand(this.tempTransformMatrix, -cx, -cy)
+    MatrixMath.multiplyInto(transform, this.tempTransformMatrix, transform)
 
-    translate = MatrixMath.createIdentityMatrix()
-    MatrixMath.reuseScale3dCommand(translate, scaleX, scaleY, 1)
-    MatrixMath.multiplyInto(command, translate, command)
+    this.reuseIdentityMatrix(this.tempTransformMatrix)
+    MatrixMath.reuseScale3dCommand(this.tempTransformMatrix, scaleX, scaleY, 1)
+    MatrixMath.multiplyInto(transform, this.tempTransformMatrix, transform)
 
-    translate = MatrixMath.createIdentityMatrix()
-    MatrixMath.reuseTranslate2dCommand(translate, cx, cy)
-    MatrixMath.multiplyInto(command, translate, command)
+    this.reuseIdentityMatrix(this.tempTransformMatrix)
+    MatrixMath.reuseTranslate2dCommand(this.tempTransformMatrix, cx, cy)
+    MatrixMath.multiplyInto(transform, this.tempTransformMatrix, transform)
 
-    return command
+    return {
+      transform, cx, cy, scaleX, scaleY, dx, dy
+    }
   }
 
   delta (nativeEvent, field) {
@@ -187,5 +189,27 @@ export class PinchZoomResponder {
       return total + touch[field]
     }, 0)
     return totalPage / nativeEvent.touches.length
+  }
+
+  reuseIdentityMatrix(matrixCommand) {
+    matrixCommand[0] = 1
+    matrixCommand[1] = 0
+    matrixCommand[2] = 0
+    matrixCommand[3] = 0
+
+    matrixCommand[4] = 0
+    matrixCommand[5] = 1
+    matrixCommand[6] = 0
+    matrixCommand[7] = 0
+
+    matrixCommand[8] = 0
+    matrixCommand[9] = 0
+    matrixCommand[10] = 1
+    matrixCommand[11] = 0
+
+    matrixCommand[12] = 0
+    matrixCommand[13] = 0
+    matrixCommand[14] = 0
+    matrixCommand[15] = 1
   }
 }
