@@ -4,17 +4,11 @@ import React, {
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Path } from 'react-native-svg'
+import { pointsToPath } from '../../../../../../svg'
 
 export class RacePath extends Component {
   render () {
-    var path = ''
-    _.each(this.props.points, (point, index) => {
-      if (index === 0) {
-        path += `M${point[0]} ${point[1]} `
-      } else {
-        path += `L${point[0]} ${point[1]} `
-      }
-    })
+    var path = pointsToPath(this.props.points)
     return (
       <Path d={path} {...this.props} />
     )

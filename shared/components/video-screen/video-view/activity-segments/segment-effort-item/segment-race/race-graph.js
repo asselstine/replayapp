@@ -13,8 +13,13 @@ import PropTypes from 'prop-types'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import {
   mergeStreams,
+  streamToPoints,
+  pointsToPath,
   transformPoints
 } from '../../../../../../svg'
+import {
+  interpolate
+} from '../../../../../../streams'
 import {
   linearIndex,
   minValueIndex,
@@ -91,9 +96,11 @@ export class RaceGraph extends Component {
 
   componentWillReceiveProps (nextProps) {
     this.updateTransform(nextProps)
+    this.initStreamPaths()
   }
 
   _onLayout (event) {
+    var resize = this.state.width === 1
     var width = _.get(event, 'nativeEvent.layout.width') || 1
     var height = _.get(event, 'nativeEvent.layout.height') || 1
     var transform = this.calculateTransform(this.props, width, height)
@@ -102,6 +109,10 @@ export class RaceGraph extends Component {
       height: height,
       transform: transform,
       inverseTransform: MatrixMath.inverse(transform)
+    }, () => {
+      if (resize) {
+        this.initStreamPaths()
+      }
     })
   }
 
@@ -117,14 +128,21 @@ export class RaceGraph extends Component {
     return createBoundsTransform(props.timeStream, props.deltaTimeStream, 0, height, width, -height)
   }
 
+  initStreamPaths () {
+    var timeStream = this.props.timeStream
+    var deltaTimeStream = this.props.deltaTimeStream
+    var newDeltaStreams = interpolate({ times: timeStream, values: deltaTimeStream })
+
+    this.setState({
+      deltaTimePoints: streamToPoints(this.state.height, this.state.width, newDeltaStreams.times, newDeltaStreams.values)
+    })
+  }
+
   render () {
     var timeStream = this.props.timeStream
     var deltaTimeStream = this.props.deltaTimeStream
 
-    var combinedPoints = mergeStreams(timeStream, deltaTimeStream)
-    combinedPoints.unshift([0, 0])
-    combinedPoints.push([timeStream[timeStream.length - 1], 0])
-    var points = transformPoints(combinedPoints, this.state.transform)
+    var points = this.state.deltaTimePoints
 
     var minDeltaTimeIndex = minValueIndex(deltaTimeStream)
     var maxDeltaTimeIndex = maxValueIndex(deltaTimeStream)
@@ -138,6 +156,28 @@ export class RaceGraph extends Component {
     vector[0] = max
     var maxV = MatrixMath.multiplyVectorByMatrix(vector, this.state.transform)
 
+    if (points) {
+      var redClipPath =
+        <ClipPath id='red'>
+          <Rect y={points[0][1] - this.state.height} width={this.state.width} height={this.state.height} />
+        </ClipPath>
+      var greenClipPath =
+        <ClipPath id='green'>
+          <Rect y={points[0][1]} width={this.state.width} height={this.state.height} />
+        </ClipPath>
+      var redPath =
+        <RacePath
+          points={points}
+          stroke={'red'}
+          fill='red'
+          clipPath='url(#red)' />
+      var greenPath =
+        <RacePath
+          points={points}
+          fill='green'
+          clipPath='url(#green)' />
+    }
+
     return (
       <Svg
         {...this._panResponder.panHandlers}
@@ -145,29 +185,10 @@ export class RaceGraph extends Component {
         backgroundColor={'white'}
         width={this.props.width}
         height={this.props.height}>
-        <ClipPath id='red'>
-          <Rect y={points[0][1] - this.state.height} width={this.state.width} height={this.state.height} />
-        </ClipPath>
-        <ClipPath id='green'>
-          <Rect y={points[0][1]} width={this.state.width} height={this.state.height} />
-        </ClipPath>
-        <RacePath
-          points={points}
-          stroke={'red'}
-          fill='red'
-          clipPath='url(#red)' />
-        <RacePath
-          points={points}
-          fill='green'
-          clipPath='url(#green)' />
-        <InfoLine
-          label={`${deltaTimeStream[minDeltaTimeIndex]}s`}
-          x={minV[0]}
-          height={this.state.height} />
-        <InfoLine
-          label={`${deltaTimeStream[maxDeltaTimeIndex]}s`}
-          x={maxV[0]}
-          height={this.state.height} />
+        {redClipPath}
+        {greenClipPath}
+        {redPath}
+        {greenPath}
         <Line
           ref={(ref) => { this._timeline = ref }}
           x1={0}
