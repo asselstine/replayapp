@@ -84,9 +84,7 @@ export class PlayerOverlay extends Component {
           </View>
 
           <View style={styles.overlayContent}>
-            <TouchableOpacity onPress={this.props.onTogglePaused}>
-              {playToggle}
-            </TouchableOpacity>
+
           </View>
 
           <View style={styles.overlayBottom}>
@@ -99,6 +97,9 @@ export class PlayerOverlay extends Component {
                 currentTime={this.props.currentTime}
                 duration={this.props.duration}
                 onVideoTimeChange={this.props.onVideoTimeChange} />
+              <TouchableOpacity onPress={this.props.onTogglePaused}>
+                {playToggle}
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -148,7 +149,6 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'red'
   },
 
   overlayBottom: {
@@ -158,7 +158,8 @@ const styles = {
   },
 
   playButton: {
-    fontSize: 72
+    fontSize: 30,
+    padding: 10
   }
 }
 

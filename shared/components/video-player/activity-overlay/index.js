@@ -7,6 +7,8 @@ import {
   Animated,
   View
 } from 'react-native'
+import TimerMixin from 'react-timer-mixin'
+import reactMixin from 'react-mixin'
 import PropTypes from 'prop-types'
 import { store } from '../../../store'
 import { Activity } from '../../../activity'
@@ -50,6 +52,8 @@ export class ActivityOverlay extends Component {
     this.checkCurrentSegmentEffort = this.checkCurrentSegmentEffort.bind(this)
     this.updateLeaderboardComparisonData = this.updateLeaderboardComparisonData.bind(this)
     this.updateLeaderboardData = this.updateLeaderboardData.bind(this)
+    this._hideOverlay = this._hideOverlay.bind(this)
+    this.onActivityTimeChange = this.onActivityTimeChange.bind(this)
   }
 
   componentWillReceiveProps (newProps) {
@@ -121,6 +125,7 @@ export class ActivityOverlay extends Component {
     if (overlay === this.state.streamOverlay) { // if same overlay
       this._hideOverlay()
     } else {
+      this.resetOverlayHideTimeout()
       this._showOverlay(overlay)
     }
   }
@@ -191,6 +196,20 @@ export class ActivityOverlay extends Component {
                   })
   }
 
+  resetOverlayHideTimeout () {
+    if (this.timeout) {
+      this.clearTimeout(this.timeout)
+    }
+    this.timeout = this.setTimeout(this._hideOverlay, 2000)
+  }
+
+  onActivityTimeChange (time) {
+    this.resetOverlayHideTimeout()
+    if (this.props.onActivityTimeChange) {
+      this.props.onActivityTimeChange(time)
+    }
+  }
+
   buildStreamGraph (streamOverlayStyle, overlayData, timeStream) {
     return (
       <StreamOverlay
@@ -200,7 +219,7 @@ export class ActivityOverlay extends Component {
         currentTimeActivity={this.props.currentTimeActivity}
         timeStream={timeStream}
         dataStream={overlayData}
-        onActivityTimeChange={this.props.onActivityTimeChange} />
+        onActivityTimeChange={this.onActivityTimeChange} />
     )
   }
 
@@ -231,7 +250,7 @@ export class ActivityOverlay extends Component {
             deltaTimeStream={this.state.versusDeltaTimes}
             width='100%'
             height={100}
-            onStreamTimeChange={this.props.onActivityTimeChange}
+            onStreamTimeChange={this.onActivityTimeChange}
             videoStreamStartTime={Video.streamStartAt(this.props.video)}
             videoStreamEndTime={Video.streamEndAt(this.props.video)} />
         break
@@ -257,7 +276,13 @@ export class ActivityOverlay extends Component {
     if (this.state.segmentEffort) {
       if (this.state.leaderboardEntry) {
         var versusTime =
-          <TouchableOpacity onPress={() => this._toggleOverlay('leaderboardComparison')}>
+          <TouchableOpacity
+            onPress={() => this._toggleOverlay('leaderboardComparison')}
+            style={{...styles.telemetryItem, ...styles.overlayBottomItem}}
+            >
+            <View style={styles.telemetryIconContainer}>
+              <MaterialCommunityIcon style={styles.telemetryIcon} name='clock' />
+            </View>
             <VersusTime
               positiveStyle={styles.versusDeltaTimePositive}
               negativeStyle={styles.versusDeltaTimeNegative}
@@ -284,19 +309,15 @@ export class ActivityOverlay extends Component {
               <Text style={styles.telemetryLabel}>{_.get(this.state, 'leaderboardEntry.rank', 0)} | {_.get(this.state.leaderboardEntry, 'athlete_name', 'Select Athlete')}</Text>
             </View>
           </VersusSelect>
-          <View style={{...styles.telemetryItem, ...styles.overlayBottomItem}}>
-            <View style={styles.telemetryIconContainer}>
-              <MaterialCommunityIcon style={styles.telemetryIcon} name='clock' />
-            </View>
-            {versusTime}
-          </View>
+          {versusTime}
         </View>
     }
 
     return (
       <Animated.View
         style={{...styles.overlay, ...this.props.style}}
-        pointerEvents={this.props.pointerEvents}>
+        pointerEvents={this.props.pointerEvents}
+        >
         <View style={styles.overlayTop}>
           <View style={styles.overlayTopLeft}>
             <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('velocity') }}>
@@ -481,3 +502,5 @@ ActivityOverlay.propTypes = {
 ActivityOverlay.defaultProps = {
   streams: {}
 }
+
+reactMixin(ActivityOverlay.prototype, TimerMixin)

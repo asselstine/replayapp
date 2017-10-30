@@ -183,7 +183,7 @@ export class VideoPlayer extends Component {
   }
 
   _onEnd (arg) {
-    this.setState({ paused: true })
+    // this.setState({ paused: true })
   }
 
   render () {
@@ -252,6 +252,7 @@ export class VideoPlayer extends Component {
             paused={this.state.paused}
             style={videoStyle}
             muted={this.state.muted}
+            repeat={true}
             resizeMode='fill'
             />
           <PlayerOverlay
