@@ -235,7 +235,8 @@ export class VideoPlayer extends Component {
           style={activityOverlayStyle}
           pointerEvents={activityOverlayPointerEvents}
           activityStartTime={activityStartTime}
-          activityEndTime={activityEndTime} />
+          activityEndTime={activityEndTime}
+          video={this.props.video} />
     }
 
     return (

@@ -3169,6 +3169,10 @@ react-native-orientation@^2.0.0:
   version "1.0.5"
   resolved "git://github.com/olofd/react-native-photos-framework.git#c1b5d2e13f599f8dc062eba06f897129bc74cf86"
 
+react-native-pinch-zoom-responder@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-pinch-zoom-responder/-/react-native-pinch-zoom-responder-0.1.1.tgz#f17f32c158eb18c29efde43b63ff2af7d56f4d05"
+
 react-native-scrollable-tab-view@^0.6.7:
   version "0.6.7"
   resolved "https://registry.yarnpkg.com/react-native-scrollable-tab-view/-/react-native-scrollable-tab-view-0.6.7.tgz#3a5fe8a4bd5bc7eb023f306099323bbd9cc284a2"

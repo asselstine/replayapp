@@ -11,6 +11,7 @@ import PropTypes from 'prop-types'
 import { store } from '../../../store'
 import { Activity } from '../../../activity'
 import { interpolate } from '../../../streams'
+import { Video } from '../../../video'
 import { ActivityService } from '../../../services/activity-service'
 import { SegmentService } from '../../../services/segment-service'
 import { SegmentsFinder } from '../../../finders/segments-finder'
@@ -230,7 +231,9 @@ export class ActivityOverlay extends Component {
             deltaTimeStream={this.state.versusDeltaTimes}
             width='100%'
             height={100}
-            onStreamTimeChange={this.props.onActivityTimeChange} />
+            onStreamTimeChange={this.props.onActivityTimeChange}
+            videoStreamStartTime={Video.streamStartAt(this.props.video)}
+            videoStreamEndTime={Video.streamEndAt(this.props.video)} />
         break
     }
 
@@ -471,7 +474,8 @@ ActivityOverlay.propTypes = {
   style: PropTypes.any,
   pointerEvents: PropTypes.any,
   streams: PropTypes.object,
-  segmentEfforts: PropTypes.array
+  segmentEfforts: PropTypes.array,
+  video: PropTypes.object
 }
 
 ActivityOverlay.defaultProps = {

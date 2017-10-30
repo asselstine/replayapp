@@ -20,6 +20,15 @@ export const Video = {
     return result
   },
 
+  streamStartAt (video) {
+    return this.videoTimeToStreamTime(video, 0)
+  },
+
+  streamEndAt (video) {
+    var duration = _.get(video, 'rawVideoData.duration', 0)
+    return this.videoTimeToStreamTime(video, duration)
+  },
+
   startAt (video) {
     return moment(_.get(video, 'startAt'))
   },
