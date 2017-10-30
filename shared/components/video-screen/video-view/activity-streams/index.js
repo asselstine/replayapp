@@ -122,11 +122,10 @@ export class ActivityStreams extends PureComponent {
   moveClippingRectToLocationX (streamTime) {
     if (!this._timeClippingRect) { return }
     var originalEnd = this.streamTimeToOriginalX(streamTime)
-    var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], this.state.transform)[0]
+    var videoStartX = this.streamTimeToLocationX(this.props.videoStreamStartTime)
     var clipEnd = MatrixMath.multiplyVectorByMatrix([originalEnd, 0, 0, 1], this.state.transform)[0]
     this._timeClippingRect.setNativeProps({
-      x: clipOrigin.toString(),
-      width: (clipEnd - clipOrigin).toString()
+      width: (clipEnd - videoStartX).toString()
     })
   }
 
@@ -315,6 +314,9 @@ export class ActivityStreams extends PureComponent {
 
     var currentTimeLine, videoStartTime, videoEndTime
 
+    var videoStartX = this.streamTimeToLocationX(this.props.videoStreamStartTime)
+    var videoEndX = this.streamTimeToLocationX(this.props.videoStreamEndTime)
+
     currentTimeLine =
       <CustomAnimated.Line
         ref={(ref) => { this._line = ref }}
@@ -329,9 +331,9 @@ export class ActivityStreams extends PureComponent {
     videoStartTime =
       <CustomAnimated.Line
         ref={(ref) => { this._videoStartTime = ref }}
-        x1={this.streamTimeToLocationX(this.props.videoStreamStartTime)}
+        x1={videoStartX}
         y1={0}
-        x2={this.streamTimeToLocationX(this.props.videoStreamStartTime)}
+        x2={videoStartX}
         y2={this.state.height}
         stroke={'black'}
         strokeDasharray={[5, 5]}
@@ -340,16 +342,16 @@ export class ActivityStreams extends PureComponent {
     videoEndTime =
       <CustomAnimated.Line
         ref={(ref) => { this._videoEndTime = ref }}
-        x1={this.streamTimeToLocationX(this.props.videoStreamEndTime)}
+        x1={videoEndX}
         y1={0}
-        x2={this.streamTimeToLocationX(this.props.videoStreamEndTime)}
+        x2={videoEndX}
         y2={this.state.height}
         stroke={'black'}
         strokeDasharray={[5, 5]}
         strokeWidth='1' />
 
-    var clipOrigin = MatrixMath.multiplyVectorByMatrix([0, 0, 0, 1], this.state.transform)
-    var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipOrigin[0]
+    var clipStart = videoStartX
+    var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipStart
     // console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
 
     return (
@@ -365,7 +367,7 @@ export class ActivityStreams extends PureComponent {
             <ClipPath id='timeClip'>
               <Rect
                 ref={(ref) => { this._timeClippingRect = ref }}
-                x={clipOrigin.toString()}
+                x={clipStart.toString()}
                 y={0}
                 width={clipWidth}
                 height='200' />
