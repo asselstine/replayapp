@@ -113,7 +113,6 @@ export class RaceGraph extends Component {
 
   componentWillReceiveProps (nextProps) {
     this.updateTransform(nextProps)
-    this.initStreamPaths(nextProps)
   }
 
   streamTimeToOriginalX (streamTime) {
@@ -152,6 +151,8 @@ export class RaceGraph extends Component {
     this.setState({
       transform: transform,
       inverseTransform: MatrixMath.inverse(transform)
+    }, () => {
+      this.initStreamPaths(props)
     })
   }
 
