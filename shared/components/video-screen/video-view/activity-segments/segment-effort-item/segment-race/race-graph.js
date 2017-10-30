@@ -29,7 +29,8 @@ import {
 } from '../../../../../../streams'
 import { InfoLine } from './info-line'
 import {
-  PanResponder
+  PanResponder,
+  Animated
 } from 'react-native'
 
 export class RaceGraph extends Component {
@@ -74,12 +75,16 @@ export class RaceGraph extends Component {
   }
 
   onStreamTimeProgress (streamTime) {
+    var v = this.streamTimeToLocationX(streamTime)
     if (this._timeline) {
-      v = this.streamTimeToLocationX(streamTime)
-      // console.log(streamTime, v[0])
       this._timeline.setNativeProps({
         x1: v.toString(),
         x2: v.toString()
+      })
+    }
+    if (this._segmentEffortClipBox) {
+      this._segmentEffortClipBox.setNativeProps({
+        width: (v - this.videoStartX()).toString()
       })
     }
   }
@@ -171,6 +176,14 @@ export class RaceGraph extends Component {
     })
   }
 
+  videoStartX () {
+    return this.streamTimeToLocationX(this.props.videoStreamStartTime)
+  }
+
+  videoEndX () {
+    return this.streamTimeToLocationX(this.props.videoStreamEndTime)
+  }
+
   render () {
     var timeStream = this.props.timeStream
     var deltaTimeStream = this.props.deltaTimeStream
@@ -190,13 +203,38 @@ export class RaceGraph extends Component {
     var maxV = MatrixMath.multiplyVectorByMatrix(vector, this.state.transform)
 
     if (points) {
-      var start = this.streamTimeToLocationX(this.props.videoStreamStartTime)
-      var end = this.streamTimeToLocationX(this.props.videoStreamEndTime)
-      var segmentEffortWidth = end - start
-      var x = start
+      var videoStartX = this.videoStartX()
+      var videoEndX = this.videoEndX()
+
+      var videoStartTime =
+        <Line
+          x1={videoStartX}
+          y1={0}
+          x2={videoStartX}
+          y2={this.state.height}
+          stroke={'black'}
+          strokeDasharray={[5, 5]}
+          strokeWidth='1' />
+
+      var videoEndTime =
+        <Line
+          x1={videoEndX}
+          y1={0}
+          x2={videoEndX}
+          y2={this.state.height}
+          stroke={'black'}
+          strokeDasharray={[5, 5]}
+          strokeWidth='1' />
+
+      var segmentEffortWidth = videoEndX - videoStartX
       var segmentEffortClip =
         <ClipPath id='segmentEffort'>
-          <Rect x={x} y={0} width={segmentEffortWidth} height={this.state.height} />
+          <Rect
+            ref={(ref) => { this._segmentEffortClipBox = ref }}
+            x={videoStartX}
+            y={0}
+            width={segmentEffortWidth}
+            height={this.state.height} />
         </ClipPath>
       var redClipPath =
         <ClipPath id='red'>
@@ -240,6 +278,8 @@ export class RaceGraph extends Component {
             {redPath}
             {greenPath}
           </G>
+          {videoStartTime}
+          {videoEndTime}
         </G>
     }
 
