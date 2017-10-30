@@ -84,21 +84,23 @@ export class PlayerOverlay extends Component {
           </View>
 
           <View style={styles.overlayContent}>
-
+            {this.props.children}
           </View>
 
           <View style={styles.overlayBottom}>
             <View style={{...styles.overlaySmallBar}}>
-              <TouchableOpacity onPress={this.props.onToggleMuted}>
-                {muteToggle}
+              <TouchableOpacity onPress={this.props.onTogglePaused}>
+                {playToggle}
               </TouchableOpacity>
+
               <Timeline
                 ref={(ref) => { this._timeline = ref }}
                 currentTime={this.props.currentTime}
                 duration={this.props.duration}
                 onVideoTimeChange={this.props.onVideoTimeChange} />
-              <TouchableOpacity onPress={this.props.onTogglePaused}>
-                {playToggle}
+
+              <TouchableOpacity onPress={this.props.onToggleMuted}>
+                {muteToggle}
               </TouchableOpacity>
             </View>
           </View>

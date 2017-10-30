@@ -78,7 +78,7 @@ export class VideoPlayer extends Component {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    this.timeout = this.setTimeout(this.hidePlayerOverlay, 3000)
+    // this.timeout = this.setTimeout(this.hidePlayerOverlay, 3000)
   }
 
   onPressVideo (e) {
@@ -124,7 +124,7 @@ export class VideoPlayer extends Component {
       } else {
         this._onPlay({currentTime: this.getCurrentTime()})
       }
-      this.hidePlayerOverlay()
+      // this.hidePlayerOverlay()
     } else {
       this._onStop()
     }
@@ -208,31 +208,30 @@ export class VideoPlayer extends Component {
       })
     }
 
-    if (this.state.showPlayerOverlay) {
+    // if (this.state.showPlayerOverlay) {
       var playerOverlayPointerEvents = 'auto'
-    } else {
-      playerOverlayPointerEvents = 'none'
-    }
-
-    if (!this.state.showPlayerOverlay && !this.props.hideActivityOverlay) {
+    // } else {
+    //   playerOverlayPointerEvents = 'none'
+    // }
+    //
+    // if (!this.state.showPlayerOverlay && !this.props.hideActivityOverlay) {
       var activityOverlayPointerEvents = 'auto'
-    } else {
-      activityOverlayPointerEvents = 'none'
-    }
+    // } else {
+    //   activityOverlayPointerEvents = 'none'
+    // }
 
     var duration = this.props.video.rawVideoData.duration
 
     var activityStartTime = Video.videoTimeToStreamTime(this.props.video, 0)
     var activityEndTime = Video.videoTimeToStreamTime(this.props.video, duration)
 
-    if (this.props.video.activity && !this.props.hideActivityOverlay) {
+    if (this.props.video.activity && this.props.fullscreen /* !this.props.hideActivityOverlay */ ) {
       var activityOverlay =
         <ActivityOverlayContainer
           eventEmitter={this.state.eventEmitter}
           activity={this.props.video.activity}
           currentTimeActivity={this.getCurrentTimeActivity()}
           onActivityTimeChange={this._onActivityTimeChange}
-          style={activityOverlayStyle}
           pointerEvents={activityOverlayPointerEvents}
           activityStartTime={activityStartTime}
           activityEndTime={activityEndTime}
@@ -268,8 +267,9 @@ export class VideoPlayer extends Component {
             onVideoTimeChange={this._onVideoTimeChange}
             onClose={this.onClose}
             style={playerOverlayStyle}
-            pointerEvents={playerOverlayPointerEvents} />
-          {activityOverlay}
+            pointerEvents={playerOverlayPointerEvents}>
+            {activityOverlay}
+          </PlayerOverlay>
         </View>
       </TouchableWithoutFeedback>
     )
