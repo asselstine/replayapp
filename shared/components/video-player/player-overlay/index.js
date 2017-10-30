@@ -140,18 +140,19 @@ const styles = {
   },
 
   overlayTop: {
-    flex: 1
+    flex: 0
   },
 
   overlayContent: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: 'red'
   },
 
   overlayBottom: {
-    flex: 1,
+    flex: 0,
     flexDirection: 'row',
     alignItems: 'flex-end'
   },
