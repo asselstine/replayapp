@@ -9,6 +9,7 @@ import {
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Strava } from '../../../../../../strava'
+import { Video } from '../../../../../../video'
 import { RaceGraph } from './race-graph'
 import { SegmentEffortSelectModal } from '../../../../../segment-effort-select-modal'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -110,6 +111,8 @@ export class SegmentRace extends Component {
           timeStream={this.state.times}
           deltaTimeStream={this.state.versusDeltaTimes}
           onStreamTimeChange={this.props.onStreamTimeChange}
+          videoStreamStartTime={Video.streamStartAt(this.props.video)}
+          videoStreamEndTime={Video.streamEndAt(this.props.video)}
           width='100%'
           height='200' />
     }
@@ -134,7 +137,8 @@ export class SegmentRace extends Component {
 SegmentRace.propTypes = {
   segmentEffort: PropTypes.object.isRequired,
   eventEmitter: PropTypes.object.isRequired,
-  onStreamTimeChange: PropTypes.func
+  onStreamTimeChange: PropTypes.func,
+  video: PropTypes.object
 }
 
 const styles = {

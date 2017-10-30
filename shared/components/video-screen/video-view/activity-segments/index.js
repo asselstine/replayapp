@@ -38,6 +38,7 @@ export class ActivitySegments extends Component {
           return (
             <SegmentEffortItem
               eventEmitter={this.props.eventEmitter}
+              video={this.props.video}
               segmentEffort={segmentEffort}
               onStreamTimeChange={this.props.onStreamTimeChange}
               key={segmentEffort.id} />

@@ -4,6 +4,7 @@ import React, {
 import {
   Svg,
   ClipPath,
+  G,
   Line,
   Rect
 } from 'react-native-svg'
@@ -65,23 +66,34 @@ export class RaceGraph extends Component {
   }
 
   moveCursor (evt) {
-    var v = [evt.nativeEvent.locationX, 0, 0, 1]
-    v = MatrixMath.multiplyVectorByMatrix(v, this.state.inverseTransform)
     if (this.props.onStreamTimeChange) {
-      this.props.onStreamTimeChange(v[0])
+      var streamTime = this.locationXToStreamTime(evt.nativeEvent.locationX)
+      streamTime = Math.max(this.props.videoStreamStartTime, Math.min(streamTime, this.props.videoStreamEndTime))
+      this.props.onStreamTimeChange(streamTime)
     }
   }
 
   onStreamTimeProgress (streamTime) {
     if (this._timeline) {
-      var v = [streamTime, 0, 0, 1]
-      v = MatrixMath.multiplyVectorByMatrix(v, this.state.transform)
+      v = this.streamTimeToLocationX(streamTime)
       // console.log(streamTime, v[0])
       this._timeline.setNativeProps({
-        x1: v[0].toString(),
-        x2: v[0].toString()
+        x1: v.toString(),
+        x2: v.toString()
       })
     }
+  }
+
+  streamTimeToLocationX (streamTime) {
+    var v = [streamTime, 0, 0, 1]
+    v = MatrixMath.multiplyVectorByMatrix(v, this.state.transform)
+    return v[0]
+  }
+
+  locationXToStreamTime (locationX) {
+    var v = [locationX, 0, 0, 1]
+    v = MatrixMath.multiplyVectorByMatrix(v, this.state.inverseTransform)
+    return v[0]
   }
 
   componentWillUnmount () {
@@ -96,7 +108,21 @@ export class RaceGraph extends Component {
 
   componentWillReceiveProps (nextProps) {
     this.updateTransform(nextProps)
-    this.initStreamPaths()
+    this.initStreamPaths(nextProps)
+  }
+
+  streamTimeToOriginalX (streamTime) {
+    var fraction = streamTime / this.lastTime()
+    return fraction * this.state.width
+  }
+
+  firstTime () {
+    return _.get(this.props, 'timeStream[0]', -1)
+  }
+
+  lastTime () {
+    var lastIndex = (_.get(this.props, 'timeStream.length') || 0) - 1
+    return _.get(this.props, `timeStream[${lastIndex}]`, 0.0) * 1.0
   }
 
   _onLayout (event) {
@@ -111,7 +137,7 @@ export class RaceGraph extends Component {
       inverseTransform: MatrixMath.inverse(transform)
     }, () => {
       if (resize) {
-        this.initStreamPaths()
+        this.initStreamPaths(this.props)
       }
     })
   }
@@ -128,13 +154,20 @@ export class RaceGraph extends Component {
     return createBoundsTransform(props.timeStream, props.deltaTimeStream, 0, height, width, -height)
   }
 
-  initStreamPaths () {
-    var timeStream = this.props.timeStream
-    var deltaTimeStream = this.props.deltaTimeStream
-    var newDeltaStreams = interpolate({ times: timeStream, values: deltaTimeStream })
+  initStreamPaths (props) {
+    var timeStream = props.timeStream
+    var deltaTimeStream = props.deltaTimeStream
+    var newStreams = interpolate({ times: timeStream, values: deltaTimeStream, density: 1000 })
+    var newTimeStream = newStreams.times
+    var newDeltaStream = newStreams.values
+
+    var combinedPoints = mergeStreams(newTimeStream, newDeltaStream)
+    combinedPoints.unshift([0, 0])
+    combinedPoints.push([newTimeStream[newTimeStream.length - 1], 0])
+    var points = transformPoints(combinedPoints, this.state.transform)
 
     this.setState({
-      deltaTimePoints: streamToPoints(this.state.height, this.state.width, newDeltaStreams.times, newDeltaStreams.values)
+      deltaTimePoints: points //streamToPoints(this.state.height, this.state.width, newStreams.times, newStreams.values)
     })
   }
 
@@ -157,6 +190,14 @@ export class RaceGraph extends Component {
     var maxV = MatrixMath.multiplyVectorByMatrix(vector, this.state.transform)
 
     if (points) {
+      var start = this.streamTimeToLocationX(this.props.videoStreamStartTime)
+      var end = this.streamTimeToLocationX(this.props.videoStreamEndTime)
+      var segmentEffortWidth = end - start
+      var x = start
+      var segmentEffortClip =
+        <ClipPath id='segmentEffort'>
+          <Rect x={x} y={0} width={segmentEffortWidth} height={this.state.height} />
+        </ClipPath>
       var redClipPath =
         <ClipPath id='red'>
           <Rect y={points[0][1] - this.state.height} width={this.state.width} height={this.state.height} />
@@ -168,14 +209,38 @@ export class RaceGraph extends Component {
       var redPath =
         <RacePath
           points={points}
-          stroke={'red'}
           fill='red'
+          clipPath='url(#red)' />
+      var lightRedPath =
+        <RacePath
+          points={points}
+          fill='pink'
           clipPath='url(#red)' />
       var greenPath =
         <RacePath
           points={points}
           fill='green'
           clipPath='url(#green)' />
+      var lightGreenPath =
+        <RacePath
+          points={points}
+          fill='lightgreen'
+          clipPath='url(#green)' />
+
+      var all =
+        <G>
+          {segmentEffortClip}
+          {redClipPath}
+          {greenClipPath}
+          <G>
+            {lightRedPath}
+            {lightGreenPath}
+          </G>
+          <G clipPath='url(#segmentEffort)'>
+            {redPath}
+            {greenPath}
+          </G>
+        </G>
     }
 
     return (
@@ -185,10 +250,7 @@ export class RaceGraph extends Component {
         backgroundColor={'white'}
         width={this.props.width}
         height={this.props.height}>
-        {redClipPath}
-        {greenClipPath}
-        {redPath}
-        {greenPath}
+        {all}
         <Line
           ref={(ref) => { this._timeline = ref }}
           x1={0}
@@ -209,5 +271,7 @@ RaceGraph.propTypes = {
   width: PropTypes.any.isRequired,
   height: PropTypes.any.isRequired,
   eventEmitter: PropTypes.object,
-  onStreamTimeChange: PropTypes.func
+  onStreamTimeChange: PropTypes.func,
+  videoStreamStartTime: PropTypes.any,
+  videoStreamEndTime: PropTypes.any
 }
