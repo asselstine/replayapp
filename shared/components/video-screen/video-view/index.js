@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import _ from 'lodash'
 import moment from 'moment'
 import { manager } from '../../../oauth'
+import dispatch from '../../../store/dispatch-track'
 import { store } from '../../../store'
 import { attachActivity, setVideoStartAt, resetVideoStartAt } from '../../../actions/video-actions'
 import { login } from '../../../actions/strava-actions'
@@ -115,7 +116,7 @@ export const VideoView = connect(
   onPressStravaConnect () {
     manager.authorize('strava', { scopes: 'view_private' })
       .then((response) => {
-        store.dispatch(login(response.response.credentials))
+        dispatch(login(response.response.credentials))
         AthleteService.retrieveCurrentAthlete().then(() => {
           var athlete = store.getState().athletes.data
           analytics.identify({
@@ -155,7 +156,7 @@ export const VideoView = connect(
   }
 
   resetTime () {
-    store.dispatch(resetVideoStartAt(this.props.video.rawVideoData))
+    dispatch(resetVideoStartAt(this.props.video.rawVideoData))
   }
 
   onToggleLock () {
@@ -174,7 +175,7 @@ export const VideoView = connect(
   }
 
   _onSelectStravaActivity (activity) {
-    store.dispatch(attachActivity(this.props.video.rawVideoData, activity))
+    dispatch(attachActivity(this.props.video.rawVideoData, activity))
     this._onCloseStravaActivityModal()
   }
 
@@ -187,7 +188,7 @@ export const VideoView = connect(
   }
 
   _onSaveSyncModal (videoStartAt) {
-    store.dispatch(setVideoStartAt(this.props.video.rawVideoData, videoStartAt))
+    dispatch(setVideoStartAt(this.props.video.rawVideoData, videoStartAt))
     this._onCloseSyncModal()
   }
 
@@ -235,7 +236,7 @@ export const VideoView = connect(
       this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
     } else {
       this.eventEmitter.emit('onStreamTimeProgress', streamTime)
-      store.dispatch(
+      dispatch(
         setVideoStartAt(this.props.video.rawVideoData, this.calculateVideoStartAt(streamTime))
       )
     }
