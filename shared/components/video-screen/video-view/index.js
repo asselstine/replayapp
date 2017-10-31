@@ -23,6 +23,7 @@ import { ActivityStreams } from './activity-streams'
 import { ActivityMap } from './activity-map'
 import { ActivitySegmentsContainer } from './activity-segments-container'
 import { ActivityService } from '../../../services/activity-service'
+import { AthleteService } from '../../../services/athlete-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
@@ -32,6 +33,7 @@ import Orientation from 'react-native-orientation'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
 import { Activity } from '../../../activity'
+import analytics from '../../../analytics'
 
 import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
@@ -114,6 +116,19 @@ export const VideoView = connect(
     manager.authorize('strava', { scopes: 'view_private' })
       .then((response) => {
         store.dispatch(login(response.response.credentials))
+        AthleteService.retrieveCurrentAthlete().then(() => {
+          var athlete = store.getState().athletes.data
+          analytics.identify({
+            userId: athlete.id,
+            traits: {
+              firstname: athlete.firstname,
+              lastname: athlete.lastname,
+              city: athlete.city,
+              country: athlete.country,
+              email: athlete.email
+            }
+          })
+        })
         this.setState({ stravaActivityModalIsOpen: true })
       })
       .catch(response => console.log('could not authenticate: ', response))

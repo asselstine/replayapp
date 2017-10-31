@@ -12,6 +12,16 @@ export const Strava = {
     }
   },
 
+  retrieveCurrentAthlete () {
+    return (
+      fetch(`${this.baseUrl}/athlete`, {
+        headers: this.headers()
+      }).catch((error) => {
+        console.error(error)
+      })
+    )
+  },
+
   listActivities (params) {
     params = params || {}
     params = _.merge({
