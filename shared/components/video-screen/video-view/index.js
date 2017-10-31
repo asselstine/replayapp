@@ -182,7 +182,8 @@ export const VideoView = connect(
   _onSelectStravaActivity (activity) {
     dispatchTrack(attachActivity(this.props.video.rawVideoData, activity), {
       video: videoProperties(this.props.video),
-      activity: activityProperties(activity)
+      activity: activityProperties(activity),
+      isOutOfSync: Video.isOutOfSync(this.props.video, activity)
     })
     this._onCloseStravaActivityModal()
   }
