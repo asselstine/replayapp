@@ -16,8 +16,10 @@ export const Navigator = StackNavigator(
     initialRouteName: 'LinkedVideos',
     onTransitionEnd: (event) => {
       NavigationEventEmitter.emit('transitionEnd', event)
+      console.log(event.scene)
       screen({
-        name: event.scene.route.routeName
+        name: event.scene.route.routeName,
+        properties: event.scene.route.params
       })
     }
   }
