@@ -16,6 +16,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { manager } from '../../../oauth'
 import dispatchTrack from '../../../store/dispatch-track'
+import { track } from '../../../analytics'
 import activityProperties from '../../../analytics/activity-properties'
 import videoProperties from '../../../analytics/video-properties'
 import rawVideoDataProperties from '../../../analytics/raw-video-data-properties'
@@ -81,6 +82,7 @@ export const VideoView = connect(
     this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
     this._onOrientationChange = this._onOrientationChange.bind(this)
+    this.trackOnChangeTab = this.trackOnChangeTab.bind(this)
     Orientation.getOrientation((err, orientation) => {
       if (err) {
         console.error(err)
@@ -271,6 +273,16 @@ export const VideoView = connect(
     return Video.videoTimeToStreamTime(this.props.video, videoTime)
   }
 
+  trackOnChangeTab ({i, ref}) {
+    track({
+      event: 'VideoViewTab',
+      properties: {
+        localIdentifier: this.props.localIdentifier,
+        tabLabel: ref.props.tabLabel
+      }
+    })
+  }
+
   render () {
     var activity = _.get(this.props, 'video.activity')
     var videoDuration = _.get(this.props, 'video.rawVideoData.duration') || 0
@@ -415,6 +427,7 @@ export const VideoView = connect(
           tabBarTextStyle={styles.tabBarTextStyle}
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}
+          onChangeTab={this.trackOnChangeTab}
           style={styles.streamsContainer}>
           {activityStreams}
           {activityMap}

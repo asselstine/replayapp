@@ -160,6 +160,7 @@ export class ActivityOverlay extends Component {
   }
 
   updateLeaderboardData () {
+    if (!this.state.segmentEffort) { return }
     var leaderboardEntries = SegmentsFinder.findLeaderboardEntries(store.getState(), this.state.segmentEffort.segment.id)
     var leaderboardEntry = _.first(leaderboardEntries)
     var leaderboardCount = SegmentsFinder.findLeaderboardCount(store.getState(), this.state.segmentEffort.segment.id)
