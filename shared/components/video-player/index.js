@@ -13,6 +13,7 @@ import {
 import { PlayerOverlay } from './player-overlay'
 import { ActivityOverlayContainer } from './activity-overlay-container'
 import EventEmitter from 'EventEmitter'
+import reportError from '../../report-error'
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -44,7 +45,7 @@ export class VideoPlayer extends Component {
   }
 
   onError (e) {
-    console.error('ERROR: ', e)
+    reportError(e)
   }
 
   showPlayerOverlay () {

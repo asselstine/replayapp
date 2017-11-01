@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "analytics-react-native": "^1.2.0",
+    "bugsnag-react-native": "^2.5.1",
     "immutability-helper": "^2.3.0",
     "moment": "^2.18.1",
     "prop-types": "^15.5.10",

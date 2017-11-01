@@ -5,6 +5,7 @@ import {
 import { Strava } from '../../../../../strava'
 import { ActivityItem } from './activity-item'
 import PropTypes from 'prop-types'
+import reportError from '../../../../../report-error'
 
 export class StravaActivityList extends Component {
   constructor (props) {
@@ -32,7 +33,7 @@ export class StravaActivityList extends Component {
         })
       })
       .catch((error) => {
-        console.error(error)
+        reportError(error)
       })
   }
 

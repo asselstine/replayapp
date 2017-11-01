@@ -1,5 +1,6 @@
 import { store } from './store'
 import _ from 'lodash'
+import reportError from './report-error'
 
 /* global fetch */
 
@@ -17,7 +18,7 @@ export const Strava = {
       fetch(`${this.baseUrl}/athlete`, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   },
@@ -32,7 +33,7 @@ export const Strava = {
       fetch(`${this.baseUrl}/athlete/activities?page=${params.page}&per_page=${params.per_page}`, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   },
@@ -42,7 +43,7 @@ export const Strava = {
       fetch(`${this.baseUrl}/activities/${activityId}`, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   },
@@ -52,7 +53,7 @@ export const Strava = {
       fetch(`${this.baseUrl}/activities/${activityId}/streams/latlng,time,velocity_smooth,altitude`, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   },
@@ -62,7 +63,7 @@ export const Strava = {
       fetch(`${this.baseUrl}/segments/${segmentId}/all_efforts?page=1&per_page=1`, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   },
@@ -72,7 +73,7 @@ export const Strava = {
       fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?&page=1&per_page=1`, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   },
@@ -82,7 +83,7 @@ export const Strava = {
   //     fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?following=true&page=1&per_page=1`, {
   //       headers: this.headers()
   //     }).catch((error) => {
-  //       console.error(error)
+  //       reportError(error)
   //     })
   //   )
   // },
@@ -92,7 +93,7 @@ export const Strava = {
       fetch(`${this.baseUrl}/segment_efforts/${segmentEffortId}/streams/distance,time,moving`, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   },
@@ -103,7 +104,7 @@ export const Strava = {
       fetch(url, {
         headers: this.headers()
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   }
