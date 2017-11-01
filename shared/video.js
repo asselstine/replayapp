@@ -38,9 +38,10 @@ export const Video = {
     return moment(videoStartAt).add(_.get(video, 'rawVideoData.duration', 0), 's')
   },
 
-  isOutOfSync (video) {
-    var activityStartAt = Activity.startAt(video.activity)
-    var activityEndAt = Activity.endAt(video.activity)
+  isOutOfSync (video, activity) {
+    activity = activity || video.activity
+    var activityStartAt = Activity.startAt(activity)
+    var activityEndAt = Activity.endAt(activity)
 
     var videoStartAt = Video.startAt(video)
     var videoEndAt = Video.endAt(video)

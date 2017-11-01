@@ -7,7 +7,9 @@ import {
   Alert
 } from 'react-native'
 import { LinkedVideosContainer } from './linked-videos-container'
-import { store } from '../../store'
+import dispatchTrack from '../../store/dispatch-track'
+import videoProperties from '../../analytics/video-properties'
+import rawVideoDataProperties from '../../analytics/raw-video-data-properties'
 import { newVideo, removeVideo } from '../../actions/video-actions'
 
 export class LinkedVideosScreen extends Component {
@@ -34,11 +36,11 @@ export class LinkedVideosScreen extends Component {
   }
 
   removeVideo (video) {
-    store.dispatch(removeVideo(video))
+    dispatchTrack(removeVideo(video), videoProperties(video))
   }
 
   onAddRawVideo (rawVideoData) {
-   store.dispatch(newVideo(rawVideoData))
+   dispatchTrack(newVideo(rawVideoData), rawVideoDataProperties(rawVideoData))
    this.props.navigation.navigate('Video', { localIdentifier: rawVideoData.localIdentifier })
   }
 

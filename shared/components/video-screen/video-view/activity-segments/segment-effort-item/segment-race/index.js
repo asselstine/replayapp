@@ -13,6 +13,7 @@ import { Video } from '../../../../../../video'
 import { RaceGraph } from './race-graph'
 import { SegmentEffortSelectModal } from '../../../../../segment-effort-select-modal'
 import Icon from 'react-native-vector-icons/Ionicons'
+import { track } from '../../../../../../analytics'
 
 export class SegmentRace extends Component {
   constructor (props) {
@@ -71,6 +72,9 @@ export class SegmentRace extends Component {
       versusLeaderboardEntry: leaderboardEntry
     }, this.updateCompareEfforts)
     this.onCloseSegmentEffortModal()
+    track({
+      event: 'VideoView Select Leaderboard Entry'
+    })
   }
 
   openSegmentEffortModal () {

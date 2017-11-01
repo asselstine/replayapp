@@ -9,6 +9,8 @@ import {
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { SegmentRace } from './segment-race'
+import { track } from '../../../../../analytics'
+import segmentEffortProperties from '../../../../../analytics/segment-effort-properties'
 
 export class SegmentEffortItem extends Component {
   constructor (props) {
@@ -21,6 +23,12 @@ export class SegmentEffortItem extends Component {
   _toggleRace (event) {
     this.setState({
       raceVisible: !this.state.raceVisible
+    })
+    track({
+      event: 'VideoView Segment Effort',
+      properties: {
+        segmentEffort: segmentEffortProperties(this.props.segmentEffort)
+      }
     })
   }
 

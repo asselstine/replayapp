@@ -15,6 +15,11 @@ import { connect } from 'react-redux'
 import _ from 'lodash'
 import moment from 'moment'
 import { manager } from '../../../oauth'
+import dispatchTrack from '../../../store/dispatch-track'
+import { track } from '../../../analytics'
+import activityProperties from '../../../analytics/activity-properties'
+import videoProperties from '../../../analytics/video-properties'
+import rawVideoDataProperties from '../../../analytics/raw-video-data-properties'
 import { store } from '../../../store'
 import { attachActivity, setVideoStartAt, resetVideoStartAt } from '../../../actions/video-actions'
 import { login } from '../../../actions/strava-actions'
@@ -23,6 +28,7 @@ import { ActivityStreams } from './activity-streams'
 import { ActivityMap } from './activity-map'
 import { ActivitySegmentsContainer } from './activity-segments-container'
 import { ActivityService } from '../../../services/activity-service'
+import { AthleteService } from '../../../services/athlete-service'
 import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
@@ -32,6 +38,7 @@ import Orientation from 'react-native-orientation'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
 import { Activity } from '../../../activity'
+import analytics from '../../../analytics'
 
 import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
@@ -75,6 +82,7 @@ export const VideoView = connect(
     this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
     this._onOrientationChange = this._onOrientationChange.bind(this)
+    this.trackOnChangeTab = this.trackOnChangeTab.bind(this)
     Orientation.getOrientation((err, orientation) => {
       if (err) {
         console.error(err)
@@ -113,7 +121,20 @@ export const VideoView = connect(
   onPressStravaConnect () {
     manager.authorize('strava', { scopes: 'view_private' })
       .then((response) => {
-        store.dispatch(login(response.response.credentials))
+        dispatchTrack(login(response.response.credentials))
+        AthleteService.retrieveCurrentAthlete().then(() => {
+          var athlete = store.getState().athletes.data
+          analytics.identify({
+            userId: athlete.id,
+            traits: {
+              firstname: athlete.firstname,
+              lastname: athlete.lastname,
+              city: athlete.city,
+              country: athlete.country,
+              email: athlete.email
+            }
+          })
+        })
         this.setState({ stravaActivityModalIsOpen: true })
       })
       .catch(response => console.log('could not authenticate: ', response))
@@ -140,7 +161,7 @@ export const VideoView = connect(
   }
 
   resetTime () {
-    store.dispatch(resetVideoStartAt(this.props.video.rawVideoData))
+    dispatchTrack(resetVideoStartAt(this.props.video.rawVideoData), videoProperties(this.props.video))
   }
 
   onToggleLock () {
@@ -159,7 +180,11 @@ export const VideoView = connect(
   }
 
   _onSelectStravaActivity (activity) {
-    store.dispatch(attachActivity(this.props.video.rawVideoData, activity))
+    dispatchTrack(attachActivity(this.props.video.rawVideoData, activity), {
+      video: videoProperties(this.props.video),
+      activity: activityProperties(activity),
+      isOutOfSync: Video.isOutOfSync(this.props.video, activity)
+    })
     this._onCloseStravaActivityModal()
   }
 
@@ -172,7 +197,10 @@ export const VideoView = connect(
   }
 
   _onSaveSyncModal (videoStartAt) {
-    store.dispatch(setVideoStartAt(this.props.video.rawVideoData, videoStartAt))
+    dispatchTrack(setVideoStartAt(this.props.video.rawVideoData, videoStartAt), {
+      video: videoProperties(this.props.video),
+      videoStartAt: videoStartAt
+    })
     this._onCloseSyncModal()
   }
 
@@ -220,8 +248,13 @@ export const VideoView = connect(
       this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
     } else {
       this.eventEmitter.emit('onStreamTimeProgress', streamTime)
-      store.dispatch(
-        setVideoStartAt(this.props.video.rawVideoData, this.calculateVideoStartAt(streamTime))
+      var videoStartAt = this.calculateVideoStartAt(streamTime)
+      dispatchTrack(
+        setVideoStartAt(this.props.video.rawVideoData, videoStartAt),
+        {
+          video: videoProperties(this.props.video),
+          videoStartAt: videoStartAt
+        }
       )
     }
   }
@@ -239,6 +272,16 @@ export const VideoView = connect(
 
   videoTimeToStreamTime (videoTime) {
     return Video.videoTimeToStreamTime(this.props.video, videoTime)
+  }
+
+  trackOnChangeTab ({i, ref}) {
+    track({
+      event: 'VideoViewTab',
+      properties: {
+        localIdentifier: this.props.localIdentifier,
+        tabLabel: ref.props.tabLabel
+      }
+    })
   }
 
   render () {
@@ -385,6 +428,7 @@ export const VideoView = connect(
           tabBarTextStyle={styles.tabBarTextStyle}
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}
+          onChangeTab={this.trackOnChangeTab}
           style={styles.streamsContainer}>
           {activityStreams}
           {activityMap}

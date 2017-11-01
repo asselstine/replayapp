@@ -3,7 +3,7 @@ import { persistStore, autoRehydrate } from 'redux-persist'
 // react-native
 import { AsyncStorage } from 'react-native'
 
-import reducer from './reducer'
+import reducer from '../reducer'
 
 // add `autoRehydrate` as an enhancer to your store (note: `autoRehydrate` is not a middleware)
 export const store = createStore(

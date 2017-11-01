@@ -1,6 +1,7 @@
 import EventEmitter from 'EventEmitter'
 import RNPhotosFramework from 'react-native-photos-framework'
 import { store } from '../store'
+import dispatchTrack from '../store/dispatch-track'
 import { removeVideo } from '../actions/video-actions'
 import _ from 'lodash'
 
@@ -33,11 +34,14 @@ export const PhotosFramework = {
       .then((assets) => {
         var deleted = _.difference(localIdentifiers, _.keys(assets))
         deleted.forEach((localIdentifier) => {
-          store.dispatch(removeVideo({
+          dispatchTrack(removeVideo({
             rawVideoData: {
               localIdentifier: localIdentifier
             }
-          }))
+          }),
+          {
+            localIdentifier: localIdentifier
+          })
         })
       })
   },
