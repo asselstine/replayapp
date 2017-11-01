@@ -3,6 +3,7 @@ import { store } from '../store'
 import {
   receiveCurrentAthlete,
 } from '../actions/athlete-actions'
+import reportError from '../report-error'
 
 export const AthleteService = {
   retrieveCurrentAthlete () {
@@ -11,10 +12,10 @@ export const AthleteService = {
         response.json().then((json) => {
           store.dispatch(receiveCurrentAthlete(json))
         }).catch((error) => {
-          console.error(error)
+          reportError(error)
         })
       }).catch((error) => {
-        console.error(error)
+        reportError(error)
       })
     )
   }

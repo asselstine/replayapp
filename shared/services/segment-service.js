@@ -4,6 +4,7 @@ import {
   receiveLeaderboard,
   receiveCompareEfforts
 } from '../actions/segment-actions'
+import reportError from '../report-error'
 
 export const SegmentService = {
   retrieveLeaderboard (segmentId) {
@@ -16,11 +17,11 @@ export const SegmentService = {
                     store.dispatch(receiveLeaderboard(segmentId, json))
                   })
                   .catch((error) => {
-                    console.error(error)
+                    reportError(error)
                   })
         })
         .catch((error) => {
-          console.error(error)
+          reportError(error)
         })
     )
   },
@@ -35,11 +36,11 @@ export const SegmentService = {
                     store.dispatch(receiveCompareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id, json))
                   })
                   .catch((error) => {
-                    console.error(error)
+                    reportError(error)
                   })
         })
         .catch((error) => {
-          console.error(error)
+          reportError(error)
         })
     )
   }

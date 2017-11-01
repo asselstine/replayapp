@@ -1,3 +1,5 @@
 import { Client } from 'bugsnag-react-native'
 
-export default new Client()
+const bugsnag = new Client()
+
+export default bugsnag

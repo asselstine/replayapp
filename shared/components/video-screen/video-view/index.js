@@ -39,6 +39,7 @@ import * as colours from '../../../colours'
 import { Video } from '../../../video'
 import { Activity } from '../../../activity'
 import analytics from '../../../analytics'
+import reportError from '../../../report-error'
 
 import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
@@ -85,7 +86,7 @@ export const VideoView = connect(
     this.trackOnChangeTab = this.trackOnChangeTab.bind(this)
     Orientation.getOrientation((err, orientation) => {
       if (err) {
-        console.error(err)
+        reportError(err)
       } else {
         this._onOrientationChange(orientation)
       }
