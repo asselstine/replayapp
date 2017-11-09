@@ -15,4 +15,4 @@ export const store = createStore(
 )
 
 // begin periodically persisting the store
-persistStore(store, {storage: AsyncStorage})
+export const persistor = persistStore(store, {storage: AsyncStorage})

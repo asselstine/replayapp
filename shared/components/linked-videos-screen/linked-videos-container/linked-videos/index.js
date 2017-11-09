@@ -72,7 +72,7 @@ export class LinkedVideos extends Component {
 
     return (
       <FlatList
-        data={videos.concat(['add'])}
+        data={['add'].concat(videos)}
         numColumns={2}
         renderItem={this._renderItem}
         keyExtractor={this._keyExtractor} />

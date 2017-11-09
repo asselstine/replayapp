@@ -4,8 +4,8 @@ import { VideoPlayer } from '../../video-player'
 import {
   Animated,
   View,
-  StatusBar,
   Text,
+  StatusBar,
   TouchableOpacity,
   Alert,
   Image
