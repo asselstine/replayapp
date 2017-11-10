@@ -1,18 +1,17 @@
-import { compose, createStore } from 'redux'
-import { persistStore, autoRehydrate } from 'redux-persist'
-// react-native
-import { AsyncStorage } from 'react-native'
+import { createStore } from 'redux'
+import { persistStore, persistCombineReducers } from 'redux-persist'
+import storage from 'redux-persist/es/storage'
+import reducers from '../reducers'
 
-import reducer from '../reducer'
+const config = {
+  key: 'root',
+  storage,
+}
+
+const reducer = persistCombineReducers(config, reducers)
 
 // add `autoRehydrate` as an enhancer to your store (note: `autoRehydrate` is not a middleware)
-export const store = createStore(
-  reducer,
-  undefined,
-  compose(
-    autoRehydrate()
-  )
-)
+export const store = createStore(reducer)
 
 // begin periodically persisting the store
-persistStore(store, {storage: AsyncStorage})
+export const persistor = persistStore(store)

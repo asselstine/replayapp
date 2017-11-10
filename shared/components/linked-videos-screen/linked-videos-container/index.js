@@ -8,7 +8,7 @@ export const LinkedVideosContainer = connect(
     var videos = _.values(state.videos)
     PhotosFramework.checkVideos(videos)
     return {
-      videos: _.sortBy(videos, ['creationDateUTCSeconds'])
+      videos: _.reverse(videos)
     }
   }
 )(LinkedVideos)

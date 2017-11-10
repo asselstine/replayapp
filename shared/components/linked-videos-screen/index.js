@@ -4,6 +4,8 @@ import React, {
 import {
   View,
   StatusBar,
+  Image,
+  Text,
   Alert
 } from 'react-native'
 import { LinkedVideosContainer } from './linked-videos-container'
@@ -11,6 +13,7 @@ import dispatchTrack from '../../store/dispatch-track'
 import videoProperties from '../../analytics/video-properties'
 import rawVideoDataProperties from '../../analytics/raw-video-data-properties'
 import { newVideo, removeVideo } from '../../actions/video-actions'
+import { WelcomeDialog } from './welcome-dialog'
 
 export class LinkedVideosScreen extends Component {
   constructor (props) {
@@ -52,6 +55,7 @@ export class LinkedVideosScreen extends Component {
           onAddRawVideo={this.onAddRawVideo}
           onPressVideo={this.onPressVideo}
           onLongPressVideo={this.onLongPressVideo} />
+        <WelcomeDialog />
       </View>
     )
   }

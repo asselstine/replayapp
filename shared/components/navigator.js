@@ -15,9 +15,7 @@ export const Navigator = StackNavigator(
   {
     initialRouteName: 'LinkedVideos',
     onTransitionEnd: (event) => {
-      reportError('!!!! ANOTHER TEST')
       NavigationEventEmitter.emit('transitionEnd', event)
-      console.log(event.scene)
       screen({
         name: event.scene.route.routeName,
         properties: event.scene.route.params

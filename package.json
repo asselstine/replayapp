@@ -30,7 +30,7 @@
     "react-redux": "^5.0.4",
     "react-timer-mixin": "^0.13.3",
     "redux": "^3.6.0",
-    "redux-persist": "^4.8.0",
+    "redux-persist": "^5.3.3",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
