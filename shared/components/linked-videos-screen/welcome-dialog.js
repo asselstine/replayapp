@@ -10,14 +10,15 @@ import {
 import HelpStyles from '../../styles/help'
 import { HelpModal } from '../help-modal'
 import Icon from 'react-native-vector-icons/Ionicons'
-import stravaLogo from '../../../images/strava-logo.png'
-import overlayImage from '../../../images/overlay.jpg'
-import noOverlayImage from '../../../images/no-overlay.jpg'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 import * as colours from '../../colours'
 import { Tabs } from '../help-modal/tabs'
-
 import { HelpService } from '../../services/help-service'
+
+import {
+  replayRedLogo,
+  overlayImage
+} from '../../images'
 
 export class WelcomeDialog extends Component {
   constructor (props) {
@@ -38,22 +39,37 @@ export class WelcomeDialog extends Component {
           prerenderingSiblingsNumber={Infinity}
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}>
-          <View tabLabel='intro'>
-            <Text style={HelpStyles.header}>Welcome to Replay Race Media</Text>
-            <View style={styles.plusContainer}>
-              <Image style={styles.noOverlayImage} source={noOverlayImage} resizeMode='contain' />
-              <Icon style={styles.addIcon} name='ios-add' />
-              <Image style={styles.stravaImage} source={stravaLogo} resizeMode='contain' />
+          <View tabLabel='intro' style={HelpStyles.content}>
+            <View style={styles.block}>
+              <Image style={styles.logo} source={replayRedLogo} resizeMode='contain' />
             </View>
-            <Text style={styles.headerIcon}>=</Text>
-            <Image style={styles.image} source={overlayImage} resizeMode='contain' />
+            <View style={styles.block}>
+              <Text style={HelpStyles.explain}>Replay brings</Text>
+              <Text style={HelpStyles.explainBold}>interactive telemetry</Text>
+              <Text style={HelpStyles.explain}>and</Text>
+              <Text style={HelpStyles.explainBold}>race playback</Text>
+              <Text style={HelpStyles.explain}>to your videos</Text>
+            </View>
+            <View style={styles.block}>
+              <Image style={styles.overlay} source={overlayImage} resizeMode='contain' />
+            </View>
           </View>
-          <View tabLabel='activity'>
-            <Text style={HelpStyles.header}>Let’s Get Started</Text>
-            <Text>Add videos using the add button</Text>
-            <Text>Remove videos by pressing and holding on them</Text>
-
-            <Button title='Ok!' onPress={this._onDone} />
+          <View tabLabel='activity' style={[HelpStyles.flexCol, HelpStyles.content]}>
+            <View style={styles.flexItem}>
+              <Text style={[styles.block, HelpStyles.explain]}>To get started select a video in your library using the add button:</Text>
+            </View>
+            <View style={[styles.flexItem, styles.plusContainer]}>
+              <Icon style={styles.addIcon} name='ios-add' />
+            </View>
+            <View style={styles.flexItem}>
+              <Text style={HelpStyles.explain}>The video should be a single continuous shot for best results.</Text>
+            </View>
+            <View style={styles.flexItem}>
+              <Text style={HelpStyles.explain}>To remove a video, press and hold on the video thumbnail.</Text>
+            </View>
+            <View style={[styles.flexItem, styles.button]}>
+              <Button title='Got it!' onPress={this._onDone}/>
+            </View>
           </View>
         </ScrollableTabView>
       </HelpModal>
@@ -62,14 +78,32 @@ export class WelcomeDialog extends Component {
 }
 
 const styles = {
-  plusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center'
+  flexItem: {
+    flex: 1,
   },
 
-  stravaImage: {
-    width: '44%',
-    height: 50
+  logo: {
+    width: '20%',
+    aspectRatio: 0.82468,
+    height: 'auto',
+  },
+
+  overlay: {
+    width: '100%',
+    aspectRatio: 1.779,
+    height: 'auto'
+  },
+
+  overlayContainer: {
+    width: '100%',
+    height: 150
+  },
+
+  plusContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 50,
   },
 
   addIcon: {
@@ -77,23 +111,4 @@ const styles = {
     fontSize: 48,
     textAlign: 'center'
   },
-
-  noOverlayImage: {
-    width: '44%',
-    height: 100
-  },
-
-  headerIcon: {
-    fontSize: 48,
-    textAlign: 'center'
-  },
-
-  halfImage: {
-    width: '50%',
-    height: 50
-  },
-  image: {
-    width: '100%',
-    height: 200
-  }
 }

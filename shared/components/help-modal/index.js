@@ -7,22 +7,16 @@ import {
 } from 'react-native'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { HelpService } from '../../services/help-service'
 import _ from 'lodash'
 
 export const HelpModal = connect(
   (state, ownProps) => {
-    var seen = _.get(state, `help.seen[${ownProps.helpKey}]`, true)
-    console.log('HELP MODAL: ', seen)
+    var seen = _.get(state, `help.seen[${ownProps.helpKey}]`, false)
     return {
       isOpen: !seen
     }
   }
 )(class extends Component {
-  componentDidMount () {
-    HelpService.check(this.props.helpKey)
-  }
-
   render () {
     return (
       <Modal

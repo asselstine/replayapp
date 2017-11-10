@@ -35,6 +35,7 @@ import { NavigationEventEmitter } from '../../navigation-event-emitter'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import Orientation from 'react-native-orientation'
+import { ConnectDialog } from './connect-dialog'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
 import { Activity } from '../../../activity'
@@ -331,6 +332,10 @@ export const VideoView = connect(
         </View>
     }
 
+    if (this.props.video && !activity) {
+      var connectDialog = <ConnectDialog />
+    }
+
     if (activity) {
       var changeActivityButton =
         <View style={styles.activityButton}>
@@ -440,6 +445,7 @@ export const VideoView = connect(
     return (
       <View style={styles.videoView} onLayout={this._onLayout}>
         <StatusBar hidden />
+        {connectDialog}
         {videoPlayer}
         {header}
         {activityInfo}
