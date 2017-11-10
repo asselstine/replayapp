@@ -40,28 +40,28 @@ export class WelcomeDialog extends Component {
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}>
           <View tabLabel='intro' style={HelpStyles.content}>
-            <View style={styles.block}>
+            <View style={HelpStyles.block}>
               <Image style={styles.logo} source={replayRedLogo} resizeMode='contain' />
             </View>
-            <View style={styles.block}>
+            <View style={HelpStyles.block}>
               <Text style={HelpStyles.explain}>Replay brings</Text>
               <Text style={HelpStyles.explainBold}>interactive telemetry</Text>
               <Text style={HelpStyles.explain}>and</Text>
               <Text style={HelpStyles.explainBold}>race playback</Text>
               <Text style={HelpStyles.explain}>to your videos</Text>
             </View>
-            <View style={styles.block}>
+            <View style={HelpStyles.block}>
               <Image style={styles.overlay} source={overlayImage} resizeMode='contain' />
             </View>
           </View>
           <View tabLabel='activity' style={[HelpStyles.flexCol, HelpStyles.content]}>
             <View style={styles.flexItem}>
-              <Text style={[styles.block, HelpStyles.explain]}>To get started select a video in your library using the add button:</Text>
+              <Text style={[HelpStyles.block, HelpStyles.explain]}>To get started select a video in your library using the add button:</Text>
             </View>
-            <View style={[styles.flexItem, styles.plusContainer]}>
+            <View style={[styles.flexItem, styles.plusContainer, HelpStyles.block]}>
               <Icon style={styles.addIcon} name='ios-add' />
             </View>
-            <View style={styles.flexItem}>
+            <View style={[styles.flexItem, HelpStyles.block]}>
               <Text style={HelpStyles.explain}>The video should be a single continuous shot for best results.</Text>
             </View>
             <View style={styles.flexItem}>
@@ -103,7 +103,6 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 50,
   },
 
   addIcon: {

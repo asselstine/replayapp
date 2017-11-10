@@ -119,7 +119,7 @@ export class SyncModal extends Component {
         activity={this.props.activity}
         latlngStream={this.props.latlngStream}
         timeStream={this.props.timeStream}
-        onStreamTimeChange={(streamTime) => { console.log('whhoooo', streamTime) }}
+        onStreamTimeChange={(streamTime) => { /* console.log('whhoooo', streamTime) */ }}
         streamTime={this.state.time} />
 
     return (

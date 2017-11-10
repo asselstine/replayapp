@@ -14,9 +14,17 @@ export default {
     height: '100%',
   },
 
+  inline: {
+    flexDirection: 'row'
+  },
+
+  spread: {
+    justifyContent: 'space-between'
+  },
+
   block: {
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
 
   explain: {
@@ -26,6 +34,6 @@ export default {
 
   explainBold: {
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 }

@@ -39,6 +39,7 @@ import { ConnectDialog } from './connect-dialog'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
 import { Activity } from '../../../activity'
+import { SyncDialog } from './sync-dialog'
 import analytics from '../../../analytics'
 import reportError from '../../../report-error'
 
@@ -60,16 +61,17 @@ export const VideoView = connect(
   constructor (props) {
     super(props)
     this.state = {
+      syncDialogIsOpen: false,
       stravaActivityModalIsOpen: false,
       syncModalIsOpen: false,
       locked: true,
       fullscreen: false,
       landscape: true,
       layoutLandscape: false,
-      videoRotate: new Animated.Value(0),
       width: 1,
       height: 1,
-      showVideo: true
+      showVideo: true,
+      warningFlash: new Animated.Value(0)
     }
     this.onProgress = this.onProgress.bind(this)
     this.onPlay = this.onPlay.bind(this)
@@ -84,7 +86,9 @@ export const VideoView = connect(
     this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
     this._onOrientationChange = this._onOrientationChange.bind(this)
+    this._showTimestampWarning = this._showTimestampWarning.bind(this)
     this.trackOnChangeTab = this.trackOnChangeTab.bind(this)
+    this._syncDialogOnClose = this._syncDialogOnClose.bind(this)
     Orientation.getOrientation((err, orientation) => {
       if (err) {
         reportError(err)
@@ -92,16 +96,34 @@ export const VideoView = connect(
         this._onOrientationChange(orientation)
       }
     })
+    this.startWarningFlash()
+  }
+
+  startWarningFlash () {
+    Animated.sequence([
+      Animated.timing(this.state.warningFlash, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true
+      }),
+      Animated.timing(this.state.warningFlash, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true
+      })
+    ]).start(() => this.startWarningFlash())
+  }
+
+  _syncDialogOnClose () {
+    this.setState({
+      syncDialogIsOpen: false
+    })
   }
 
   _showTimestampWarning () {
-    Alert.alert(
-      'Manual time alignment required',
-      'The file creation date does not match the activity date.  You will need to synchronize the times by pressing the unlock icon and tapping on the data',
-      [
-        { text: 'Ok' },
-      ]
-    )
+    this.setState({
+      syncDialogIsOpen: true
+    })
   }
 
   _onLayout (event) {
@@ -139,7 +161,7 @@ export const VideoView = connect(
         })
         this.setState({ stravaActivityModalIsOpen: true })
       })
-      .catch(response => console.log('could not authenticate: ', response))
+      .catch(reportError)
   }
 
   _onPressReset () {
@@ -293,9 +315,11 @@ export const VideoView = connect(
     if (Video.isOutOfSync(this.props.video)) {
       var warning =
         <TouchableOpacity onPress={this._showTimestampWarning}>
-          <MaterialIcon
-            name='warning'
-            style={{...styles.titleHeaderIcon, ...styles.titleWarningIcon}} />
+          <Animated.View style={{opacity: this.state.warningFlash}}>
+            <MaterialIcon
+              name='warning'
+              style={{...styles.titleHeaderIcon, ...styles.titleWarningIcon}} />
+          </Animated.View>
         </TouchableOpacity>
       var videoStreamStartTime = 0
       var videoStreamEndTime = Activity.streamEndAt(activity)
@@ -449,6 +473,7 @@ export const VideoView = connect(
         {videoPlayer}
         {header}
         {activityInfo}
+        <SyncDialog isOpen={this.state.syncDialogIsOpen} onClose={this._syncDialogOnClose} />
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}
