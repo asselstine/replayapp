@@ -17,6 +17,7 @@ import { HelpService } from '../../services/help-service'
 
 import {
   replayRedLogo,
+  poweredByStrava,
   overlayImage
 } from '../../images'
 
@@ -40,14 +41,19 @@ export class WelcomeDialog extends Component {
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}>
           <View tabLabel='intro' style={HelpStyles.content}>
-            <View style={HelpStyles.block}>
+            <View style={[HelpStyles.block, styles.logos]}>
               <Image style={styles.logo} source={replayRedLogo} resizeMode='contain' />
+              <Image style={styles.poweredByStrava} source={poweredByStrava} resizeMode='contain' />
             </View>
             <View style={HelpStyles.block}>
-              <Text style={HelpStyles.explain}>Replay brings</Text>
-              <Text style={HelpStyles.explainBold}>interactive telemetry</Text>
-              <Text style={HelpStyles.explain}>and</Text>
-              <Text style={HelpStyles.explainBold}>race playback</Text>
+              <Text>
+                <Text style={HelpStyles.explain}>Add </Text>
+                <Text style={HelpStyles.explainBold}>interactive telemetry</Text>
+              </Text>
+              <Text>
+                <Text style={HelpStyles.explain}>and </Text>
+                <Text style={HelpStyles.explainBold}>race comparisons</Text>
+              </Text>
               <Text style={HelpStyles.explain}>to your videos</Text>
             </View>
             <View style={HelpStyles.block}>
@@ -80,8 +86,9 @@ export class WelcomeDialog extends Component {
 }
 
 const styles = {
-  flexItem: {
-    flex: 1,
+  logos: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
   },
 
   logo: {
@@ -112,4 +119,8 @@ const styles = {
     fontSize: 48,
     textAlign: 'center'
   },
+
+  poweredByStrava: {
+    width: '50%',
+  }
 }

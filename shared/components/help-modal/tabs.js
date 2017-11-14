@@ -52,7 +52,7 @@ const styles = {
   },
 
   activeDot: {
-    color: 'blue',
+    color: 'red',
     opacity: 0.9
   },
 
