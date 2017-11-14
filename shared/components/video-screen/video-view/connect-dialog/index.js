@@ -47,7 +47,6 @@ export class ConnectDialog extends Component {
 const styles = {
   connectStravaButton: {
     alignSelf: 'center',
-    justifySelf: 'center',
     width: 193,
     padding: 50,
   }

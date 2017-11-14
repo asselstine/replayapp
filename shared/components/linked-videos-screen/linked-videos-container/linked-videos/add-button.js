@@ -6,7 +6,6 @@ import {
 } from 'react-native'
 import { resetHelp } from '../../../../actions/help-actions'
 import { store } from '../../../../store'
-import Config from 'react-native-config'
 import { newVideo } from '../../../../actions/video-actions'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { RawVideoModal } from '../../raw-video-modal'
@@ -27,7 +26,8 @@ export class AddButton extends Component {
     this.setState({
       visible: true
     })
-    if (Config.DEV) {
+    if (__DEV__) {
+      console.log('RESETTING HELP')
       store.dispatch(resetHelp())
     }
   }
