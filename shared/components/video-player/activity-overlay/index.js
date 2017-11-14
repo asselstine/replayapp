@@ -57,11 +57,7 @@ export class ActivityOverlay extends Component {
   }
 
   componentWillReceiveProps (newProps) {
-    this.interpolateStreams(newProps)
-  }
-
-  updateStreamState (newProps) {
-    this.setState(interpolateStreams(newProps))
+    this.setState(this.interpolateStreams(newProps), this.checkCurrentSegmentEffort)
   }
 
   interpolateStreams (props) {
