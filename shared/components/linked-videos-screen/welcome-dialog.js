@@ -55,19 +55,21 @@ export class WelcomeDialog extends Component {
             </View>
           </View>
           <View tabLabel='activity' style={[HelpStyles.flexCol, HelpStyles.content]}>
-            <View style={styles.flexItem}>
-              <Text style={[HelpStyles.block, HelpStyles.explain]}>To get started select a video in your library using the add button:</Text>
+            <View>
+              <View>
+                <Text style={[HelpStyles.block, HelpStyles.explain]}>Select a video in your library using the add button:</Text>
+              </View>
+              <View style={[styles.plusContainer, HelpStyles.block]}>
+                <Icon style={styles.addIcon} name='ios-add' />
+              </View>
+              <View style={HelpStyles.block}>
+                <Text style={HelpStyles.explain}>The video should be a single continuous shot taken during an activity.</Text>
+              </View>
+              <View style={HelpStyles.block}>
+                <Text style={HelpStyles.explain}>To remove a video, press and hold on the video thumbnail.</Text>
+              </View>
             </View>
-            <View style={[styles.flexItem, styles.plusContainer, HelpStyles.block]}>
-              <Icon style={styles.addIcon} name='ios-add' />
-            </View>
-            <View style={[styles.flexItem, HelpStyles.block]}>
-              <Text style={HelpStyles.explain}>The video should be a single continuous shot for best results.</Text>
-            </View>
-            <View style={styles.flexItem}>
-              <Text style={HelpStyles.explain}>To remove a video, press and hold on the video thumbnail.</Text>
-            </View>
-            <View style={[styles.flexItem, styles.button]}>
+            <View style={[styles.button]}>
               <Button title='Got it!' onPress={this._onDone}/>
             </View>
           </View>
