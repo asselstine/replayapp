@@ -281,18 +281,21 @@ export class ActivityStreams extends PureComponent {
   render () {
     var y = 0
 
+    var streamFillColour = 'pink'
+    var activeStreamFillColour = 'red'
+
     if (this.state.velocityPath) {
       var velocityPath = transformStreamPointsToPath(this.state.velocityPath, this.state.transform)
       var velocityStreamPath =
         <StreamPath
           y={y + 20}
           d={velocityPath}
-          fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
+          fill={streamFillColour} />
       var velocityStreamCurrentTimePath =
         <StreamPath
           y={y + 20}
           d={velocityPath}
-          fill={colours.STRAVA_BRAND_COLOUR} />
+          fill={activeStreamFillColour} />
       y += 100
     }
 
@@ -304,12 +307,12 @@ export class ActivityStreams extends PureComponent {
         <StreamPath
           y={y + 20}
           d={altitudePath}
-          fill={colours.STRAVA_BRAND_COLOUR_LIGHT} />
+          fill={streamFillColour} />
       altitudeStreamCurrentTimePath =
         <StreamPath
           y={y + 20}
           d={altitudePath}
-          fill={colours.STRAVA_BRAND_COLOUR} />
+          fill={activeStreamFillColour} />
     }
 
     var currentTimeLine, videoStartTime, videoEndTime

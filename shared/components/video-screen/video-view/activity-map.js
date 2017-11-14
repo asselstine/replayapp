@@ -133,7 +133,7 @@ export class ActivityMap extends Component {
         this.polyLine =
           <MapView.Polyline
             ref={(ref) => { this.polylineRef = ref }}
-            strokeColor={colours.STRAVA_BRAND_COLOUR}
+            strokeColor={colours.BRAND}
             strokeWidth={2}
             coordinates={latLngs} />
       }

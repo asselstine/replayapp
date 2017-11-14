@@ -456,8 +456,8 @@ export const VideoView = connect(
         <ScrollableTabView
           locked
           tabBarTextStyle={styles.tabBarTextStyle}
-          tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
-          tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}
+          tabBarActiveTextColor={colours.BRAND}
+          tabBarUnderlineStyle={{backgroundColor: colours.BRAND}}
           onChangeTab={this.trackOnChangeTab}
           style={styles.streamsContainer}>
           {activityStreams}
