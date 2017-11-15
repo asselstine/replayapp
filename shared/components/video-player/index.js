@@ -136,6 +136,7 @@ export class VideoPlayer extends Component {
     if (this.props.onPlay) {
       this.props.onPlay(arg)
     }
+    this._onTimeInterval()
     this._timeInterval = this.setInterval(this._onTimeInterval, 30)
   }
 
@@ -144,14 +145,15 @@ export class VideoPlayer extends Component {
   }
 
   _onTimeInterval () {
-    this.state.eventEmitter.emit('progressVideoTime', this.getCurrentTime())
+    var videoTime = this.getCurrentTime()
+    if (this.props.onProgress) {
+      this.props.onProgress(videoTime)
+    }
+    this.state.eventEmitter.emit('progressVideoTime', videoTime)
     this.state.eventEmitter.emit('progressActivityTime', this.getCurrentTimeActivity())
   }
 
   _onProgress (arg) {
-    if (this.props.onProgress) {
-      this.props.onProgress(arg)
-    }
     this._updateLastOnProgress(arg.currentTime)
   }
 

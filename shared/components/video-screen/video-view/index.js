@@ -192,8 +192,8 @@ export const VideoView = connect(
     this.setState({locked: !this.state.locked})
   }
 
-  onProgress (event) {
-    this.eventEmitter.emit('onStreamTimeProgress', this.videoTimeToStreamTime(event.currentTime))
+  onProgress (videoTime) {
+    this.eventEmitter.emit('onStreamTimeProgress', this.videoTimeToStreamTime(videoTime))
   }
 
   onPlay (event) {
