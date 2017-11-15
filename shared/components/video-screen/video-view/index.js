@@ -431,7 +431,9 @@ export const VideoView = connect(
           streamTime={this.videoTimeToStreamTime(0)}
           eventEmitter={this.eventEmitter}
           activity={activity}
-          streams={this.props.streams} />
+          streams={this.props.streams}
+          videoStreamStartTime={videoStreamStartTime}
+          videoStreamEndTime={videoStreamEndTime} />
       activitySegments =
         <ActivitySegmentsContainer
           tabLabel='Race'

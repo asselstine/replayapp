@@ -8,7 +8,11 @@ import {
 import MapView from 'react-native-maps'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { linear, linearIndex } from '../../../streams'
+import {
+  valueToIndex,
+  linear,
+  linearIndex
+} from '../../../streams'
 import { closestPoint } from '../../../closest-point'
 import * as colours from '../../../colours'
 
@@ -38,11 +42,17 @@ export class ActivityMap extends Component {
   componentWillReceiveProps (nextProps) {
     if (_.get(this.props, 'activity.id') !== _.get(nextProps, 'activity.id')) {
       this.polyLine = null
+      this.videoPolyLine = null
       this.positionCircleCoordinates = null
       this.marker = null
     }
     if (_.get(this.props, 'streams') !== _.get(nextProps, 'streams')) {
       this._latLngs = null
+      this._videoLatLngs = null
+    }
+    if (this.props.videoStreamEndTime !== nextProps.videoStreamEndTime) {
+      this._videoLatLngs = null
+      this.videoPolyLine = null
     }
     if (this.props.streamTime !== nextProps.streamTime) {
       this.setCoordinates(nextProps.streamTime)
@@ -70,12 +80,16 @@ export class ActivityMap extends Component {
   }
 
   boundStreamTime (streamTime) {
-    var timeData = _.get(this.props, 'streams.time.data', [])
+    var timeData = this.timeStream()
     return Math.max(timeData[0], Math.min(streamTime, timeData[timeData.length - 1]))
   }
 
+  timeStream () {
+    return _.get(this.props, 'streams.time.data', [])
+  }
+
   timeOffsetFromFraction (fraction) {
-    var timeData = _.get(this.props, 'streams.time.data', [])
+    var timeData = this.timeStream()
     if (!timeData.length) {
       return 0
     }
@@ -85,27 +99,46 @@ export class ActivityMap extends Component {
   }
 
   mapTime (mapTimeOffset) {
-    var timeData = _.get(this.props, 'streams.time.data', [])
+    var timeData = this.timeStream()
     if (!timeData.length) {
       return 0
     }
     return timeData[0] + mapTimeOffset
   }
 
+  latLngStream () {
+    return _.get(this.props, 'streams.latlng.data', [])
+  }
+
   latLngs () {
-    this._latLngs = this._latLngs ||
-      _.map(_.get(this.props, 'streams.latlng.data', []), (pair) => {
-        return {
-          latitude: pair[0],
-          longitude: pair[1]
-        }
-      })
+    this._latLngs = this._latLngs || this.reshapeLatLngs( this.latLngStream() )
     return this._latLngs
+  }
+
+  reshapeLatLngs (latLngs) {
+    return _.map(latLngs, (pair) => {
+      return {
+        latitude: pair[0],
+        longitude: pair[1]
+      }
+    })
+  }
+
+  videoLatLngs () {
+    if (this._videoLatLngs) { return this._videoLatLngs }
+    var startIndex = valueToIndex(this.props.videoStreamStartTime, this.timeStream())
+    var endIndex = valueToIndex(this.props.videoStreamEndTime, this.timeStream())
+    var latLngs = []
+    latLngs.push(this.latLngAtTime(this.props.videoStreamStartTime))
+    latLngs = latLngs.concat( this.reshapeLatLngs(_.slice(this.latLngStream(), Math.ceil(startIndex), Math.ceil(endIndex))) )
+    latLngs.push(this.latLngAtTime(this.props.videoStreamEndTime))
+    this._videoLatLngs = latLngs
+    return this._videoLatLngs
   }
 
   onPressMapView (event) {
     var closest = closestPoint(event.nativeEvent.coordinate, this.latLngs())
-    var streamTime = linearIndex(closest.startIndex + closest.fraction, _.get(this.props, 'streams.time.data', []))
+    var streamTime = linearIndex(closest.startIndex + closest.fraction, this.timeStream())
     if (this.props.onStreamTimeChange) {
       this.props.onStreamTimeChange(streamTime)
     }
@@ -132,8 +165,7 @@ export class ActivityMap extends Component {
       if (!this.polyLine) {
         this.polyLine =
           <MapView.Polyline
-            ref={(ref) => { this.polylineRef = ref }}
-            strokeColor={colours.BRAND}
+            strokeColor='pink'
             strokeWidth={2}
             coordinates={latLngs} />
       }
@@ -143,6 +175,15 @@ export class ActivityMap extends Component {
           <MapView.Marker.Animated
             coordinate={this.positionCircleCoordinates} />
       }
+    }
+
+    var videoLatLngs = this.videoLatLngs()
+    if (videoLatLngs.length && !this.videoPolyLine) {
+      this.videoPolyLine =
+        <MapView.Polyline
+          strokeColor={colours.BRAND}
+          strokeWidth={3}
+          coordinates={videoLatLngs} />
     }
 
     if (this.polyLine && this.marker) {
@@ -155,6 +196,7 @@ export class ActivityMap extends Component {
           style={styles.map}
         >
           {this.polyLine}
+          {this.videoPolyLine}
           {this.marker}
         </MapView>
     }
@@ -172,7 +214,9 @@ ActivityMap.propTypes = {
   streams: PropTypes.object,
   streamTime: PropTypes.number,
   eventEmitter: PropTypes.object.isRequired,
-  onStreamTimeChange: PropTypes.func
+  onStreamTimeChange: PropTypes.func,
+  videoStreamStartTime: PropTypes.number,
+  videoStreamEndTime: PropTypes.number
 }
 
 ActivityMap.defaultProps = {
