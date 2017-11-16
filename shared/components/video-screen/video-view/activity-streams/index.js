@@ -144,11 +144,10 @@ export class ActivityStreams extends PureComponent {
 
   moveClippingRectToLocationX (streamTime) {
     if (!this._timeClippingRect) { return }
-    var originalEnd = this.streamTimeToOriginalX(streamTime)
-    var videoStartX = this.streamTimeToLocationX(this.props.videoStreamStartTime)
-    var clipEnd = MatrixMath.multiplyVectorByMatrix([originalEnd, 0, 0, 1], this.state.transform)[0]
+    var timelineX = this.streamTimeToLocationX(streamTime, this.state.transform)
+    var videoStartX = this.streamTimeToLocationX(this.props.videoStreamStartTime, this.state.transform)
     this._timeClippingRect.setNativeProps({
-      width: (clipEnd - videoStartX).toString()
+      width: (timelineX - videoStartX).toString()
     })
   }
 
@@ -247,6 +246,7 @@ export class ActivityStreams extends PureComponent {
     this.setCursorLocationX(this._line, this.streamTimeToLocationX(this.streamTime))
     this.setCursorLocationX(this._videoStartTime, this.streamTimeToLocationX(this.props.videoStreamStartTime))
     this.setCursorLocationX(this._videoEndTime, this.streamTimeToLocationX(this.props.videoStreamEndTime))
+    this.moveClippingRectToLocationX(this.streamTime)
   }
 
   setCursorLocationX (cursor, locationX) {

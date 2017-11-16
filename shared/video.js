@@ -8,7 +8,8 @@ export const Video = {
     var videoStartAt = moment(_.get(video, 'startAt'))
     var deltaMs = videoStartAt.diff(activityStartAt)
     var videoTime = streamTime - (deltaMs / 1000.0)
-    return videoTime
+    var duration = _.get(video, 'rawVideoData.duration', 0)
+    return Math.max(0, Math.min(duration, videoTime))
   },
 
   videoTimeToStreamTime (video, videoTime) {
