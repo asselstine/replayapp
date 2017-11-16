@@ -14,6 +14,9 @@ import { PlayerOverlay } from './player-overlay'
 import { ActivityOverlayContainer } from './activity-overlay-container'
 import EventEmitter from 'EventEmitter'
 import reportError from '../../report-error'
+import _ from 'lodash'
+
+const PROGRESS_INTERVAL = 30
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -25,6 +28,8 @@ export class VideoPlayer extends Component {
       muted: true,
       eventEmitter: new EventEmitter()
     }
+    this._onLoadStart = this._onLoadStart.bind(this)
+    this._onBuffer = this._onBuffer.bind(this)
     this._onActivityTimeChange = this._onActivityTimeChange.bind(this)
     this._onVideoTimeChange = this._onVideoTimeChange.bind(this)
     this.onPressVideo = this.onPressVideo.bind(this)
@@ -35,6 +40,9 @@ export class VideoPlayer extends Component {
     this.finishHideOverlay = this.finishHideOverlay.bind(this)
     this._onTimeInterval = this._onTimeInterval.bind(this)
     this.onClose = this.onClose.bind(this)
+    this.seek = this.seek.bind(this)
+    this._throttledSeek = this._throttledSeek.bind(this)
+    // this._throttledSeek = _.throttle(this._throttledSeek.bind(this), 500)
     this._updateLastOnProgress(0)
   }
 
@@ -44,7 +52,7 @@ export class VideoPlayer extends Component {
     }
   }
 
-  onError (e) {
+  _onError (e) {
     reportError(e)
   }
 
@@ -137,7 +145,15 @@ export class VideoPlayer extends Component {
       this.props.onPlay(arg)
     }
     this._onTimeInterval()
-    this._timeInterval = this.setInterval(this._onTimeInterval, 30)
+    this._timeInterval = this.setInterval(this._onTimeInterval, PROGRESS_INTERVAL)
+  }
+
+  _onBuffer (event) {
+    console.log('!!!! ON BUFFER')
+  }
+
+  _onLoadStart (event) {
+    console.log('!!!! ON LOAD START')
   }
 
   _onStop () {
@@ -180,9 +196,15 @@ export class VideoPlayer extends Component {
   }
 
   seek (time) {
+    this._throttledSeek(time)
+    if (this.state.paused) {
+      this._updateLastOnProgress(time)
+      this._onTimeInterval()
+    }
+  }
+
+  _throttledSeek (time) {
     this.player.seek(time)
-    this._updateLastOnProgress(time)
-    this._onTimeInterval()
   }
 
   _onEnd (arg) {
@@ -241,6 +263,13 @@ export class VideoPlayer extends Component {
           video={this.props.video} />
     }
 
+/*
+onLoadStart={this._onLoadStart}
+onError={(arg) => { this._onError(arg) }}
+onBuffer={this._onBuffer}
+
+*/
+
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
         <View style={this.props.style}>
@@ -248,10 +277,9 @@ export class VideoPlayer extends Component {
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
             onLoad={(arg) => { this._onTimeInterval() }}
-            onError={(arg) => { this.onError(arg) }}
             onProgress={(arg) => { this._onProgress(arg) }}
             onEnd={(arg) => { this._onEnd(arg) }}
-            paused={this.state.paused}
+            paused={false /* this.state.paused */}
             style={videoStyle}
             muted={this.state.muted}
             repeat={true}
