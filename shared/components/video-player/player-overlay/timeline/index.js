@@ -20,19 +20,29 @@ export class Timeline extends Component {
       progress: new Animated.Value(0),
       timelineWidth: 1
     }
-    this.onTimelinePanResponder = this.onTimelinePanResponder.bind(this)
+    this.onPanResponderMove = this.onPanResponderMove.bind(this)
     this._onTimelineResponderLayout = this._onTimelineResponderLayout.bind(this)
     this._timelineResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gestureState) => true,
       onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
       onMoveShouldSetPanResponder: (evt, gestureState) => true,
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-      onPanResponderGrant: this.onTimelinePanResponder,
-      onPanResponderMove: this.onTimelinePanResponder
+      onPanResponderGrant: (e) => {
+        if (this.props.onVideoTimeChangeStart) {
+          this.props.onVideoTimeChangeStart()
+        }
+        this.onPanResponderMove(e)
+      },
+      onPanResponderRelease: () => {
+        if (this.props.onVideoTimeChangeEnd) {
+          this.props.onVideoTimeChangeEnd()
+        }
+      },
+      onPanResponderMove: this.onPanResponderMove
     })
   }
 
-  onTimelinePanResponder (e) {
+  onPanResponderMove (e) {
     var progress = e.nativeEvent.locationX / this.state.timelineWidth
     progress = Math.max(0, Math.min(1, progress))
     this.props.onVideoTimeChange(this.props.duration * progress)

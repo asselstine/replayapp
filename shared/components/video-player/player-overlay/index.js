@@ -97,7 +97,9 @@ export class PlayerOverlay extends Component {
                 ref={(ref) => { this._timeline = ref }}
                 currentTime={this.props.currentTime}
                 duration={this.props.duration}
-                onVideoTimeChange={this.props.onVideoTimeChange} />
+                onVideoTimeChange={this.props.onVideoTimeChange}
+                onVideoTimeChangeStart={this.props.onVideoTimeChangeStart}
+                onVideoTimeChangeEnd={this.props.onVideoTimeChangeEnd} />
 
               <TouchableOpacity onPress={this.props.onToggleMuted}>
                 {muteToggle}
@@ -176,6 +178,8 @@ PlayerOverlay.propTypes = {
   onToggleMuted: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   onVideoTimeChange: PropTypes.func.isRequired,
+  onVideoTimeChangeStart: PropTypes.func,
+  onVideoTimeChangeEnd: PropTypes.func,
   style: PropTypes.any,
   pointerEvents: PropTypes.any
 }

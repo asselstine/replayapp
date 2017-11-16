@@ -267,6 +267,10 @@ export const VideoView = connect(
     }
   }
 
+  onStreamTimeChangeStart () {
+    this._videoPlayer.seekStart()
+  }
+
   onStreamTimeChange (streamTime) {
     if (this.state.locked) {
       this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
@@ -281,6 +285,10 @@ export const VideoView = connect(
         }
       )
     }
+  }
+
+  onStreamTimeChangeEnd () {
+    this._videoPlayer.seekEnd()
   }
 
   calculateVideoStartAt (streamTime) {
@@ -439,6 +447,8 @@ export const VideoView = connect(
           tabLabel='Race'
           eventEmitter={this.eventEmitter}
           onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
+          onStreamTimeChangeStart={() => this.onStreamTimeChangeStart()}
+          onStreamTimeChangeEnd={() => this.onStreamTimeChangeEnd()}
           video={this.props.video}
           activity={activity} />
 
@@ -447,6 +457,8 @@ export const VideoView = connect(
           <ActivityStreams
             tabLabel='Data'
             onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
+            onStreamTimeChangeStart={() => this.onStreamTimeChangeStart()}
+            onStreamTimeChangeEnd={() => this.onStreamTimeChangeEnd()}
             eventEmitter={this.eventEmitter}
             activity={activity}
             streams={this.props.streams}

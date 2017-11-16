@@ -78,6 +78,29 @@ export class ActivityStreams extends PureComponent {
         }
       },
     }, { transformY: false })
+    this.handlers = {
+      onStartShouldSetResponder: () => { /* console.log('start should set'); */ return true },
+      onMoveShouldSetResponder: () => { /* console.log('move should set'); */ return true },
+      onStartShouldSetResponderCapture: () => { /* console.log('start set capture'); */ return true },
+      onMoveShouldSetResponderCapture: () => { /* console.log('move set capture'); */ return true },
+      onResponderReject: (e) => { /* console.log('reject') */ },
+      onResponderTerminationRequest: () => { /* console.log('terminate request'); */ return false },
+      onResponderGrant: (e) => {
+        if (this.props.onStreamTimeChangeStart) {
+          this.props.onStreamTimeChangeStart()
+        }
+        this.pinchZoomResponder.handlers.onResponderGrant(e)
+      },
+      onResponderMove: (e) => {
+        this.pinchZoomResponder.handlers.onResponderMove(e)
+      },
+      onResponderRelease: (e) => {
+        this.pinchZoomResponder.handlers.onResponderRelease(e)
+        if (this.props.onStreamTimeChangeEnd) {
+          this.props.onStreamTimeChangeEnd()
+        }
+      },
+    }
   }
 
   componentWillReceiveProps (nextProps) {
@@ -359,7 +382,7 @@ export class ActivityStreams extends PureComponent {
 
     return (
       <View
-        {...this.pinchZoomResponder.handlers}
+        {...this.handlers}
         style={this.props.style}
         onLayout={this._onLayout}>
         <View
@@ -408,6 +431,8 @@ ActivityStreams.propTypes = {
   eventEmitter: PropTypes.object.isRequired,
   style: PropTypes.object,
   onStreamTimeChange: PropTypes.func,
+  onStreamTimeChangeStart: PropTypes.func,
+  onStreamTimeChangeEnd: PropTypes.func,
   streams: PropTypes.object,
   activity: PropTypes.object.isRequired,
   videoStreamStartTime: PropTypes.any,

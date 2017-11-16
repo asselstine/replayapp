@@ -58,7 +58,15 @@ export class RaceGraph extends Component {
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderTerminationRequest: (evt, gestureState) => false,
       onPanResponderGrant: (evt, gestureState) => {
+        if (this.props.onStreamTimeChangeStart) {
+          this.props.onStreamTimeChangeStart()
+        }
         this.moveCursor(evt)
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (this.props.onStreamTimeChangeEnd) {
+          this.props.onStreamTimeChangeEnd()
+        }
       },
       onPanResponderMove: (evt, gestureState) => {
         this.moveCursor(evt)
@@ -313,6 +321,8 @@ RaceGraph.propTypes = {
   height: PropTypes.any.isRequired,
   eventEmitter: PropTypes.object,
   onStreamTimeChange: PropTypes.func,
+  onStreamTimeChangeStart: PropTypes.func,
+  onStreamTimeChangeEnd: PropTypes.func,
   videoStreamStartTime: PropTypes.any,
   videoStreamEndTime: PropTypes.any
 }

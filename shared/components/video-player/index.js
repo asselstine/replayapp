@@ -42,7 +42,8 @@ export class VideoPlayer extends Component {
     this._fireTimeEvents = this._fireTimeEvents.bind(this)
     this.onClose = this.onClose.bind(this)
     this.seek = this.seek.bind(this)
-    // this._throttledSeek = this._throttledSeek.bind(this)
+    this.seekStart = this.seekStart.bind(this)
+    this.seekEnd = this.seekEnd.bind(this)
     this._throttledSeek = _.throttle(this._throttledSeek.bind(this), SEEK_THROTTLE, { trailing: false })
     this._updateLastOnProgress(0)
   }
@@ -194,6 +195,15 @@ export class VideoPlayer extends Component {
     return Video.videoTimeToStreamTime(this.props.video, this.getCurrentTime())
   }
 
+  seekStart () {
+    this.wasPaused = this.state.paused
+    this.setState({ paused: true })
+  }
+
+  seekEnd () {
+    this.setState({ paused: this.wasPaused })
+  }
+
   seek (time) {
     this._throttledSeek(time)
     if (this.state.paused) {
@@ -297,6 +307,8 @@ onBuffer={this._onBuffer}
             onTogglePaused={this.togglePlay}
             onToggleMuted={this.toggleMute}
             onVideoTimeChange={this._onVideoTimeChange}
+            onVideoTimeChangeStart={this.seekStart}
+            onVideoTimeChangeEnd={this.seekEnd}
             onClose={this.onClose}
             style={playerOverlayStyle}
             pointerEvents={playerOverlayPointerEvents}>

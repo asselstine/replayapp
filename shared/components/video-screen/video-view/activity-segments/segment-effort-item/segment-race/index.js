@@ -115,6 +115,8 @@ export class SegmentRace extends Component {
           timeStream={this.state.times}
           deltaTimeStream={this.state.versusDeltaTimes}
           onStreamTimeChange={this.props.onStreamTimeChange}
+          onStreamTimeChangeStart={this.props.onStreamTimeChangeStart}
+          onStreamTimeChangeEnd={this.props.onStreamTimeChangeEnd}
           videoStreamStartTime={Video.streamStartAt(this.props.video)}
           videoStreamEndTime={Video.streamEndAt(this.props.video)}
           width='100%'
@@ -142,6 +144,8 @@ SegmentRace.propTypes = {
   segmentEffort: PropTypes.object.isRequired,
   eventEmitter: PropTypes.object.isRequired,
   onStreamTimeChange: PropTypes.func,
+  onStreamTimeChangeStart: PropTypes.func,
+  onStreamTimeChangeEnd: PropTypes.func,
   video: PropTypes.object
 }
 

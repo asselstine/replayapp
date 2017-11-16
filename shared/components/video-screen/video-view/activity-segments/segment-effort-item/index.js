@@ -55,6 +55,8 @@ export class SegmentEffortItem extends Component {
           eventEmitter={this.props.eventEmitter}
           segmentEffort={this.props.segmentEffort}
           onStreamTimeChange={this.props.onStreamTimeChange}
+          onStreamTimeChangeStart={this.props.onStreamTimeChangeStart}
+          onStreamTimeChangeEnd={this.props.onStreamTimeChangeEnd}
           style={styles.segmentRace} />
     }
 
@@ -111,5 +113,7 @@ SegmentEffortItem.propTypes = {
   segmentEffort: PropTypes.object,
   eventEmitter: PropTypes.object,
   onStreamTimeChange: PropTypes.func,
+  onStreamTimeChangeStart: PropTypes.func,
+  onStreamTimeChangeEnd: PropTypes.func,
   video: PropTypes.object.isRequired
 }

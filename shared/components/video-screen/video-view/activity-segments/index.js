@@ -41,6 +41,8 @@ export class ActivitySegments extends Component {
               video={this.props.video}
               segmentEffort={segmentEffort}
               onStreamTimeChange={this.props.onStreamTimeChange}
+              onStreamTimeChangeStart={this.props.onStreamTimeChangeStart}
+              onStreamTimeChangeEnd={this.props.onStreamTimeChangeEnd}
               key={segmentEffort.id} />
           )
         })}
@@ -60,5 +62,7 @@ ActivitySegments.propTypes = {
   activity: PropTypes.object,
   eventEmitter: PropTypes.object.isRequired,
   onStreamTimeChange: PropTypes.func,
+  onStreamTimeChangeStart: PropTypes.func,
+  onStreamTimeChangeEnd: PropTypes.func,
   segmentEfforts: PropTypes.array
 }
