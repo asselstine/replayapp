@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
-import { store, persistor } from './store'
-import { Navigator } from './components/navigator'
+import { store, persistor } from '../store'
+import { DrawerNavigator } from './drawer-navigator'
 import { PersistGate } from 'redux-persist/es/integration/react'
 
 export class App extends Component {
@@ -9,7 +9,7 @@ export class App extends Component {
     return (
       <Provider store={store}>
         <PersistGate persistor={persistor}>
-          <Navigator />
+          <DrawerNavigator />
         </PersistGate>
       </Provider>
     )

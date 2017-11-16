@@ -17,6 +17,7 @@
     "react-mixin": "2",
     "react-native": "0.46.4",
     "react-native-config": "^0.5.0",
+    "react-native-mail": "^3.0.5",
     "react-native-maps": "^0.15.3",
     "react-native-oauth": "fullstackreact/react-native-oauth#master",
     "react-native-orientation": "^2.0.0",

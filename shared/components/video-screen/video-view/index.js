@@ -182,6 +182,9 @@ export const VideoView = connect(
     } else {
       Orientation.unlockAllOrientations()
     }
+    if (this.props.onToggleFullscreen) {
+      this.props.onToggleFullscreen()
+    }
   }
 
   resetTime () {
@@ -482,7 +485,7 @@ export const VideoView = connect(
 
     return (
       <View style={styles.videoView} onLayout={this._onLayout}>
-        <StatusBar hidden />
+        <StatusBar hidden={this.state.fullscreen} />
         {connectDialog}
         {videoPlayer}
         {header}
@@ -582,5 +585,6 @@ VideoView.propTypes = {
   video: PropTypes.object,
   latlngStream: PropTypes.object,
   timeStream: PropTypes.object,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  onToggleFullscreen: PropTypes.func
 }

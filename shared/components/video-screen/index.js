@@ -27,13 +27,24 @@ export const VideoScreen = connect(
     this.props.navigation.goBack()
   }
 
+  _toggleHeader () {
+    this.props.navigation.setParams({
+      hideHeader:
+        !this.props.navigation.state.params ||
+        !this.props.navigation.state.params.hideHeader,
+    })
+  }
+
   render () {
-    return <VideoView localIdentifier={this.props.localIdentifier} onClose={this._onClose} />
+    return <VideoView localIdentifier={this.props.localIdentifier} onClose={this._onClose} onToggleFullscreen={this._toggleHeader.bind(this)}/>
   }
 })
 
-VideoScreen.navigationOptions = (props) => {
+VideoScreen.navigationOptions = ({ navigation }) => {
+  const hideHeader =
+    navigation.state.params && navigation.state.params.hideHeader
   return {
-    header: null
+    header: hideHeader ? null : undefined,
+    title: 'Video'
   }
 }

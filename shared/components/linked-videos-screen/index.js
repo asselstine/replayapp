@@ -1,11 +1,14 @@
 import React, {
   Component
 } from 'react'
+import MenuButton from '../menu-button'
 import {
   View,
   StatusBar,
+  Button,
   Image,
   Text,
+  TouchableOpacity,
   Alert
 } from 'react-native'
 import { LinkedVideosContainer } from './linked-videos-container'
@@ -50,7 +53,6 @@ export class LinkedVideosScreen extends Component {
   render () {
     return (
       <View>
-        <StatusBar hidden />
         <LinkedVideosContainer
           onAddRawVideo={this.onAddRawVideo}
           onPressVideo={this.onPressVideo}
@@ -61,8 +63,9 @@ export class LinkedVideosScreen extends Component {
   }
 }
 
-LinkedVideosScreen.navigationOptions = (props) => {
+LinkedVideosScreen.navigationOptions = ({ navigation }) => {
   return {
-    header: null,
+    title: 'Videos',
+    headerLeft: <MenuButton onPress={() => { navigation.navigate('DrawerOpen') }} />
   }
 }
