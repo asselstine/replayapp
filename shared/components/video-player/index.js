@@ -16,6 +16,7 @@ import EventEmitter from 'EventEmitter'
 import reportError from '../../report-error'
 import _ from 'lodash'
 
+const SEEK_THROTTLE = 30
 const PROGRESS_INTERVAL = 30
 
 export class VideoPlayer extends Component {
@@ -38,11 +39,11 @@ export class VideoPlayer extends Component {
     this.toggleMute = this.toggleMute.bind(this)
     this.toggleFullscreen = this.toggleFullscreen.bind(this)
     this.finishHideOverlay = this.finishHideOverlay.bind(this)
-    this._onTimeInterval = this._onTimeInterval.bind(this)
+    this._fireTimeEvents = this._fireTimeEvents.bind(this)
     this.onClose = this.onClose.bind(this)
     this.seek = this.seek.bind(this)
-    this._throttledSeek = this._throttledSeek.bind(this)
-    // this._throttledSeek = _.throttle(this._throttledSeek.bind(this), 500)
+    // this._throttledSeek = this._throttledSeek.bind(this)
+    this._throttledSeek = _.throttle(this._throttledSeek.bind(this), SEEK_THROTTLE, { trailing: false })
     this._updateLastOnProgress(0)
   }
 
@@ -124,28 +125,30 @@ export class VideoPlayer extends Component {
     this.resetOverlayHideTimeout()
   }
 
+  componentDidMount () {
+    this._timeInterval = this.setInterval(this._fireTimeEvents, PROGRESS_INTERVAL)
+  }
+
+  componentWillUnmount () {
+    this.clearInterval(this._timeInterval)
+  }
+
   togglePlay () {
     if (this.state.paused) {
-      if (this.getCurrentTime() >= this.props.video.rawVideoData.duration) {
-        this.player.seek(0)
-        this._onPlay({currentTime: 0})
-        this._updateLastOnProgress(0)
-      } else {
-        this._onPlay({currentTime: this.getCurrentTime()})
+      // this.seek(this.getCurrentTime())
+      if (this.props.onPlay) {
+        this.props.onPlay({currentTime: this.getCurrentTime()})
       }
-      // this.hidePlayerOverlay()
+      // this._fireTimeEvents()
     } else {
       this._onStop()
     }
+    this._fireTimeEvents()
     this.setState({ paused: !this.state.paused })
   }
 
-  _onPlay (arg) {
-    if (this.props.onPlay) {
-      this.props.onPlay(arg)
-    }
-    this._onTimeInterval()
-    this._timeInterval = this.setInterval(this._onTimeInterval, PROGRESS_INTERVAL)
+  _onStop () {
+    // this.clearInterval(this._timeInterval)
   }
 
   _onBuffer (event) {
@@ -156,11 +159,7 @@ export class VideoPlayer extends Component {
     console.log('!!!! ON LOAD START')
   }
 
-  _onStop () {
-    this.clearInterval(this._timeInterval)
-  }
-
-  _onTimeInterval () {
+  _fireTimeEvents () {
     var videoTime = this.getCurrentTime()
     if (this.props.onProgress) {
       this.props.onProgress(videoTime)
@@ -169,26 +168,26 @@ export class VideoPlayer extends Component {
     this.state.eventEmitter.emit('progressActivityTime', this.getCurrentTimeActivity())
   }
 
-  _onProgress (arg) {
-    this._updateLastOnProgress(arg.currentTime)
+  _onProgress (event) {
+    this.lastVideoTime = event.currentTime
+    if (!this.state.paused) {
+      this.lastRealTime = new Date().valueOf()
+    } else {
+      this.lastRealTime = null
+    }
   }
 
   _updateLastOnProgress (currentTime) {
-    this.lastOnProgress = {
-      videoTime: currentTime,
-      realTime: new Date().valueOf()
-    }
+    this.lastVideoTime = currentTime
+    this.lastRealTime = null
   }
 
   getCurrentTime () {
-    if (!this.state.paused) {
-      return this.lastOnProgress.videoTime +
-        (new Date().valueOf() - this.lastOnProgress.realTime) / 1000.0
-    } else if (this.lastOnProgress) {
-      return this.lastOnProgress.videoTime
-    } else {
-      return 0
+    var diff = 0
+    if (this.lastRealTime) {
+      diff = new Date().valueOf() - this.lastRealTime
     }
+    return this.lastVideoTime + diff / 1000.0
   }
 
   getCurrentTimeActivity () {
@@ -199,7 +198,7 @@ export class VideoPlayer extends Component {
     this._throttledSeek(time)
     if (this.state.paused) {
       this._updateLastOnProgress(time)
-      this._onTimeInterval()
+      this._fireTimeEvents()
     }
   }
 
@@ -208,7 +207,9 @@ export class VideoPlayer extends Component {
   }
 
   _onEnd (arg) {
-    // this.setState({ paused: true })
+    this.seek(0)
+    this._updateLastOnProgress(0)
+    console.log('ON END')
   }
 
   render () {
@@ -276,13 +277,13 @@ onBuffer={this._onBuffer}
           <RNVideo
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
-            onLoad={(arg) => { this._onTimeInterval() }}
+            onLoad={(arg) => { this._fireTimeEvents() }}
             onProgress={(arg) => { this._onProgress(arg) }}
             onEnd={(arg) => { this._onEnd(arg) }}
-            paused={false /* this.state.paused */}
+            paused={this.state.paused}
             style={videoStyle}
             muted={this.state.muted}
-            repeat={true}
+            repeat={false}
             resizeMode='fill'
             />
           <PlayerOverlay
