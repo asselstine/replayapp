@@ -66,19 +66,12 @@ export const streamToPoints = function (height, width, timeStream, dataStream) {
   var boundsTransform = createBoundsTransform(timeStream, dataStream, 0, height, width, -height)
   var points = mergeStreams(timeStream, dataStream)
   points = transformPoints(points, boundsTransform)
-  points.unshift([0, height])
-  points.push([width, height])
   return points
 }
 
 export const transformStreamPointsToPath = function (points, transform) {
   var points = transformPoints(points, transform)
   return pointsToPath(points)
-}
-
-export const streamPath = function (height, width, timeStream, dataStream, transform) {
-  var points = streamToPoints(height, width, timeStream, dataStream)
-  return transformStreamPointsToPath(points, transform)
 }
 
 export const zeroScreenY = function (height, yStream) {

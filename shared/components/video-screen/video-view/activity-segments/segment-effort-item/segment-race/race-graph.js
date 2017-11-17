@@ -13,6 +13,7 @@ import _ from 'lodash'
 import PropTypes from 'prop-types'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import PinchZoomResponder from 'react-native-pinch-zoom-responder'
+import { MatrixBounds } from '../../../../../../matrix-bounds'
 import {
   mergeStreams,
   streamToPoints,
@@ -34,15 +35,18 @@ import {
   Animated
 } from 'react-native'
 
+const IDENTITY = MatrixMath.createIdentityMatrix()
+
 export class RaceGraph extends Component {
   constructor (props) {
     super(props)
+    this.moveTransform = IDENTITY
     this._onLayout = this._onLayout.bind(this)
     this.state = {
       height: 1,
       width: 1,
-      transform: MatrixMath.createIdentityMatrix(),
-      inverseTransform: MatrixMath.createIdentityMatrix()
+      transform: IDENTITY,
+      boundsTransform: IDENTITY,
     }
     this.updateTransform = this.updateTransform.bind(this)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
@@ -54,18 +58,19 @@ export class RaceGraph extends Component {
     }
     this.pinchZoomResponder = new PinchZoomResponder({
       onPinchZoomStart: () => {
-        console.log('pinch zoom start')
       },
 
       onPinchZoomEnd: () => {
-        console.log('pinch zoom end')
+        this.applyTransform()
       },
 
       onResponderMove: (e, gestureState) => {
         if (gestureState) {
-          // this.setTransform(gestureState.transform)
+          this.moveTransform = gestureState.transform.slice()
+          MatrixBounds.applyBoundaryTransformX(0, this.state.width, this.moveTransform, this.combinedTransforms())
+          this.setTransform(this.moveTransform)
+          this.updateCursorLocations()
         }
-        // console.log('pinch zoom ', gestureState)
       }
     }, { transformY: false })
     this.handlers = {
@@ -89,7 +94,6 @@ export class RaceGraph extends Component {
       },
       onResponderMove: (evt) => {
         this.moveCursor(evt)
-        console.log('NATIVE TOUCH: ', evt.nativeEvent.touches[0].locationX)
         this.pinchZoomResponder.handlers.onResponderMove(evt)
       }
     }
@@ -104,6 +108,7 @@ export class RaceGraph extends Component {
   }
 
   onStreamTimeProgress (streamTime) {
+    this.streamTime = streamTime
     var v = this.streamTimeToLocationX(streamTime)
     if (this._timeline) {
       this._timeline.setNativeProps({
@@ -111,22 +116,26 @@ export class RaceGraph extends Component {
         x2: v.toString()
       })
     }
-    if (this._segmentEffortClipBox) {
-      this._segmentEffortClipBox.setNativeProps({
-        width: (v - this.videoStartX()).toString()
-      })
-    }
+    this.moveClippingRectToLocationX(streamTime)
   }
 
-  streamTimeToLocationX (streamTime) {
+  combinedTransforms () {
+    var matrix = this.state.transform.slice()
+    MatrixMath.multiplyInto(matrix, this.moveTransform, this.state.transform)
+    return matrix
+  }
+
+  streamTimeToLocationX (streamTime, transform) {
     var v = [streamTime, 0, 0, 1]
-    v = MatrixMath.multiplyVectorByMatrix(v, this.state.transform)
+    v = MatrixMath.multiplyVectorByMatrix(v, this.state.boundsTransform)
+    v = MatrixMath.multiplyVectorByMatrix(v, transform || this.combinedTransforms())
     return v[0]
   }
 
   locationXToStreamTime (locationX) {
     var v = [locationX, 0, 0, 1]
-    v = MatrixMath.multiplyVectorByMatrix(v, this.state.inverseTransform)
+    v = MatrixMath.multiplyVectorByMatrix(v, MatrixMath.inverse(this.state.transform))
+    v = MatrixMath.multiplyVectorByMatrix(v, MatrixMath.inverse(this.state.boundsTransform))
     return v[0]
   }
 
@@ -162,12 +171,9 @@ export class RaceGraph extends Component {
     var resize = this.state.width === 1
     var width = _.get(event, 'nativeEvent.layout.width') || 1
     var height = _.get(event, 'nativeEvent.layout.height') || 1
-    var transform = this.calculateTransform(this.props, width, height)
     this.setState({
       width: width,
       height: height,
-      transform: transform,
-      inverseTransform: MatrixMath.inverse(transform)
     }, () => {
       if (resize) {
         this.initStreamPaths(this.props)
@@ -176,13 +182,7 @@ export class RaceGraph extends Component {
   }
 
   updateTransform (props) {
-    var transform = this.calculateTransform(props, this.state.width, this.state.height)
-    this.setState({
-      transform: transform,
-      inverseTransform: MatrixMath.inverse(transform)
-    }, () => {
-      this.initStreamPaths(props)
-    })
+    this.initStreamPaths(props)
   }
 
   calculateTransform (props, width, height) {
@@ -194,15 +194,17 @@ export class RaceGraph extends Component {
     var deltaTimeStream = props.deltaTimeStream
     var newStreams = interpolate({ times: timeStream, values: deltaTimeStream, density: 1000 })
     var newTimeStream = newStreams.times
-    var newDeltaStream = newStreams.values
+    var newDeltaTimeStream = newStreams.values
 
-    var combinedPoints = mergeStreams(newTimeStream, newDeltaStream)
-    combinedPoints.unshift([0, 0])
-    combinedPoints.push([newTimeStream[newTimeStream.length - 1], 0])
-    var points = transformPoints(combinedPoints, this.state.transform)
+    var boundsTransform = createBoundsTransform(newStreams.times, newStreams.values, 0, this.state.height, this.state.width, -this.state.height)
+    var deltaTimePoints = mergeStreams(newTimeStream, newDeltaTimeStream)
+    deltaTimePoints.unshift([0, 0])
+    deltaTimePoints.push([newTimeStream[newTimeStream.length - 1], 0])
+    deltaTimePoints = transformPoints(deltaTimePoints, boundsTransform)
 
     this.setState({
-      deltaTimePoints: points // streamToPoints(this.state.height, this.state.width, newStreams.times, newStreams.values)
+      deltaTimePoints,
+      boundsTransform
     })
   }
 
@@ -228,17 +230,48 @@ export class RaceGraph extends Component {
     this.transformView.setNativeProps({ style: { transform: [{perspective: 1000}, { matrix: this.addOriginTransformTo(matrix) }] } })
   }
 
+  updateCursorLocations () {
+    this.setCursorLocationX(this._timeline, this.streamTimeToLocationX(this.streamTime))
+    this.setCursorLocationX(this._videoStartLine, this.streamTimeToLocationX(this.props.videoStreamStartTime))
+    this.setCursorLocationX(this._videoEndLine, this.streamTimeToLocationX(this.props.videoStreamEndTime))
+    this.moveClippingRectToLocationX(this.streamTime)
+  }
+
+  moveClippingRectToLocationX (streamTime) {
+    if (!this._segmentEffortClipBox) { return }
+    var timelineX = this.streamTimeToLocationX(streamTime, this.state.transform)
+    var videoStartX = this.streamTimeToLocationX(this.props.videoStreamStartTime, this.state.transform)
+    this._segmentEffortClipBox.setNativeProps({
+      width: (timelineX - videoStartX).toString()
+    })
+  }
+
+  setCursorLocationX (cursor, locationX) {
+    if (cursor) {
+      cursor.setNativeProps({ x1: locationX.toString(), x2: locationX.toString() })
+    }
+  }
+
+  applyTransform () {
+    var identity = MatrixMath.createIdentityMatrix()
+    this.setTransform(identity)
+    var newTransform = this.state.transform.slice()
+    MatrixMath.multiplyInto(newTransform, this.moveTransform, this.state.transform)
+    this.moveTransform = identity
+    this.setState({
+      transform: newTransform
+    })
+  }
+
   render () {
-    // console.log('RE-RENDER')
-
-    var points = this.state.deltaTimePoints
-
-    if (points) {
+    if (this.state.deltaTimePoints) {
+      var points = transformPoints(this.state.deltaTimePoints, this.state.transform)
       var videoStartX = this.videoStartX()
       var videoEndX = this.videoEndX()
 
       var videoStartTime =
         <Line
+          ref={(ref) => { this._videoStartLine = ref }}
           x1={videoStartX}
           y1={0}
           x2={videoStartX}
@@ -249,6 +282,7 @@ export class RaceGraph extends Component {
 
       var videoEndTime =
         <Line
+          ref={(ref) => { this._videoEndLine = ref }}
           x1={videoEndX}
           y1={0}
           x2={videoEndX}
@@ -257,14 +291,13 @@ export class RaceGraph extends Component {
           strokeDasharray={[5, 5]}
           strokeWidth='1' />
 
-      var segmentEffortWidth = videoEndX - videoStartX
       var segmentEffortClip =
         <ClipPath id='segmentEffort'>
           <Rect
             ref={(ref) => { this._segmentEffortClipBox = ref }}
             x={videoStartX}
             y={0}
-            width={segmentEffortWidth}
+            width={0}
             height={this.state.height} />
         </ClipPath>
       var redClipPath =
@@ -305,39 +338,43 @@ export class RaceGraph extends Component {
             {lightRedPath}
             {lightGreenPath}
           </G>
-          <G clipPath='url(#segmentEffort)'>
+          <G
+            clipPath='url(#segmentEffort)'>
             {redPath}
             {greenPath}
           </G>
-          {videoStartTime}
-          {videoEndTime}
         </G>
     }
 
     return (
       <View
         {...this.handlers}
-        style={styles.containerView}
         onLayout={this._onLayout}>
         <View
-          style={styles.transformView}
           ref={(ref) => { this.transformView = ref }}>
           <Svg
             backgroundColor={'white'}
             width={this.props.width}
             height={this.props.height}>
             {all}
-            <Line
-              ref={(ref) => { this._timeline = ref }}
-              x1={0}
-              y1={0}
-              x2={0}
-              y2={this.props.height}
-              stroke={'red'}
-              strokeDasharray={[5, 5]}
-              strokeWidth='1' />
           </Svg>
         </View>
+        <Svg
+          style={{position: 'absolute', left: 0, top: 0, bottom: 0, right: 0}}
+          height='100%'
+          width='100%'>
+          {videoStartTime}
+          {videoEndTime}
+          <Line
+            ref={(ref) => { this._timeline = ref }}
+            x1={0}
+            y1={0}
+            x2={0}
+            y2={this.props.height}
+            stroke={'red'}
+            strokeDasharray={[5, 5]}
+            strokeWidth='1' />
+        </Svg>
       </View>
     )
   }
@@ -354,19 +391,4 @@ RaceGraph.propTypes = {
   onStreamTimeChangeEnd: PropTypes.func,
   videoStreamStartTime: PropTypes.any,
   videoStreamEndTime: PropTypes.any
-}
-
-const styles = {
-  // containerView: {
-  //   width: '100%',
-  //   height: 200
-  // },
-  //
-  // transformView: {
-  //   position: 'absolute',
-  //   top: 0,
-  //   right: 0,
-  //   bottom: 0,
-  //   left: 0,
-  // }
 }

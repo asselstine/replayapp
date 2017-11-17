@@ -162,21 +162,7 @@ export class ActivityStreams extends PureComponent {
   }
 
   addBoundaryTransformTo (matrix) {
-    // matrix is the newTransform
-    var originalTransform = this.combinedTransforms()
-    var boundedTransform = originalTransform.slice()
-    var boundaryTransform = MatrixMath.createIdentityMatrix()
-
-    MatrixBounds.applyMinXScaleOf1(boundaryTransform, originalTransform)
-    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, originalTransform)
-
-    MatrixBounds.applyMinOriginZero(boundaryTransform, boundedTransform)
-    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, originalTransform)
-
-    MatrixBounds.applyMaxX(this.state.width, boundaryTransform, boundedTransform)
-
-    MatrixMath.multiplyInto(matrix, boundaryTransform, matrix)
-    return matrix
+    MatrixBounds.applyBoundaryTransformX(0, this.state.width, matrix, this.combinedTransforms())
   }
 
   resizeToVideo (props) {
@@ -295,9 +281,19 @@ export class ActivityStreams extends PureComponent {
     var newVelocity = interpolate({ times: timeData, values: velocityData })
     var newAltitude = interpolate({ times: timeData, values: altitudeData })
 
+    var height = 80
+
+    var velocityPoints = streamToPoints(height, this.state.width, newVelocity.times, newVelocity.values)
+    velocityPoints.unshift([0, height])
+    velocityPoints.push([this.state.width, height])
+
+    var altitudePoints = streamToPoints(height, this.state.width, newAltitude.times, newAltitude.values)
+    altitudePoints.unshift([0, height])
+    altitudePoints.push([this.state.width, height])
+
     this.setState({
-      velocityPath: streamToPoints(80, this.state.width, newVelocity.times, newVelocity.values),
-      altitudePath: streamToPoints(80, this.state.width, newAltitude.times, newAltitude.values),
+      velocityPath: velocityPoints,
+      altitudePath: altitudePoints
     })
   }
 

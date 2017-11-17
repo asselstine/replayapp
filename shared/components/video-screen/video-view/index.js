@@ -1,3 +1,4 @@
+import { Experiment } from '../../experiment'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { VideoPlayer } from '../../video-player'
