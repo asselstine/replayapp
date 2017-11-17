@@ -12,6 +12,7 @@ import { RacePath } from './race-path'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
+import PinchZoomResponder from 'react-native-pinch-zoom-responder'
 import {
   mergeStreams,
   streamToPoints,
@@ -29,7 +30,7 @@ import {
 } from '../../../../../../streams'
 import { InfoLine } from './info-line'
 import {
-  PanResponder,
+  View,
   Animated
 } from 'react-native'
 
@@ -51,27 +52,43 @@ export class RaceGraph extends Component {
     if (this.props.eventEmitter) {
       this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
     }
-    this._panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: (evt, gestureState) => true,
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-      onMoveShouldSetPanResponder: (evt, gestureState) => true,
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-      onPanResponderTerminationRequest: (evt, gestureState) => false,
-      onPanResponderGrant: (evt, gestureState) => {
+    this.pinchZoomResponder = new PinchZoomResponder({
+      onPinchZoomStart: () => {
+        console.log('pinch zoom start')
+      },
+
+      onPinchZoomEnd: () => {
+        console.log('pinch zoom end')
+      },
+
+      onResponderMove: (e, gestureState) => {
+        console.log('pinch zoom ', gestureState)
+      }
+    })
+    this.handlers = {
+      onStartShouldSetResponder: (evt, gestureState) => true,
+      onStartShouldSetResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetResponder: (evt, gestureState) => true,
+      onMoveShouldSetResponderCapture: (evt, gestureState) => true,
+      onResponderTerminationRequest: (evt, gestureState) => false,
+      onResponderGrant: (evt, gestureState) => {
         if (this.props.onStreamTimeChangeStart) {
           this.props.onStreamTimeChangeStart()
         }
         this.moveCursor(evt)
+        this.pinchZoomResponder.handlers.onResponderGrant(evt)
       },
-      onPanResponderRelease: (evt, gestureState) => {
+      onResponderRelease: (evt, gestureState) => {
         if (this.props.onStreamTimeChangeEnd) {
           this.props.onStreamTimeChangeEnd()
         }
+        this.pinchZoomResponder.handlers.onResponderRelease(evt)
       },
-      onPanResponderMove: (evt, gestureState) => {
+      onResponderMove: (evt, gestureState) => {
         this.moveCursor(evt)
+        this.pinchZoomResponder.handlers.onResponderMove(evt)
       }
-    })
+    }
   }
 
   moveCursor (evt) {
@@ -293,23 +310,27 @@ export class RaceGraph extends Component {
     }
 
     return (
-      <Svg
-        {...this._panResponder.panHandlers}
-        onLayout={this._onLayout}
-        backgroundColor={'white'}
-        width={this.props.width}
-        height={this.props.height}>
-        {all}
-        <Line
-          ref={(ref) => { this._timeline = ref }}
-          x1={0}
-          y1={0}
-          x2={0}
-          y2={this.props.height}
-          stroke={'red'}
-          strokeDasharray={[5, 5]}
-          strokeWidth='1' />
-      </Svg>
+      <View>
+        <View ref={(ref) => { this.transformView = ref }}>
+          <Svg
+            {...this.handlers}
+            onLayout={this._onLayout}
+            backgroundColor={'white'}
+            width={this.props.width}
+            height={this.props.height}>
+            {all}
+            <Line
+              ref={(ref) => { this._timeline = ref }}
+              x1={0}
+              y1={0}
+              x2={0}
+              y2={this.props.height}
+              stroke={'red'}
+              strokeDasharray={[5, 5]}
+              strokeWidth='1' />
+          </Svg>
+        </View>
+      </View>
     )
   }
 }
