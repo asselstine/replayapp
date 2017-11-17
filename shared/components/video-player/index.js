@@ -268,6 +268,8 @@ export class VideoPlayer extends Component {
           activity={this.props.video.activity}
           currentTimeActivity={this.getCurrentTimeActivity()}
           onActivityTimeChange={this._onActivityTimeChange}
+          onActivityTimeChangeStart={this.seekStart}
+          onActivityTimeChangeEnd={this.seekEnd}
           pointerEvents={activityOverlayPointerEvents}
           activityStartTime={activityStartTime}
           activityEndTime={activityEndTime}

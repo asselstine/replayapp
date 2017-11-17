@@ -248,6 +248,8 @@ export class ActivityOverlay extends Component {
             width='100%'
             height={100}
             onStreamTimeChange={this.onActivityTimeChange}
+            onStreamTimeChangeStart={this.props.onActivityTimeChangeStart}
+            onStreamTimeChangeEnd={this.props.onActivityTimeChangeEnd}
             videoStreamStartTime={Video.streamStartAt(this.props.video)}
             videoStreamEndTime={Video.streamEndAt(this.props.video)} />
         break
@@ -487,6 +489,8 @@ ActivityOverlay.propTypes = {
   currentTimeActivity: PropTypes.any.isRequired,
   activity: PropTypes.object.isRequired,
   onActivityTimeChange: PropTypes.func,
+  onActivityTimeChangeStart: PropTypes.func,
+  onActivityTimeChangeEnd: PropTypes.func,
   activityStartTime: PropTypes.any,
   activityEndTime: PropTypes.any,
   style: PropTypes.any,

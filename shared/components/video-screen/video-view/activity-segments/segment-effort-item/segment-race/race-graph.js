@@ -81,6 +81,7 @@ export class RaceGraph extends Component {
       onResponderTerminationRequest: (evt) => false,
       onResponderGrant: (evt) => {
         if (this.props.onStreamTimeChangeStart) {
+          console.log('startttttt')
           this.props.onStreamTimeChangeStart()
         }
         this.moveCursor(evt)
