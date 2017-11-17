@@ -62,30 +62,34 @@ export class RaceGraph extends Component {
       },
 
       onResponderMove: (e, gestureState) => {
-        console.log('pinch zoom ', gestureState)
+        if (gestureState) {
+          // this.setTransform(gestureState.transform)
+        }
+        // console.log('pinch zoom ', gestureState)
       }
-    })
+    }, { transformY: false })
     this.handlers = {
-      onStartShouldSetResponder: (evt, gestureState) => true,
-      onStartShouldSetResponderCapture: (evt, gestureState) => true,
-      onMoveShouldSetResponder: (evt, gestureState) => true,
-      onMoveShouldSetResponderCapture: (evt, gestureState) => true,
-      onResponderTerminationRequest: (evt, gestureState) => false,
-      onResponderGrant: (evt, gestureState) => {
+      onStartShouldSetResponder: (evt) => true,
+      onStartShouldSetResponderCapture: (evt) => true,
+      onMoveShouldSetResponder: (evt) => true,
+      onMoveShouldSetResponderCapture: (evt) => true,
+      onResponderTerminationRequest: (evt) => false,
+      onResponderGrant: (evt) => {
         if (this.props.onStreamTimeChangeStart) {
           this.props.onStreamTimeChangeStart()
         }
         this.moveCursor(evt)
         this.pinchZoomResponder.handlers.onResponderGrant(evt)
       },
-      onResponderRelease: (evt, gestureState) => {
+      onResponderRelease: (evt) => {
         if (this.props.onStreamTimeChangeEnd) {
           this.props.onStreamTimeChangeEnd()
         }
         this.pinchZoomResponder.handlers.onResponderRelease(evt)
       },
-      onResponderMove: (evt, gestureState) => {
+      onResponderMove: (evt) => {
         this.moveCursor(evt)
+        console.log('NATIVE TOUCH: ', evt.nativeEvent.touches[0].locationX)
         this.pinchZoomResponder.handlers.onResponderMove(evt)
       }
     }
@@ -198,7 +202,7 @@ export class RaceGraph extends Component {
     var points = transformPoints(combinedPoints, this.state.transform)
 
     this.setState({
-      deltaTimePoints: points //streamToPoints(this.state.height, this.state.width, newStreams.times, newStreams.values)
+      deltaTimePoints: points // streamToPoints(this.state.height, this.state.width, newStreams.times, newStreams.values)
     })
   }
 
@@ -210,23 +214,24 @@ export class RaceGraph extends Component {
     return this.streamTimeToLocationX(this.props.videoStreamEndTime)
   }
 
+  addOriginTransformTo (matrix) {
+    var translate = MatrixMath.createIdentityMatrix()
+    var copy = matrix.slice()
+    MatrixMath.reuseTranslate2dCommand(translate, (this.state.width / 2.0), 0)
+    MatrixMath.multiplyInto(copy, matrix, translate)
+    MatrixMath.reuseTranslate2dCommand(translate, -(this.state.width / 2.0), 0)
+    MatrixMath.multiplyInto(copy, translate, copy)
+    return copy
+  }
+
+  setTransform (matrix) {
+    this.transformView.setNativeProps({ style: { transform: [{perspective: 1000}, { matrix: this.addOriginTransformTo(matrix) }] } })
+  }
+
   render () {
-    var timeStream = this.props.timeStream
-    var deltaTimeStream = this.props.deltaTimeStream
+    // console.log('RE-RENDER')
 
     var points = this.state.deltaTimePoints
-
-    var minDeltaTimeIndex = minValueIndex(deltaTimeStream)
-    var maxDeltaTimeIndex = maxValueIndex(deltaTimeStream)
-
-    var min = linearIndex(minDeltaTimeIndex, timeStream)
-    var max = linearIndex(maxDeltaTimeIndex, timeStream)
-
-    var vector = [0, 0, 0, 1]
-    vector[0] = min
-    var minV = MatrixMath.multiplyVectorByMatrix(vector, this.state.transform)
-    vector[0] = max
-    var maxV = MatrixMath.multiplyVectorByMatrix(vector, this.state.transform)
 
     if (points) {
       var videoStartX = this.videoStartX()
@@ -310,11 +315,14 @@ export class RaceGraph extends Component {
     }
 
     return (
-      <View>
-        <View ref={(ref) => { this.transformView = ref }}>
+      <View
+        {...this.handlers}
+        style={styles.containerView}
+        onLayout={this._onLayout}>
+        <View
+          style={styles.transformView}
+          ref={(ref) => { this.transformView = ref }}>
           <Svg
-            {...this.handlers}
-            onLayout={this._onLayout}
             backgroundColor={'white'}
             width={this.props.width}
             height={this.props.height}>
@@ -346,4 +354,19 @@ RaceGraph.propTypes = {
   onStreamTimeChangeEnd: PropTypes.func,
   videoStreamStartTime: PropTypes.any,
   videoStreamEndTime: PropTypes.any
+}
+
+const styles = {
+  // containerView: {
+  //   width: '100%',
+  //   height: 200
+  // },
+  //
+  // transformView: {
+  //   position: 'absolute',
+  //   top: 0,
+  //   right: 0,
+  //   bottom: 0,
+  //   left: 0,
+  // }
 }

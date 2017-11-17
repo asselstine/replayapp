@@ -378,7 +378,6 @@ export class ActivityStreams extends PureComponent {
 
     var clipStart = videoStartX
     var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipStart
-    // console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
 
     return (
       <View
