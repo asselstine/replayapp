@@ -50,6 +50,7 @@ export class RaceGraph extends Component {
     }
     this.updateTransform = this.updateTransform.bind(this)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
+    this.resizeToVideo = this.resizeToVideo.bind(this)
   }
 
   componentWillMount () {
@@ -81,7 +82,6 @@ export class RaceGraph extends Component {
       onResponderTerminationRequest: (evt) => false,
       onResponderGrant: (evt) => {
         if (this.props.onStreamTimeChangeStart) {
-          console.log('startttttt')
           this.props.onStreamTimeChangeStart()
         }
         this.moveCursor(evt)
@@ -126,9 +126,14 @@ export class RaceGraph extends Component {
     return matrix
   }
 
-  streamTimeToLocationX (streamTime, transform) {
+  streamTimeToOriginalX (streamTime) {
     var v = [streamTime, 0, 0, 1]
     v = MatrixMath.multiplyVectorByMatrix(v, this.state.boundsTransform)
+    return v[0]
+  }
+
+  streamTimeToLocationX (streamTime, transform) {
+    var v = [this.streamTimeToOriginalX(streamTime), 0, 0, 1]
     v = MatrixMath.multiplyVectorByMatrix(v, transform || this.combinedTransforms())
     return v[0]
   }
@@ -154,20 +159,6 @@ export class RaceGraph extends Component {
     this.updateTransform(nextProps)
   }
 
-  streamTimeToOriginalX (streamTime) {
-    var fraction = streamTime / this.lastTime()
-    return fraction * this.state.width
-  }
-
-  firstTime () {
-    return _.get(this.props, 'timeStream[0]', -1)
-  }
-
-  lastTime () {
-    var lastIndex = (_.get(this.props, 'timeStream.length') || 0) - 1
-    return _.get(this.props, `timeStream[${lastIndex}]`, 0.0) * 1.0
-  }
-
   _onLayout (event) {
     var resize = this.state.width === 1
     var width = _.get(event, 'nativeEvent.layout.width') || 1
@@ -182,12 +173,25 @@ export class RaceGraph extends Component {
     })
   }
 
-  updateTransform (props) {
-    this.initStreamPaths(props)
+  resizeToVideo () {
+    var times = this.props.timeStream
+    if (!(times && this.props.videoStreamStartTime && this.props.videoStreamEndTime && this.state.width > 1)) { return }
+    if (this.props.videoStreamStartTime === this.props.videoStreamEndTime) { return }
+    var bestScale = (times[times.length - 1] - times[0]) / (this.props.videoStreamEndTime - this.props.videoStreamStartTime)
+    var origin = this.streamTimeToLocationX(this.props.videoStreamStartTime)
+    var translate = MatrixMath.createTranslate2d(-origin, 0)
+    var scale = MatrixMath.createIdentityMatrix()
+    scale[0] = bestScale
+    MatrixMath.multiplyInto(translate, scale, translate)
+    this.moveTransform = IDENTITY
+    MatrixBounds.applyBoundaryTransformX(0, this.state.width, translate, translate)
+    this.setState({
+      transform: translate
+    })
   }
 
-  calculateTransform (props, width, height) {
-    return createBoundsTransform(props.timeStream, props.deltaTimeStream, 0, height, width, -height)
+  updateTransform (props) {
+    this.initStreamPaths(props)
   }
 
   initStreamPaths (props) {
@@ -206,7 +210,7 @@ export class RaceGraph extends Component {
     this.setState({
       deltaTimePoints,
       boundsTransform
-    })
+    }, this.resizeToVideo)
   }
 
   videoStartX () {
