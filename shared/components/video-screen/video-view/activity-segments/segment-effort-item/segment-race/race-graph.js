@@ -1,6 +1,8 @@
 import React, {
   Component
 } from 'react'
+import TimerMixin from 'react-timer-mixin'
+import reactMixin from 'react-mixin'
 import {
   Svg,
   ClipPath,
@@ -74,6 +76,7 @@ export class RaceGraph extends Component {
         }
       }
     }, { transformY: false })
+    this.wasTwoFingers = false
     this.handlers = {
       onStartShouldSetResponder: (evt) => true,
       onStartShouldSetResponderCapture: (evt) => true,
@@ -84,7 +87,7 @@ export class RaceGraph extends Component {
         if (this.props.onStreamTimeChangeStart) {
           this.props.onStreamTimeChangeStart()
         }
-        this.moveCursor(evt)
+        this.wasTwoFingers = this.wasTwoFingers || evt.nativeEvent.touches.length > 1
         this.pinchZoomResponder.handlers.onResponderGrant(evt)
       },
       onResponderRelease: (evt) => {
@@ -92,17 +95,38 @@ export class RaceGraph extends Component {
           this.props.onStreamTimeChangeEnd()
         }
         this.pinchZoomResponder.handlers.onResponderRelease(evt)
+        if (!this.wasTwoFingers) {
+          this.moveCursor(evt.nativeEvent.locationX)
+        }
+        this.wasTwoFingers = false
+        this.oneFingerTimeout = false
       },
       onResponderMove: (evt) => {
-        this.moveCursor(evt)
+        this.wasTwoFingers = this.wasTwoFingers || evt.nativeEvent.touches.length > 1
+        if (!this.wasTwoFingers) {
+          if (this.oneFingerTimeout) {
+            this.moveCursor(evt.nativeEvent.locationX)
+          } else {
+            this.startOneFingerTimeout(evt.nativeEvent.locationX)
+          }
+        }
         this.pinchZoomResponder.handlers.onResponderMove(evt)
       }
     }
   }
 
-  moveCursor (evt) {
+  startOneFingerTimeout (locationX) {
+    this.oneFingerTimeout = false
+    this.cursorTimeout = this.setTimeout(() => {
+      if (!this.wasTwoFingers) {
+        this.oneFingerTimeout = true
+      }
+    }, 100)
+  }
+
+  moveCursor (locationX) {
     if (this.props.onStreamTimeChange) {
-      var streamTime = this.locationXToStreamTime(evt.nativeEvent.locationX)
+      var streamTime = this.locationXToStreamTime(locationX)
       streamTime = Math.max(this.props.videoStreamStartTime, Math.min(streamTime, this.props.videoStreamEndTime))
       this.props.onStreamTimeChange(streamTime)
     }
@@ -397,3 +421,5 @@ RaceGraph.propTypes = {
   videoStreamStartTime: PropTypes.any,
   videoStreamEndTime: PropTypes.any
 }
+
+reactMixin(RaceGraph.prototype, TimerMixin)

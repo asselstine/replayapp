@@ -153,11 +153,9 @@ export class VideoPlayer extends Component {
   }
 
   _onBuffer (event) {
-    console.log('!!!! ON BUFFER')
   }
 
   _onLoadStart (event) {
-    console.log('!!!! ON LOAD START')
   }
 
   _fireTimeEvents () {
@@ -219,7 +217,6 @@ export class VideoPlayer extends Component {
   _onEnd (arg) {
     this.seek(0)
     this._updateLastOnProgress(0)
-    console.log('ON END')
   }
 
   render () {

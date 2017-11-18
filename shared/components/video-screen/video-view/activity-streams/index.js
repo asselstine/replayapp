@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
+import TimerMixin from 'react-timer-mixin'
+import reactMixin from 'react-mixin'
 import {
   View,
   Animated
@@ -72,12 +74,10 @@ export class ActivityStreams extends PureComponent {
           // NOTE: should only update if it's not playing
           this.updateCursorLocation()
         }
-        if (touchKeys.length === 1) {
-          var locationX = e.nativeEvent.touches[0].locationX
-          this.moveCursor(locationX)
-        }
       },
     }, { transformY: false })
+    this.wasTwoFingers = false
+    this.oneFingerTimeout = false
     this.handlers = {
       onStartShouldSetResponder: () => { /* console.log('start should set'); */ return true },
       onMoveShouldSetResponder: () => { /* console.log('move should set'); */ return true },
@@ -90,8 +90,17 @@ export class ActivityStreams extends PureComponent {
           this.props.onStreamTimeChangeStart()
         }
         this.pinchZoomResponder.handlers.onResponderGrant(e)
+        this.wasTwoFingers = this.wasTwoFingers || e.nativeEvent.touches.length > 1
       },
       onResponderMove: (e) => {
+        this.wasTwoFingers = this.wasTwoFingers || e.nativeEvent.touches.length > 1
+        if (!this.wasTwoFingers) {
+          if (this.oneFingerTimeout) {
+            this.moveCursor(e.nativeEvent.locationX)
+          } else {
+            this.startOneFingerTimeout(e.nativeEvent.locationX)
+          }
+        }
         this.pinchZoomResponder.handlers.onResponderMove(e)
       },
       onResponderRelease: (e) => {
@@ -99,8 +108,22 @@ export class ActivityStreams extends PureComponent {
         if (this.props.onStreamTimeChangeEnd) {
           this.props.onStreamTimeChangeEnd()
         }
+        if (!this.wasTwoFingers) {
+          this.moveCursor(e.nativeEvent.locationX)
+        }
+        this.oneFingerTimeout = false
+        this.wasTwoFingers = false
       },
     }
+  }
+
+  startOneFingerTimeout (locationX) {
+    this.oneFingerTimeout = false
+    this.cursorTimeout = this.setTimeout(() => {
+      if (!this.wasTwoFingers) {
+        this.oneFingerTimeout = true
+      }
+    }, 100)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -439,3 +462,5 @@ ActivityStreams.defaultProps = {
     flex: 1
   }
 }
+
+reactMixin(ActivityStreams.prototype, TimerMixin)
