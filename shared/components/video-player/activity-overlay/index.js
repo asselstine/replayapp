@@ -198,7 +198,7 @@ export class ActivityOverlay extends Component {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    // this.timeout = this.setTimeout(this._hideOverlay, 2000)
+    this.timeout = this.setTimeout(this._hideOverlay, 3000)
   }
 
   onActivityTimeChange (time) {
@@ -249,6 +249,7 @@ export class ActivityOverlay extends Component {
                                                 streams.timeStream)
         break
       case 'leaderboardComparison':
+        console.log('ActivityOverlay render leaderboardComparison')
         streamGraphOverlay =
           <RaceGraph
             ref={this._raceOverlayRef}
@@ -270,14 +271,10 @@ export class ActivityOverlay extends Component {
     if (this.state.segmentEffort) {
       var segmentEffortTitle =
         <View style={styles.titleContainer}>
-          <Text style={{...styles.segmentName, ...styles.overlayBottomItem}}>{this.state.segmentEffort.name}</Text>
-        </View>
-      var segmentEffortRank =
-        <View style={{...styles.telemetryItem, ...styles.overlayBottomItem}}>
-          <View style={styles.telemetryIconContainer}>
+          <Text style={{...styles.segmentName, ...styles.overlayBottomItem}}>
             <FontAwesome style={styles.telemetryIcon} name='flag-checkered' />
-          </View>
-          <Text style={styles.telemetryLabel}>{rank} | {total}</Text>
+            <Text> {this.state.segmentEffort.name} {rank} | {total}</Text>
+          </Text>
         </View>
     }
 
@@ -314,7 +311,7 @@ export class ActivityOverlay extends Component {
             </View>
             <View
               style={styles.versusOpponent}>
-              <Text style={styles.telemetryLabel}>{_.get(this.state, 'leaderboardEntry.rank', 0)} | {_.get(this.state.leaderboardEntry, 'athlete_name', 'Select Athlete')}</Text>
+              <Text style={styles.telemetryLabel}>{_.get(this.state, 'leaderboardEntry.rank', 0)}. {_.get(this.state.leaderboardEntry, 'athlete_name', 'Select Athlete')}</Text>
             </View>
           </VersusSelect>
           {versusTime}
@@ -355,7 +352,6 @@ export class ActivityOverlay extends Component {
           </View>
           {segmentEffortTitle}
           <View style={{...styles.overlayBottomItem, ...styles.versusTelemetryContainer}}>
-            {segmentEffortRank}
             {versusSelect}
           </View>
         </View>
