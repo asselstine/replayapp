@@ -11,6 +11,8 @@ import _ from 'lodash'
 import { SegmentRace } from './segment-race'
 import { track } from '../../../../../analytics'
 import segmentEffortProperties from '../../../../../analytics/segment-effort-properties'
+import formatDuration from '../../../../../format-duration'
+import formatDistance from '../../../../../format-distance'
 
 export class SegmentEffortItem extends Component {
   constructor (props) {
@@ -60,6 +62,9 @@ export class SegmentEffortItem extends Component {
           style={styles.segmentRace} />
     }
 
+    var duration = _.get(this.props, 'segmentEffort.elapsed_time') * 1000
+    console.log('duration: ', typeof duration, duration)
+
     return (
       <View style={{flex: flex}}>
         <TouchableOpacity onPress={this._toggleRace.bind(this)}>
@@ -70,8 +75,8 @@ export class SegmentEffortItem extends Component {
               {prRankLabel}
             </View>
             <View style={styles.rightPane}>
-              <Text style={styles.headerData}>{_.get(this.props, 'segmentEffort.distance')}m</Text>
-              <Text style={styles.headerData}>{_.get(this.props, 'segmentEffort.elapsed_time')}s</Text>
+              <Text style={styles.headerData}>{formatDistance(_.get(this.props, 'segmentEffort.distance'))}</Text>
+              <Text style={styles.headerData}>{formatDuration(duration)}</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -96,7 +101,7 @@ const styles = {
   },
 
   rightPane: {
-    width: 60
+    width: 70
   },
 
   effortName: {
