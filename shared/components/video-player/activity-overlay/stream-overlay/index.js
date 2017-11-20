@@ -39,10 +39,18 @@ export class StreamOverlay extends Component {
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderTerminationRequest: (evt, gestureState) => false,
       onPanResponderGrant: (evt, gestureState) => {
+        if (this.props.onActivityTimeChangeStart) {
+          this.props.onActivityTimeChangeStart()
+        }
         this._moveCursor(evt)
       },
       onPanResponderMove: (evt, gestureState) => {
         this._moveCursor(evt)
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (this.props.onActivityTimeChangeEnd) {
+          this.props.onActivityTimeChangeEnd()
+        }
       }
     })
   }
@@ -145,7 +153,9 @@ StreamOverlay.propTypes = {
   height: PropTypes.number,
   activityStartTime: PropTypes.any,
   activityEndTime: PropTypes.any,
-  onActivityTimeChange: PropTypes.func
+  onActivityTimeChange: PropTypes.func,
+  onActivityTimeChangeStart: PropTypes.func,
+  onActivityTimeChangeEnd: PropTypes.func,
 }
 
 StreamOverlay.defaultProps = {

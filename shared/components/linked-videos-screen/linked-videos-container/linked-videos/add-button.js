@@ -26,10 +26,6 @@ export class AddButton extends Component {
     this.setState({
       visible: true
     })
-    // if (__DEV__) {
-    //   console.log('RESETTING HELP')
-    //   store.dispatch(resetHelp())
-    // }
   }
 
   onClose () {
