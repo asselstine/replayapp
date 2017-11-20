@@ -54,13 +54,8 @@ export class ActivityOverlay extends Component {
     this.updateLeaderboardData = this.updateLeaderboardData.bind(this)
     this._hideOverlay = this._hideOverlay.bind(this)
     this.onActivityTimeChange = this.onActivityTimeChange.bind(this)
+    this._raceOverlayRef = this._raceOverlayRef.bind(this)
   }
-  //
-  // componentWillReceiveProps (newProps) {
-  //   if (newProps.streams !== this.props.streams) {
-  //     this.setState(this.interpolateStreams(newProps), this.checkCurrentSegmentEffort)
-  //   }
-  // }
 
   interpolateStreams (props) {
     if (!props.streams) { return {} }
@@ -228,6 +223,10 @@ export class ActivityOverlay extends Component {
     )
   }
 
+  _raceOverlayRef (ref) {
+    this._raceOverlay = ref
+  }
+
   render () {
     var velocity = round(Activity.velocityAt(this.props.streams, this.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.currentTimeActivity)} m`
@@ -252,7 +251,7 @@ export class ActivityOverlay extends Component {
       case 'leaderboardComparison':
         streamGraphOverlay =
           <RaceGraph
-            ref={(ref) => { this._raceOverlay = ref }}
+            ref={this._raceOverlayRef}
             timeStream={this.state.segmentEffortTimeStream}
             deltaTimeStream={this.state.versusDeltaTimes}
             width='100%'

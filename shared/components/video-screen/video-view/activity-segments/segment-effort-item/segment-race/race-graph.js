@@ -40,7 +40,7 @@ import {
 
 const IDENTITY = MatrixMath.createIdentityMatrix()
 
-export class RaceGraph extends PureComponent {
+export class RaceGraph extends Component {
   constructor (props) {
     super(props)
     this.moveTransform = IDENTITY
@@ -51,7 +51,6 @@ export class RaceGraph extends PureComponent {
       transform: IDENTITY,
       boundsTransform: IDENTITY,
     }
-    this.updateTransform = this.updateTransform.bind(this)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
   }
 
@@ -124,6 +123,28 @@ export class RaceGraph extends PureComponent {
     }, 100)
   }
 
+  propsHaveChanged (nextProps) {
+    var props = ['timeStream', 'deltaTimeStream', 'width', 'height', 'videoStreamStartTime', 'videoStreamEndTime']
+    for (var i in props) {
+      if (!_.isEqual(nextProps[props[i]], this.props[props[i]])) {
+        return true
+      }
+    }
+    return false
+  }
+
+  shouldComponentUpdate (nextProps, nextState) {
+    if (this.propsHaveChanged(nextProps)) { return true }
+    var state = ['width', 'height', 'transform', 'boundsTransform']
+    for (var i in state) {
+      if (!_.isEqual(nextState[state[i]], this.state[state[i]])) {
+        return true
+      }
+    }
+
+    return false
+  }
+
   moveCursor (locationX) {
     if (this.props.onStreamTimeChange) {
       var streamTime = this.locationXToStreamTime(locationX)
@@ -176,11 +197,13 @@ export class RaceGraph extends PureComponent {
   }
 
   componentDidMount () {
-    this.updateTransform(this.props)
+    this.initStreamPaths(this.props)
   }
 
   componentWillReceiveProps (nextProps) {
-    this.updateTransform(nextProps)
+    if (this.propsHaveChanged(nextProps)) {
+      this.initStreamPaths(nextProps)
+    }
   }
 
   _onLayout (event) {
@@ -210,10 +233,6 @@ export class RaceGraph extends PureComponent {
     this.moveTransform = IDENTITY
     MatrixBounds.applyBoundaryTransformX(0, this.state.width, translate, translate)
     return translate
-  }
-
-  updateTransform (props) {
-    this.initStreamPaths(props)
   }
 
   initStreamPaths (props) {
@@ -413,6 +432,21 @@ export class RaceGraph extends PureComponent {
       </View>
     )
   }
+
+  logProps (props) {
+    console.log('PROPS::::::::::::::::::::::::::::::')
+    console.log(props.timeStream.length)
+    console.log(props.deltaTimeStream.length)
+    console.log(props.width)
+    console.log(props.height)
+    console.log(props.eventEmitter)
+    console.log(props.onStreamTimeChange)
+    console.log(props.onStreamTimeChangeStart)
+    console.log(props.onStreamTimeChangeEnd)
+    console.log(props.videoStreamStartTime)
+    console.log(props.videoStreamEndTime)
+    console.log('____________________________')
+  }
 }
 
 RaceGraph.propTypes = {
@@ -420,12 +454,12 @@ RaceGraph.propTypes = {
   deltaTimeStream: PropTypes.array.isRequired,
   width: PropTypes.any.isRequired,
   height: PropTypes.any.isRequired,
+  videoStreamStartTime: PropTypes.any,
+  videoStreamEndTime: PropTypes.any,
   eventEmitter: PropTypes.object,
   onStreamTimeChange: PropTypes.func,
   onStreamTimeChangeStart: PropTypes.func,
   onStreamTimeChangeEnd: PropTypes.func,
-  videoStreamStartTime: PropTypes.any,
-  videoStreamEndTime: PropTypes.any
 }
 
 reactMixin(RaceGraph.prototype, TimerMixin)

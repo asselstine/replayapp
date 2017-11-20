@@ -90,6 +90,9 @@ export const VideoView = connect(
     this._showTimestampWarning = this._showTimestampWarning.bind(this)
     this.trackOnChangeTab = this.trackOnChangeTab.bind(this)
     this._syncDialogOnClose = this._syncDialogOnClose.bind(this)
+    this.onStreamTimeChange = this.onStreamTimeChange.bind(this)
+    this.onStreamTimeChangeStart = this.onStreamTimeChangeStart.bind(this)
+    this.onStreamTimeChangeEnd = this.onStreamTimeChangeEnd.bind(this)
     Orientation.getOrientation((err, orientation) => {
       if (err) {
         reportError(err)
@@ -439,7 +442,7 @@ export const VideoView = connect(
         <ActivityMap
           tabLabel='Map'
           ref={(ref) => { this._activityMap = ref }}
-          onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
+          onStreamTimeChange={this.onStreamTimeChange}
           streamTime={this.videoTimeToStreamTime(0)}
           eventEmitter={this.eventEmitter}
           activity={activity}
@@ -450,9 +453,9 @@ export const VideoView = connect(
         <ActivitySegmentsContainer
           tabLabel='Race'
           eventEmitter={this.eventEmitter}
-          onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
-          onStreamTimeChangeStart={() => this.onStreamTimeChangeStart()}
-          onStreamTimeChangeEnd={() => this.onStreamTimeChangeEnd()}
+          onStreamTimeChange={this.onStreamTimeChange}
+          onStreamTimeChangeStart={this.onStreamTimeChangeStart}
+          onStreamTimeChangeEnd={this.onStreamTimeChangeEnd}
           video={this.props.video}
           activity={activity} />
 
@@ -460,9 +463,9 @@ export const VideoView = connect(
         activityStreams =
           <ActivityStreams
             tabLabel='Data'
-            onStreamTimeChange={(streamTime) => this.onStreamTimeChange(streamTime)}
-            onStreamTimeChangeStart={() => this.onStreamTimeChangeStart()}
-            onStreamTimeChangeEnd={() => this.onStreamTimeChangeEnd()}
+            onStreamTimeChange={this.onStreamTimeChange}
+            onStreamTimeChangeStart={this.onStreamTimeChangeStart}
+            onStreamTimeChangeEnd={this.onStreamTimeChangeEnd}
             eventEmitter={this.eventEmitter}
             activity={activity}
             streams={this.props.streams}
