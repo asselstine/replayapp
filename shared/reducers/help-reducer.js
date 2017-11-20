@@ -6,9 +6,7 @@ const INIT = {
 }
 
 export default function (state, action) {
-  // console.log('CHECK EEEEET ', action)
   if (typeof state === 'undefined') {
-    // console.log('INITTTT', action)
     state = INIT
   }
   switch (action.type) {
@@ -18,10 +16,8 @@ export default function (state, action) {
         '$set': true
       }
       state = update(state, cmd)
-      // console.log('NEW STATE: ', state)
       break
     case 'RESET_HELP':
-      // console.log('RESETTTT')
       state = INIT
       break
   }

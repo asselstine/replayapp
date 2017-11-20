@@ -1,5 +1,6 @@
 import React, {
-  Component
+  Component,
+  PureComponent,
 } from 'react'
 import TimerMixin from 'react-timer-mixin'
 import reactMixin from 'react-mixin'
@@ -39,7 +40,7 @@ import {
 
 const IDENTITY = MatrixMath.createIdentityMatrix()
 
-export class RaceGraph extends Component {
+export class RaceGraph extends PureComponent {
   constructor (props) {
     super(props)
     this.moveTransform = IDENTITY
@@ -52,7 +53,6 @@ export class RaceGraph extends Component {
     }
     this.updateTransform = this.updateTransform.bind(this)
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
-    this.resizeToVideo = this.resizeToVideo.bind(this)
   }
 
   componentWillMount () {
@@ -150,9 +150,9 @@ export class RaceGraph extends Component {
     return matrix
   }
 
-  streamTimeToOriginalX (streamTime) {
+  streamTimeToOriginalX (streamTime, transform = this.state.boundsTransform) {
     var v = [streamTime, 0, 0, 1]
-    v = MatrixMath.multiplyVectorByMatrix(v, this.state.boundsTransform)
+    v = MatrixMath.multiplyVectorByMatrix(v, transform)
     return v[0]
   }
 
@@ -197,21 +197,19 @@ export class RaceGraph extends Component {
     })
   }
 
-  resizeToVideo () {
+  createInitialTransform (boundsTransform) {
     var times = this.props.timeStream
     if (!(times && this.props.videoStreamStartTime && this.props.videoStreamEndTime && this.state.width > 1)) { return }
     if (this.props.videoStreamStartTime === this.props.videoStreamEndTime) { return }
     var bestScale = (times[times.length - 1] - times[0]) / (this.props.videoStreamEndTime - this.props.videoStreamStartTime)
-    var origin = this.streamTimeToLocationX(this.props.videoStreamStartTime)
+    var origin = this.streamTimeToOriginalX(this.props.videoStreamStartTime, boundsTransform)
     var translate = MatrixMath.createTranslate2d(-origin, 0)
     var scale = MatrixMath.createIdentityMatrix()
     scale[0] = bestScale
     MatrixMath.multiplyInto(translate, scale, translate)
     this.moveTransform = IDENTITY
     MatrixBounds.applyBoundaryTransformX(0, this.state.width, translate, translate)
-    this.setState({
-      transform: translate
-    })
+    return translate
   }
 
   updateTransform (props) {
@@ -219,8 +217,10 @@ export class RaceGraph extends Component {
   }
 
   initStreamPaths (props) {
-    var timeStream = props.timeStream
-    var deltaTimeStream = props.deltaTimeStream
+    this.setState(this.calculate(props.timeStream, props.deltaTimeStream))
+  }
+
+  calculate (timeStream, deltaTimeStream) {
     var newStreams = interpolate({ times: timeStream, values: deltaTimeStream, density: 1000 })
     var newTimeStream = newStreams.times
     var newDeltaTimeStream = newStreams.values
@@ -231,10 +231,16 @@ export class RaceGraph extends Component {
     deltaTimePoints.push([newTimeStream[newTimeStream.length - 1], 0])
     deltaTimePoints = transformPoints(deltaTimePoints, boundsTransform)
 
-    this.setState({
+    var transform = this.createInitialTransform(boundsTransform)
+
+    var result = {
       deltaTimePoints,
       boundsTransform
-    }, this.resizeToVideo)
+    }
+    if (transform) {
+      result.transform = transform
+    }
+    return result
   }
 
   videoStartX () {
@@ -293,7 +299,7 @@ export class RaceGraph extends Component {
   }
 
   render () {
-    if (this.state.deltaTimePoints) {
+    if (this.state.deltaTimePoints && this.state.transform) {
       var points = transformPoints(this.state.deltaTimePoints, this.state.transform)
       var videoStartX = this.videoStartX()
       var videoEndX = this.videoEndX()

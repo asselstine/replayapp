@@ -36,7 +36,6 @@ export class SegmentRace extends Component {
       .retrieveLeaderboard(segmentId)
       .then((response) => {
         response.json().then((json) => {
-          // console.log(`Retreived leaderboard for ${segmentId}: with ${json.entries.length} entry `, json.entries[0])
           this.setState({
             versusLeaderboardEntry: json.entries[0],
             leaderboard: json.entries
@@ -50,9 +49,7 @@ export class SegmentRace extends Component {
       Strava
         .compareEfforts(this.props.segmentEffort.segment.id, this.props.segmentEffort.id, this.state.versusLeaderboardEntry.effort_id)
         .then((response) => {
-          // console.log(response)
           response.json().then((json) => {
-            // console.log('compare efforts response: ', json)
             this.setState({
               versusDeltaTimes: json.delta_time
             })

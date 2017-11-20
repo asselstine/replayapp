@@ -79,6 +79,9 @@ export class ActivityOverlay extends Component {
     this.listener = this.props.eventEmitter.addListener('progressActivityTime', this.updateCurrentTime.bind(this))
   }
 
+  componentWillReceiveProps (props) {
+  }
+
   componentWillUnmount () {
     this.listener.remove()
   }
@@ -108,16 +111,18 @@ export class ActivityOverlay extends Component {
   }
 
   _showOverlay (overlay) {
-    this.setState({ streamOverlay: overlay }, () => {
-      Animated.timing(
-        this.state.streamOverlayProgress,
-        {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true
-        }
-      ).start()
-    })
+    if (this.state.streamOverlay !== overlay) {
+      this.setState({ streamOverlay: overlay }, () => {
+        Animated.timing(
+          this.state.streamOverlayProgress,
+          {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true
+          }
+        ).start()
+      })
+    }
   }
 
   _toggleOverlay (overlay) {
@@ -144,9 +149,7 @@ export class ActivityOverlay extends Component {
 
   checkCurrentSegmentEffort () {
     var segmentEffort = this.currentSegmentEffort()
-    // console.log('currentSegmentEffort: ', this.currentTimeActivity, _.get(segmentEffort, 'name'))
-    if (segmentEffort != this.state.segmentEffort) {
-      // console.log('SEGMENT EFFORT CHANGED !!!!!!!!!!!!!', segmentEffort.id)
+    if (segmentEffort !== this.state.segmentEffort) {
       this.setState({ segmentEffort }, this.onChangeSegmentEffort)
     }
   }
@@ -200,7 +203,7 @@ export class ActivityOverlay extends Component {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    this.timeout = this.setTimeout(this._hideOverlay, 2000)
+    // this.timeout = this.setTimeout(this._hideOverlay, 2000)
   }
 
   onActivityTimeChange (time) {
@@ -228,8 +231,6 @@ export class ActivityOverlay extends Component {
   render () {
     var velocity = round(Activity.velocityAt(this.props.streams, this.currentTimeActivity), 1)
     var altitude = `${Activity.altitudeAt(this.props.streams, this.currentTimeActivity)} m`
-
-    // console.log('render ', _.keys(this.props))
 
     var streamOverlayStyle = {
       opacity: this.state.streamOverlayProgress

@@ -45,12 +45,11 @@ export class Experiment extends PureComponent {
       },
     }, { transformY: false })
     this.handlers = {
-      onStartShouldSetResponder: () => { /* console.log('start should set'); */ return true },
-      onMoveShouldSetResponder: () => { /* console.log('move should set'); */ return true },
-      onStartShouldSetResponderCapture: () => { /* console.log('start set capture'); */ return true },
-      onMoveShouldSetResponderCapture: () => { /* console.log('move set capture'); */ return true },
-      onResponderReject: (e) => { /* console.log('reject') */ },
-      onResponderTerminationRequest: () => { /* console.log('terminate request'); */ return false },
+      onStartShouldSetResponder: () => { return true },
+      onMoveShouldSetResponder: () => { return true },
+      onStartShouldSetResponderCapture: () => { return true },
+      onMoveShouldSetResponderCapture: () => { return true },
+      onResponderTerminationRequest: () => { return false },
       onResponderGrant: (e) => {
         this.pinchZoomResponder.handlers.onResponderGrant(e)
       },

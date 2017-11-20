@@ -134,6 +134,9 @@ export class VideoPlayer extends Component {
     this.clearInterval(this._timeInterval)
   }
 
+  componentWillReceiveProps ( props) {
+  }
+
   togglePlay () {
     if (this.state.paused) {
       // this.seek(this.getCurrentTime())
