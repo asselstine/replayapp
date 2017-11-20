@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
+import TimerMixin from 'react-timer-mixin'
+import reactMixin from 'react-mixin'
 import {
   View,
   Animated
@@ -72,26 +74,32 @@ export class ActivityStreams extends PureComponent {
           // NOTE: should only update if it's not playing
           this.updateCursorLocation()
         }
-        if (touchKeys.length === 1) {
-          var locationX = e.nativeEvent.touches[0].locationX
-          this.moveCursor(locationX)
-        }
       },
     }, { transformY: false })
+    this.wasTwoFingers = false
+    this.oneFingerTimeout = false
     this.handlers = {
-      onStartShouldSetResponder: () => { /* console.log('start should set'); */ return true },
-      onMoveShouldSetResponder: () => { /* console.log('move should set'); */ return true },
-      onStartShouldSetResponderCapture: () => { /* console.log('start set capture'); */ return true },
-      onMoveShouldSetResponderCapture: () => { /* console.log('move set capture'); */ return true },
-      onResponderReject: (e) => { /* console.log('reject') */ },
-      onResponderTerminationRequest: () => { /* console.log('terminate request'); */ return false },
+      onStartShouldSetResponder: () => { return true },
+      onMoveShouldSetResponder: () => { return true },
+      onStartShouldSetResponderCapture: () => { return true },
+      onMoveShouldSetResponderCapture: () => { return true },
+      onResponderTerminationRequest: () => { return false },
       onResponderGrant: (e) => {
         if (this.props.onStreamTimeChangeStart) {
           this.props.onStreamTimeChangeStart()
         }
         this.pinchZoomResponder.handlers.onResponderGrant(e)
+        this.wasTwoFingers = this.wasTwoFingers || e.nativeEvent.touches.length > 1
       },
       onResponderMove: (e) => {
+        this.wasTwoFingers = this.wasTwoFingers || e.nativeEvent.touches.length > 1
+        if (!this.wasTwoFingers) {
+          if (this.oneFingerTimeout) {
+            this.moveCursor(e.nativeEvent.locationX)
+          } else {
+            this.startOneFingerTimeout(e.nativeEvent.locationX)
+          }
+        }
         this.pinchZoomResponder.handlers.onResponderMove(e)
       },
       onResponderRelease: (e) => {
@@ -99,8 +107,22 @@ export class ActivityStreams extends PureComponent {
         if (this.props.onStreamTimeChangeEnd) {
           this.props.onStreamTimeChangeEnd()
         }
+        if (!this.wasTwoFingers) {
+          this.moveCursor(e.nativeEvent.locationX)
+        }
+        this.oneFingerTimeout = false
+        this.wasTwoFingers = false
       },
     }
+  }
+
+  startOneFingerTimeout (locationX) {
+    this.oneFingerTimeout = false
+    this.cursorTimeout = this.setTimeout(() => {
+      if (!this.wasTwoFingers) {
+        this.oneFingerTimeout = true
+      }
+    }, 100)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -162,21 +184,7 @@ export class ActivityStreams extends PureComponent {
   }
 
   addBoundaryTransformTo (matrix) {
-    // matrix is the newTransform
-    var originalTransform = this.combinedTransforms()
-    var boundedTransform = originalTransform.slice()
-    var boundaryTransform = MatrixMath.createIdentityMatrix()
-
-    MatrixBounds.applyMinXScaleOf1(boundaryTransform, originalTransform)
-    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, originalTransform)
-
-    MatrixBounds.applyMinOriginZero(boundaryTransform, boundedTransform)
-    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, originalTransform)
-
-    MatrixBounds.applyMaxX(this.state.width, boundaryTransform, boundedTransform)
-
-    MatrixMath.multiplyInto(matrix, boundaryTransform, matrix)
-    return matrix
+    MatrixBounds.applyBoundaryTransformX(0, this.state.width, matrix, this.combinedTransforms())
   }
 
   resizeToVideo (props) {
@@ -295,9 +303,19 @@ export class ActivityStreams extends PureComponent {
     var newVelocity = interpolate({ times: timeData, values: velocityData })
     var newAltitude = interpolate({ times: timeData, values: altitudeData })
 
+    var height = 80
+
+    var velocityPoints = streamToPoints(height, this.state.width, newVelocity.times, newVelocity.values)
+    velocityPoints.unshift([0, height])
+    velocityPoints.push([this.state.width, height])
+
+    var altitudePoints = streamToPoints(height, this.state.width, newAltitude.times, newAltitude.values)
+    altitudePoints.unshift([0, height])
+    altitudePoints.push([this.state.width, height])
+
     this.setState({
-      velocityPath: streamToPoints(80, this.state.width, newVelocity.times, newVelocity.values),
-      altitudePath: streamToPoints(80, this.state.width, newAltitude.times, newAltitude.values),
+      velocityPath: velocityPoints,
+      altitudePath: altitudePoints
     })
   }
 
@@ -378,7 +396,6 @@ export class ActivityStreams extends PureComponent {
 
     var clipStart = videoStartX
     var clipWidth = this.streamTimeToLocationX(this.streamTime, this.state.transform) - clipStart
-    // console.log(`videoStreamEndTime: ${this.props.videoStreamEndTime}`)
 
     return (
       <View
@@ -444,3 +461,5 @@ ActivityStreams.defaultProps = {
     flex: 1
   }
 }
+
+reactMixin(ActivityStreams.prototype, TimerMixin)

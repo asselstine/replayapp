@@ -4,6 +4,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Button,
   Text
 } from 'react-native'
 

@@ -10,19 +10,15 @@ import PropTypes from 'prop-types'
 
 export class RawVideoItem extends PureComponent {
   componentWillMount () {
-    // console.log('componentWillMount: ', this.props.rawVideoData.localIdentifier)
   }
 
   componentWillUnmount () {
-    // console.log('componentWillUnmount: ', this.props.rawVideoData.localIdentifier)
   }
 
   onLoadStart (event) {
-    // console.log('onLoadStart: ', this.props.rawVideoData.localIdentifier, event)
   }
 
   onLoad (event) {
-    // console.log('onLoad: ', this.props.rawVideoData.localIdentifier, event)
   }
 
   render () {

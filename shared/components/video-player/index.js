@@ -134,6 +134,9 @@ export class VideoPlayer extends Component {
     this.clearInterval(this._timeInterval)
   }
 
+  componentWillReceiveProps ( props) {
+  }
+
   togglePlay () {
     if (this.state.paused) {
       // this.seek(this.getCurrentTime())
@@ -153,11 +156,9 @@ export class VideoPlayer extends Component {
   }
 
   _onBuffer (event) {
-    console.log('!!!! ON BUFFER')
   }
 
   _onLoadStart (event) {
-    console.log('!!!! ON LOAD START')
   }
 
   _fireTimeEvents () {
@@ -219,7 +220,6 @@ export class VideoPlayer extends Component {
   _onEnd (arg) {
     this.seek(0)
     this._updateLastOnProgress(0)
-    console.log('ON END')
   }
 
   render () {
@@ -268,6 +268,8 @@ export class VideoPlayer extends Component {
           activity={this.props.video.activity}
           currentTimeActivity={this.getCurrentTimeActivity()}
           onActivityTimeChange={this._onActivityTimeChange}
+          onActivityTimeChangeStart={this.seekStart}
+          onActivityTimeChangeEnd={this.seekEnd}
           pointerEvents={activityOverlayPointerEvents}
           activityStartTime={activityStartTime}
           activityEndTime={activityEndTime}

@@ -14,7 +14,7 @@ export const MatrixBounds = {
   /*
   Ensures that the transform cannot expose any points less than the origin
   */
-  applyMinOriginZero (boundaryTransform, currentTransform) {
+  applyMinXZero (boundaryTransform, currentTransform) {
     this.applyMinX(0, boundaryTransform, currentTransform)
   },
 
@@ -34,5 +34,27 @@ export const MatrixBounds = {
       MatrixMath.multiplyInto(boundaryTransform, MatrixMath.createTranslate2d(-diff, 0), boundaryTransform)
     }
     return boundaryTransform
+  },
+
+  createBoundaryTransformX (x1, x2, matrix) {
+    // matrix is the newTransform
+    var boundedTransform = matrix.slice()
+    var boundaryTransform = MatrixMath.createIdentityMatrix()
+
+    MatrixBounds.applyMinXScaleOf1(boundaryTransform, matrix)
+    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, matrix)
+
+    MatrixBounds.applyMinX(x1, boundaryTransform, boundedTransform)
+    MatrixMath.multiplyInto(boundedTransform, boundaryTransform, matrix)
+
+    MatrixBounds.applyMaxX(x2, boundaryTransform, boundedTransform)
+
+    return boundaryTransform
+  },
+
+  applyBoundaryTransformX (x1, x2, newMatrix, oldMatrix) {
+    var boundaryTransform = MatrixBounds.createBoundaryTransformX(x1, x2, oldMatrix)
+    MatrixMath.multiplyInto(newMatrix, boundaryTransform, newMatrix)
+    return newMatrix
   }
 }

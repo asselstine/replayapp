@@ -35,7 +35,6 @@ export class ActivityOverlay extends Component {
   constructor (props) {
     super(props)
     this.state = _.merge({}, {
-      currentTimeActivity: props.currentTimeActivity,
       streamOverlay: false,
       streamOverlayProgress: new Animated.Value(0),
       leaderboardCount: 0,
@@ -47,17 +46,15 @@ export class ActivityOverlay extends Component {
       timeStream: [],
       velocityStream: [],
       altitudeStream: []
-    }, this.interpolateStreams(props))
+    })
+    this.currentTimeActivity = this.props.currentTimeActivity
     this.onChangeSegmentEffort = this.onChangeSegmentEffort.bind(this)
     this.checkCurrentSegmentEffort = this.checkCurrentSegmentEffort.bind(this)
     this.updateLeaderboardComparisonData = this.updateLeaderboardComparisonData.bind(this)
     this.updateLeaderboardData = this.updateLeaderboardData.bind(this)
     this._hideOverlay = this._hideOverlay.bind(this)
     this.onActivityTimeChange = this.onActivityTimeChange.bind(this)
-  }
-
-  componentWillReceiveProps (newProps) {
-    this.setState(this.interpolateStreams(newProps), this.checkCurrentSegmentEffort)
+    this._raceOverlayRef = this._raceOverlayRef.bind(this)
   }
 
   interpolateStreams (props) {
@@ -77,12 +74,16 @@ export class ActivityOverlay extends Component {
     this.listener = this.props.eventEmitter.addListener('progressActivityTime', this.updateCurrentTime.bind(this))
   }
 
+  componentWillReceiveProps (props) {
+  }
+
   componentWillUnmount () {
     this.listener.remove()
   }
 
   updateCurrentTime (currentTimeActivity) {
-    this.setState({currentTimeActivity: currentTimeActivity}, this.checkCurrentSegmentEffort)
+    this.currentTimeActivity = currentTimeActivity
+    this.checkCurrentSegmentEffort()
     if (this._velocityOverlay) {
       this._velocityOverlay.updateCurrentTimeActivity(currentTimeActivity)
     }
@@ -105,16 +106,18 @@ export class ActivityOverlay extends Component {
   }
 
   _showOverlay (overlay) {
-    this.setState({ streamOverlay: overlay }, () => {
-      Animated.timing(
-        this.state.streamOverlayProgress,
-        {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true
-        }
-      ).start()
-    })
+    if (this.state.streamOverlay !== overlay) {
+      this.setState({ streamOverlay: overlay }, () => {
+        Animated.timing(
+          this.state.streamOverlayProgress,
+          {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true
+          }
+        ).start()
+      })
+    }
   }
 
   _toggleOverlay (overlay) {
@@ -127,7 +130,7 @@ export class ActivityOverlay extends Component {
   }
 
   currentSegmentEffort () {
-    var currentTime = this.state.currentTimeActivity
+    var currentTime = this.currentTimeActivity
     var times = _.get(this.props, 'streams.time.data')
     return _.first(this.props.segmentEfforts.reduce((matchingSegmentEfforts, segmentEffort) => {
       if (times &&
@@ -141,9 +144,7 @@ export class ActivityOverlay extends Component {
 
   checkCurrentSegmentEffort () {
     var segmentEffort = this.currentSegmentEffort()
-    // console.log('currentSegmentEffort: ', this.state.currentTimeActivity, _.get(segmentEffort, 'name'))
-    if (segmentEffort != this.state.segmentEffort) {
-      // console.log('SEGMENT EFFORT CHANGED !!!!!!!!!!!!!', segmentEffort.id)
+    if (segmentEffort !== this.state.segmentEffort) {
       this.setState({ segmentEffort }, this.onChangeSegmentEffort)
     }
   }
@@ -197,7 +198,7 @@ export class ActivityOverlay extends Component {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    this.timeout = this.setTimeout(this._hideOverlay, 2000)
+    // this.timeout = this.setTimeout(this._hideOverlay, 2000)
   }
 
   onActivityTimeChange (time) {
@@ -213,16 +214,22 @@ export class ActivityOverlay extends Component {
         ref={(ref) => { this._velocityOverlay = ref }}
         activityStartTime={this.props.activityStartTime}
         activityEndTime={this.props.activityEndTime}
-        currentTimeActivity={this.props.currentTimeActivity}
+        currentTimeActivity={this.currentTimeActivity}
         timeStream={timeStream}
         dataStream={overlayData}
-        onActivityTimeChange={this.onActivityTimeChange} />
+        onActivityTimeChange={this.onActivityTimeChange}
+        onActivityTimeChangeStart={this.props.onActivityTimeChangeStart}
+        onActivityTimeChangeEnd={this.props.onActivityTimeChangeEnd} />
     )
   }
 
+  _raceOverlayRef (ref) {
+    this._raceOverlay = ref
+  }
+
   render () {
-    var velocity = round(Activity.velocityAt(this.props.streams, this.state.currentTimeActivity), 1)
-    var altitude = `${Activity.altitudeAt(this.props.streams, this.state.currentTimeActivity)} m`
+    var velocity = round(Activity.velocityAt(this.props.streams, this.currentTimeActivity), 1)
+    var altitude = `${Activity.altitudeAt(this.props.streams, this.currentTimeActivity)} m`
 
     var streamOverlayStyle = {
       opacity: this.state.streamOverlayProgress
@@ -230,24 +237,28 @@ export class ActivityOverlay extends Component {
 
     switch (this.state.streamOverlay) {
       case 'velocity':
+        var streams = this.interpolateStreams(this.props)
         var streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
-                                                this.state.velocityStream,
-                                                this.state.timeStream)
+                                                streams.velocityStream,
+                                                streams.timeStream)
         break
       case 'altitude':
+        streams = this.interpolateStreams(this.props)
         streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
-                                                this.state.altitudeStream,
-                                                this.state.timeStream)
+                                                streams.altitudeStream,
+                                                streams.timeStream)
         break
       case 'leaderboardComparison':
         streamGraphOverlay =
           <RaceGraph
-            ref={(ref) => { this._raceOverlay = ref }}
+            ref={this._raceOverlayRef}
             timeStream={this.state.segmentEffortTimeStream}
             deltaTimeStream={this.state.versusDeltaTimes}
             width='100%'
             height={100}
             onStreamTimeChange={this.onActivityTimeChange}
+            onStreamTimeChangeStart={this.props.onActivityTimeChangeStart}
+            onStreamTimeChangeEnd={this.props.onActivityTimeChangeEnd}
             videoStreamStartTime={Video.streamStartAt(this.props.video)}
             videoStreamEndTime={Video.streamEndAt(this.props.video)} />
         break
@@ -287,7 +298,7 @@ export class ActivityOverlay extends Component {
               segmentEffortTimeStream={this.state.segmentEffortTimeStream}
               versusLeaderboardEntry={this.state.leaderboardEntry}
               versusDeltaTimes={this.state.versusDeltaTimes}
-              currentStreamTime={this.state.currentTimeActivity}
+              currentStreamTime={this.currentTimeActivity}
               style={styles.telemetryLabel} />
           </TouchableOpacity>
       }
@@ -487,6 +498,8 @@ ActivityOverlay.propTypes = {
   currentTimeActivity: PropTypes.any.isRequired,
   activity: PropTypes.object.isRequired,
   onActivityTimeChange: PropTypes.func,
+  onActivityTimeChangeStart: PropTypes.func,
+  onActivityTimeChangeEnd: PropTypes.func,
   activityStartTime: PropTypes.any,
   activityEndTime: PropTypes.any,
   style: PropTypes.any,
