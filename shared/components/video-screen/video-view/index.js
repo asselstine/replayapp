@@ -481,9 +481,9 @@ export const VideoView = connect(
           tabBarUnderlineStyle={{backgroundColor: colours.BRAND}}
           onChangeTab={this.trackOnChangeTab}
           style={styles.streamsContainer}>
+          {activityStreams}
           {activityMap}
           {activitySegments}
-          {activityStreams}
         </ScrollableTabView>
     }
 
