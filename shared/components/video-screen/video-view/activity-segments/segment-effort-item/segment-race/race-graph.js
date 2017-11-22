@@ -224,14 +224,21 @@ export class RaceGraph extends Component {
     var times = this.props.timeStream
     if (!(times && this.props.videoStreamStartTime && this.props.videoStreamEndTime && this.state.width > 1)) { return }
     if (this.props.videoStreamStartTime === this.props.videoStreamEndTime) { return }
-    var bestScale = (times[times.length - 1] - times[0]) / (this.props.videoStreamEndTime - this.props.videoStreamStartTime)
-    var origin = this.streamTimeToOriginalX(this.props.videoStreamStartTime, boundsTransform)
+
+    var segmentDuration = times[times.length - 1] - times[0]
+    var boundedVideoStart = Math.max(this.props.videoStreamStartTime, times[0])
+    var boundedVideoEnd = Math.min(this.props.videoStreamEndTime, times[times.length - 1])
+    var videoDuration = boundedVideoEnd - boundedVideoStart
+    var bestScale = segmentDuration / videoDuration
+
+    var origin = this.streamTimeToOriginalX(boundedVideoStart, boundsTransform)
     var translate = MatrixMath.createTranslate2d(-origin, 0)
     var scale = MatrixMath.createIdentityMatrix()
     scale[0] = bestScale
     MatrixMath.multiplyInto(translate, scale, translate)
-    this.moveTransform = IDENTITY
-    MatrixBounds.applyBoundaryTransformX(0, this.state.width, translate, translate)
+    // this.moveTransform = IDENTITY
+    // MatrixBounds.applyBoundaryTransformX(0, this.state.width, translate, translate)
+    // return translate
     return translate
   }
 
@@ -257,7 +264,10 @@ export class RaceGraph extends Component {
       boundsTransform
     }
     if (transform) {
+      console.log('Made transform')
       result.transform = transform
+    } else {
+      console.log('Transform not possible')
     }
     return result
   }
