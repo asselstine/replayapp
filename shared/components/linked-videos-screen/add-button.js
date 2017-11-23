@@ -4,11 +4,11 @@ import React, {
 import {
   TouchableOpacity
 } from 'react-native'
-import { resetHelp } from '../../../../actions/help-actions'
-import { store } from '../../../../store'
-import { newVideo } from '../../../../actions/video-actions'
+import { resetHelp } from '../../actions/help-actions'
+import { store } from '../../store'
+import { newVideo } from '../../actions/video-actions'
 import Icon from 'react-native-vector-icons/Ionicons'
-import { RawVideoModal } from '../../raw-video-modal'
+import { RawVideoModal } from './raw-video-modal'
 import PropTypes from 'prop-types'
 
 export class AddButton extends Component {
@@ -68,7 +68,7 @@ const styles = {
 
   addIcon: {
     textAlign: 'center',
-    fontSize: 72,
+    fontSize: 36,
     fontWeight: '500'
   }
 }

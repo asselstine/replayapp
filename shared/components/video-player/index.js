@@ -12,7 +12,6 @@ import {
 } from 'react-native'
 import { PlayerOverlay } from './player-overlay'
 import { ActivityOverlayContainer } from './activity-overlay-container'
-import EventEmitter from 'EventEmitter'
 import reportError from '../../report-error'
 import _ from 'lodash'
 
@@ -27,7 +26,6 @@ export class VideoPlayer extends Component {
       playerOverlayProgress: new Animated.Value(1),
       showPlayerOverlay: true,
       muted: true,
-      eventEmitter: new EventEmitter()
     }
     this._onLoadStart = this._onLoadStart.bind(this)
     this._onBuffer = this._onBuffer.bind(this)
@@ -166,8 +164,8 @@ export class VideoPlayer extends Component {
     if (this.props.onProgress) {
       this.props.onProgress(videoTime)
     }
-    this.state.eventEmitter.emit('progressVideoTime', videoTime)
-    this.state.eventEmitter.emit('progressActivityTime', this.getCurrentTimeActivity())
+    this.props.eventEmitter.emit('progressVideoTime', videoTime)
+    this.props.eventEmitter.emit('progressActivityTime', this.getCurrentTimeActivity())
   }
 
   _onProgress (event) {
@@ -224,10 +222,7 @@ export class VideoPlayer extends Component {
 
   render () {
     var whAspectRatio = this.props.video.rawVideoData.width / (1.0 * this.props.video.rawVideoData.height)
-    let videoStyle = update({
-      backgroundColor: 'black',
-      width: '100%',
-    }, { $merge: this.props.style })
+    let videoStyle = update(styles.videoStyle, { $merge: this.props.style })
 
     if (!videoStyle.height) {
       videoStyle.aspectRatio = whAspectRatio
@@ -264,7 +259,7 @@ export class VideoPlayer extends Component {
     if (this.props.video.activity && this.props.fullscreen /* !this.props.hideActivityOverlay */ ) {
       var activityOverlay =
         <ActivityOverlayContainer
-          eventEmitter={this.state.eventEmitter}
+          eventEmitter={this.props.eventEmitter}
           activity={this.props.video.activity}
           currentTimeActivity={this.getCurrentTimeActivity()}
           onActivityTimeChange={this._onActivityTimeChange}
@@ -276,22 +271,18 @@ export class VideoPlayer extends Component {
           video={this.props.video} />
     }
 
-/*
-onLoadStart={this._onLoadStart}
-onError={(arg) => { this._onError(arg) }}
-onBuffer={this._onBuffer}
-
-*/
-
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo}>
         <View style={this.props.style}>
           <RNVideo
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
+            onLoadStart={this._onLoadStart}
             onLoad={(arg) => { this._fireTimeEvents() }}
             onProgress={(arg) => { this._onProgress(arg) }}
             onEnd={(arg) => { this._onEnd(arg) }}
+            onError={(arg) => { this._onError(arg) }}
+            onBuffer={this._onBuffer}
             paused={this.state.paused}
             style={videoStyle}
             muted={this.state.muted}
@@ -299,7 +290,7 @@ onBuffer={this._onBuffer}
             resizeMode='fill'
             />
           <PlayerOverlay
-            eventEmitter={this.state.eventEmitter}
+            eventEmitter={this.props.eventEmitter}
             paused={this.state.paused}
             muted={this.state.muted}
             fullscreen={this.props.fullscreen}
@@ -325,6 +316,7 @@ onBuffer={this._onBuffer}
 reactMixin(VideoPlayer.prototype, TimerMixin)
 
 VideoPlayer.propTypes = {
+  eventEmitter: PropTypes.object.isRequired,
   video: PropTypes.object.isRequired,
   onClose: PropTypes.func,
   onProgress: PropTypes.func,
@@ -338,4 +330,11 @@ VideoPlayer.propTypes = {
 VideoPlayer.defaultProps = {
   style: {},
   fullscreen: false
+}
+
+const styles = {
+  videoStyle: {
+    backgroundColor: 'black',
+    width: '100%',
+  }
 }

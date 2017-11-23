@@ -17,13 +17,14 @@ import videoProperties from '../../analytics/video-properties'
 import rawVideoDataProperties from '../../analytics/raw-video-data-properties'
 import { newVideo, removeVideo } from '../../actions/video-actions'
 import { WelcomeDialog } from './welcome-dialog'
+import { AddButton } from './add-button'
+import _ from 'lodash'
 
 export class LinkedVideosScreen extends Component {
   constructor (props) {
     super(props)
     this.onPressVideo = this.onPressVideo.bind(this)
     this.onLongPressVideo = this.onLongPressVideo.bind(this)
-    this.onAddRawVideo = this.onAddRawVideo.bind(this)
   }
 
   onPressVideo (video) {
@@ -45,16 +46,10 @@ export class LinkedVideosScreen extends Component {
     dispatchTrack(removeVideo(video), videoProperties(video))
   }
 
-  onAddRawVideo (rawVideoData) {
-   dispatchTrack(newVideo(rawVideoData), rawVideoDataProperties(rawVideoData))
-   this.props.navigation.navigate('Video', { localIdentifier: rawVideoData.localIdentifier })
-  }
-
   render () {
     return (
       <View>
         <LinkedVideosContainer
-          onAddRawVideo={this.onAddRawVideo}
           onPressVideo={this.onPressVideo}
           onLongPressVideo={this.onLongPressVideo} />
         <WelcomeDialog />
@@ -63,9 +58,13 @@ export class LinkedVideosScreen extends Component {
   }
 }
 
-LinkedVideosScreen.navigationOptions = ({ navigation }) => {
+LinkedVideosScreen.navigationOptions = (props) => {
   return {
     title: 'Videos',
-    headerLeft: <MenuButton onPress={() => { navigation.navigate('DrawerOpen') }} />
+    headerLeft: <MenuButton onPress={() => { props.navigation.navigate('DrawerOpen') }} />,
+    headerRight: <AddButton onSelectRawVideo={(rawVideoData) => {
+      dispatchTrack(newVideo(rawVideoData), rawVideoDataProperties(rawVideoData))
+      props.navigation.navigate('Video', { localIdentifier: rawVideoData.localIdentifier })
+    }} />
   }
 }

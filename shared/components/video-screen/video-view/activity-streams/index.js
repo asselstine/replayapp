@@ -56,7 +56,7 @@ export class ActivityStreams extends PureComponent {
   }
 
   componentWillMount () {
-    this._subscription = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
+    this._subscription = this.props.eventEmitter.addListener('progressActivityTime', this.onStreamTimeProgress)
     this.pinchZoomResponder = new PinchZoomResponder({
       onPinchZoomStart: (e) => {
       },

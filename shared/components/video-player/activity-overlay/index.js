@@ -11,6 +11,7 @@ import TimerMixin from 'react-timer-mixin'
 import reactMixin from 'react-mixin'
 import PropTypes from 'prop-types'
 import { store } from '../../../store'
+import { ActivityMap } from '../../activity-map'
 import { Activity } from '../../../activity'
 import { interpolate } from '../../../streams'
 import { Video } from '../../../video'
@@ -249,7 +250,6 @@ export class ActivityOverlay extends Component {
                                                 streams.timeStream)
         break
       case 'leaderboardComparison':
-        console.log('ActivityOverlay render leaderboardComparison')
         streamGraphOverlay =
           <RaceGraph
             ref={this._raceOverlayRef}
@@ -318,6 +318,18 @@ export class ActivityOverlay extends Component {
         </View>
     }
 
+    var activityMap
+    // activityMap =
+    //   <ActivityMap
+    //     style={styles.map}
+    //     eventEmitter={this.props.eventEmitter}
+    //     activity={this.props.activity}
+    //     streams={this.props.streams}
+    //     streamTime={this.props.currentTimeActivity}
+    //     onStreamTimeChange={this.props.onActivityTimeChange}
+    //     videoStreamStartTime={Video.streamStartAt(this.props.video)}
+    //     videoStreamEndTime={Video.streamEndAt(this.props.video)} />
+
     return (
       <Animated.View
         style={{...styles.overlay, ...this.props.style}}
@@ -339,6 +351,7 @@ export class ActivityOverlay extends Component {
             </TouchableOpacity>
           </View>
           <View style={styles.overlayTopRight}>
+            {activityMap}
           </View>
         </View>
         <View style={styles.overlayMiddle}>
@@ -370,6 +383,11 @@ const styles = {
     flexDirection: 'column',
   },
 
+  map: {
+    width: 100,
+    height: 100
+  },
+
   overlayTop: {
     flex: 1,
     flexDirection: 'row',
@@ -383,6 +401,7 @@ const styles = {
 
   overlayTopRight: {
     flex: 2,
+    alignItems: 'flex-end'
   },
 
   overlayBottom: {

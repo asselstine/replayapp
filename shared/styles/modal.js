@@ -4,6 +4,7 @@ export default {
   },
 
   title: {
+    marginTop: 20,
     fontSize: 32,
     fontWeight: '200',
     padding: 10,

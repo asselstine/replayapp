@@ -26,7 +26,7 @@ import { attachActivity, setVideoStartAt, resetVideoStartAt } from '../../../act
 import { login } from '../../../actions/strava-actions'
 import { StravaActivitySelectModal } from './strava-activity-select-modal'
 import { ActivityStreams } from './activity-streams'
-import { ActivityMap } from './activity-map'
+import { ActivityMap } from '../../activity-map'
 import { ActivitySegmentsContainer } from './activity-segments-container'
 import { ActivityService } from '../../../services/activity-service'
 import { AthleteService } from '../../../services/athlete-service'
@@ -64,7 +64,6 @@ export const VideoView = connect(
     this.state = {
       syncDialogIsOpen: false,
       stravaActivityModalIsOpen: false,
-      syncModalIsOpen: false,
       locked: true,
       fullscreen: false,
       landscape: true,
@@ -82,8 +81,6 @@ export const VideoView = connect(
     this.onPressStravaConnect = this.onPressStravaConnect.bind(this)
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
-    this._onCloseSyncModal = this._onCloseSyncModal.bind(this)
-    this._onSaveSyncModal = this._onSaveSyncModal.bind(this)
     this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
     this._onOrientationChange = this._onOrientationChange.bind(this)
@@ -223,21 +220,8 @@ export const VideoView = connect(
     this.setState({ stravaActivityModalIsOpen: false })
   }
 
-  _onCloseSyncModal () {
-    this.setState({ syncModalIsOpen: false })
-  }
-
-  _onSaveSyncModal (videoStartAt) {
-    dispatchTrack(setVideoStartAt(this.props.video.rawVideoData, videoStartAt), {
-      video: videoProperties(this.props.video),
-      videoStartAt: videoStartAt
-    })
-    this._onCloseSyncModal()
-  }
-
   componentDidMount () {
     Orientation.addOrientationListener(this._onOrientationChange)
-    this.checkSyncModal(this.props)
     if (_.get(this.props, 'video.activity')) {
       ActivityService.retrieveStreams(this.props.video.activity.id)
     }
@@ -257,7 +241,6 @@ export const VideoView = connect(
   }
 
   componentWillReceiveProps (nextProps) {
-    this.checkSyncModal(nextProps)
     this.checkStreams(nextProps)
   }
 
@@ -265,12 +248,6 @@ export const VideoView = connect(
     var videoActivityId = _.get(props, 'video.activity.id')
     if (videoActivityId && !props.streams) { //needs props.streams to prevent recursion.
       ActivityService.retrieveStreams(videoActivityId)
-    }
-  }
-
-  checkSyncModal (props) {
-    if (props.video && !props.video.startAt) {
-      this.setState({ syncModalIsOpen: true })
     }
   }
 
@@ -359,6 +336,7 @@ export const VideoView = connect(
       var videoPlayer =
         <View style={videoPlayerContainerStyle}>
           <VideoPlayer
+            eventEmitter={this.eventEmitter}
             fullscreen={this.state.fullscreen}
             onToggleFullscreen={this.onToggleFullscreen}
             style={videoPlayerStyle}

@@ -72,11 +72,7 @@ export class PlayerOverlay extends Component {
 
           <View style={styles.overlayTop}>
             <View style={styles.overlaySmallBar}>
-              <TouchableOpacity onPress={this.props.onClose}>
-                <MaterialIcon
-                  name='keyboard-arrow-down'
-                  style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
-              </TouchableOpacity>
+              <View />
               <TouchableOpacity onPress={this.props.onToggleFullscreen}>
                 {fullscreenToggle}
               </TouchableOpacity>
@@ -120,7 +116,7 @@ const styles = {
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    // backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
 
   overlayBody: {
@@ -131,7 +127,8 @@ const styles = {
   },
 
   overlayIcon: {
-    color: 'white'
+    color: 'white',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
 
   overlaySmallBar: {

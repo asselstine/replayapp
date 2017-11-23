@@ -102,7 +102,8 @@ const styles = {
   container: {
     alignItems: 'center',
     flexDirection: 'row',
-    flex: 1
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
 
   time: {

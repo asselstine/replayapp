@@ -63,7 +63,6 @@ export class SegmentEffortItem extends Component {
     }
 
     var duration = _.get(this.props, 'segmentEffort.elapsed_time') * 1000
-    console.log('duration: ', typeof duration, duration)
 
     return (
       <View style={{flex: flex}}>

@@ -56,7 +56,7 @@ export class RaceGraph extends Component {
 
   componentWillMount () {
     if (this.props.eventEmitter) {
-      this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
+      this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('progressActivityTime', this.onStreamTimeProgress)
     }
     this.pinchZoomResponder = new PinchZoomResponder({
       onPinchZoomStart: () => {

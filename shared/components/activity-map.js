@@ -3,6 +3,7 @@ import React, {
 } from 'react'
 import {
   StyleSheet,
+  Animated,
   View
 } from 'react-native'
 import MapView from 'react-native-maps'
@@ -12,9 +13,9 @@ import {
   valueToIndex,
   linear,
   linearIndex
-} from '../../../streams'
-import { closestPoint } from '../../../closest-point'
-import * as colours from '../../../colours'
+} from '../streams'
+import { closestPoint } from '../closest-point'
+import * as colours from '../colours'
 
 export class ActivityMap extends Component {
   constructor (props) {
@@ -28,7 +29,7 @@ export class ActivityMap extends Component {
     if (this.props.streamTime) {
       this.setCoordinates(this.props.streamTime)
     }
-    this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('onStreamTimeProgress', this.onStreamTimeProgress)
+    this.onStreamTimeProgressSubscriber = this.props.eventEmitter.addListener('progressActivityTime', this.onStreamTimeProgress)
   }
 
   componentWillUnmount () {
@@ -202,9 +203,9 @@ export class ActivityMap extends Component {
     }
 
     return (
-      <View style={this.props.style}>
+      <Animated.View style={this.props.style}>
         {mapView}
-      </View>
+      </Animated.View>
     )
   }
 }

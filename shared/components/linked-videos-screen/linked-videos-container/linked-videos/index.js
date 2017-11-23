@@ -9,7 +9,7 @@ import PropTypes from 'prop-types'
 import { LinkedVideoItem } from './linked-video-item'
 import { PhotosFramework } from '../../../../services/photos-framework'
 import Orientation from 'react-native-orientation'
-import { AddButton } from './add-button'
+import { AddButton } from '../../add-button'
 
 export class LinkedVideos extends Component {
   constructor (props) {
@@ -45,23 +45,11 @@ export class LinkedVideos extends Component {
   }
 
   _renderItem ({item, index, separators}) {
-    if (item == 'add') {
-      var item = <AddButton onSelectRawVideo={this.props.onAddRawVideo}/>
-    } else {
-      item =
-        <LinkedVideoItem video={item} onPress={this._onPress} onLongPress={this._onLongPress} />
-    }
-    return (
-      item
-    )
+    return <LinkedVideoItem video={item} onPress={this._onPress} onLongPress={this._onLongPress} />
   }
 
   _keyExtractor (item, index) {
-    if (item == 'add') {
-      return -1
-    } else {
-      return item.rawVideoData.localIdentifier
-    }
+    return item.rawVideoData.localIdentifier
   }
 
   render () {
@@ -72,7 +60,7 @@ export class LinkedVideos extends Component {
 
     return (
       <FlatList
-        data={['add'].concat(videos)}
+        data={videos}
         numColumns={2}
         renderItem={this._renderItem}
         keyExtractor={this._keyExtractor} />
@@ -84,5 +72,4 @@ LinkedVideos.propTypes = {
   videos: PropTypes.array.isRequired,
   onPressVideo: PropTypes.func.isRequired,
   onLongPressVideo: PropTypes.func.isRequired,
-  onAddRawVideo: PropTypes.func.isRequired
 }
