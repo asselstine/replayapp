@@ -1,11 +1,20 @@
 import { store } from './store'
 import _ from 'lodash'
 import reportError from './report-error'
+import { manager } from './oauth'
 
 /* global fetch */
 
 export const Strava = {
   baseUrl: 'https://www.strava.com/api/v3',
+
+  authorize () {
+    return manager.authorize('strava', { scopes: 'view_private' })
+  },
+
+  deauthorize () {
+    return manager.deauthorize('strava')
+  },
 
   headers () {
     return {
@@ -78,16 +87,6 @@ export const Strava = {
     )
   },
 
-  // retrieveLeaderboard (segmentId) {
-  //   return (
-  //     fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?following=true&page=1&per_page=1`, {
-  //       headers: this.headers()
-  //     }).catch((error) => {
-  //       reportError(error)
-  //     })
-  //   )
-  // },
-
   retrieveSegmentEffortStream (segmentEffortId) {
     return (
       fetch(`${this.baseUrl}/segment_efforts/${segmentEffortId}/streams/distance,time,moving`, {
@@ -107,5 +106,5 @@ export const Strava = {
         reportError(error)
       })
     )
-  }
+  },
 }

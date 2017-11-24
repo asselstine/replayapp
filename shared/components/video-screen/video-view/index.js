@@ -15,7 +15,7 @@ import EventEmitter from 'EventEmitter'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import moment from 'moment'
-import { manager } from '../../../oauth'
+import { Strava } from '../../../strava'
 import dispatchTrack from '../../../store/dispatch-track'
 import { track } from '../../../analytics'
 import activityProperties from '../../../analytics/activity-properties'
@@ -144,25 +144,27 @@ export const VideoView = connect(
   }
 
   onPressStravaConnect () {
-    manager.authorize('strava', { scopes: 'view_private' })
-      .then((response) => {
-        dispatchTrack(login(response.response.credentials))
-        AthleteService.retrieveCurrentAthlete().then(() => {
-          var athlete = store.getState().athletes.data
-          analytics.identify({
-            userId: athlete.id,
-            traits: {
-              firstname: athlete.firstname,
-              lastname: athlete.lastname,
-              city: athlete.city,
-              country: athlete.country,
-              email: athlete.email
-            }
+    Strava.authorize()
+          .then((response) => {
+            dispatchTrack(login(response.response.credentials))
+            AthleteService.retrieveCurrentAthlete().then(() => {
+                var athlete = store.getState().athletes.data
+                analytics.identify({
+                  userId: athlete.id,
+                  traits: {
+                    firstname: athlete.firstname,
+                    lastname: athlete.lastname,
+                    city: athlete.city,
+                    country: athlete.country,
+                    email: athlete.email
+                  }
+                })
+                this.setState({ stravaActivityModalIsOpen: true })
+            }).catch((error) => {
+              console.log('ERROR: ', error)
+            })
           })
-        })
-        this.setState({ stravaActivityModalIsOpen: true })
-      })
-      .catch(reportError)
+          .catch(reportError)
   }
 
   _onPressReset () {
