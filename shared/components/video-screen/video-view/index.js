@@ -181,7 +181,7 @@ export const VideoView = connect(
   onToggleFullscreen () {
     this.setState({ fullscreen: !this.state.fullscreen })
     if (this.state.fullscreen) {
-      Orientation.lockToPortrait()
+      // Orientation.lockToPortrait()
     } else {
       Orientation.unlockAllOrientations()
     }
@@ -325,13 +325,12 @@ export const VideoView = connect(
     var hwAspectRatio = this.props.video.rawVideoData.height / (1.0 * this.props.video.rawVideoData.width)
     var videoHeight = this.state.width * hwAspectRatio
 
-    var videoPlayerStyle = styles.videoPlayer
     var videoPlayerContainerStyle = {}
 
     if (this.state.fullscreen) {
-      videoPlayerContainerStyle = { width: '100%', height: '100%' }
+      videoPlayerContainerStyle = { width: '100%', height: '100%', backgroundColor: 'black' }
     } else {
-      videoPlayerContainerStyle = { maxHeight: 210 }
+      videoPlayerContainerStyle = { maxHeight: 210, backgroundColor: 'black'  }
     }
 
     if (this.props.video && this.state.showVideo) {
@@ -341,7 +340,7 @@ export const VideoView = connect(
             eventEmitter={this.eventEmitter}
             fullscreen={this.state.fullscreen}
             onToggleFullscreen={this.onToggleFullscreen}
-            style={videoPlayerStyle}
+            style={styles.videoPlayer}
             ref={(ref) => { this._videoPlayer = ref }}
             hideActivityOverlay={!this.state.fullscreen}
             onProgress={this.onProgress}

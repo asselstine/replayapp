@@ -23,7 +23,7 @@ import _ from 'lodash'
 export class LinkedVideosScreen extends Component {
   constructor (props) {
     super(props)
-    this.onPressVideo = this.onPressVideo.bind(this)
+    this.onPressVideo = _.debounce(this.onPressVideo.bind(this), 500, { leading: true, trailing: false })
     this.onLongPressVideo = this.onLongPressVideo.bind(this)
   }
 
@@ -59,12 +59,18 @@ export class LinkedVideosScreen extends Component {
 }
 
 LinkedVideosScreen.navigationOptions = (props) => {
+
+  var navDrawer = _.debounce(() => {
+    props.navigation.navigate('DrawerOpen')
+  }, 500, { leading: true, trailing: false })
+
+  var navAddVideo = _.debounce(() => {
+    props.navigation.navigate('AddVideo')
+  }, 500, { leading: true, trailing: false })
+
   return {
     title: 'Videos',
-    headerLeft: <MenuButton onPress={() => { props.navigation.navigate('DrawerOpen') }} />,
-    headerRight: <AddButton onSelectRawVideo={(rawVideoData) => {
-      dispatchTrack(newVideo(rawVideoData), rawVideoDataProperties(rawVideoData))
-      props.navigation.navigate('Video', { localIdentifier: rawVideoData.localIdentifier })
-    }} />
+    headerLeft: <MenuButton onPress={navDrawer} />,
+    headerRight: <AddButton onPress={navAddVideo} />,
   }
 }

@@ -52,12 +52,12 @@ export class PlayerOverlay extends Component {
     }
 
     var fullscreenToggle
-    if (this.props.fullscreen) {
+    if (this.props.fullscreen === true) {
       fullscreenToggle =
         <MaterialIcon
           name='fullscreen-exit'
           style={{...styles.overlayIcon, ...styles.overlaySmallIcon}} />
-    } else {
+    } else if (this.props.fullscreen === false) {
       fullscreenToggle =
         <MaterialIcon
           name='fullscreen'
@@ -168,7 +168,7 @@ PlayerOverlay.propTypes = {
   eventEmitter: PropTypes.object.isRequired,
   paused: PropTypes.bool.isRequired,
   muted: PropTypes.bool.isRequired,
-  fullscreen: PropTypes.bool.isRequired,
+  fullscreen: PropTypes.bool,
   duration: PropTypes.number,
   currentTime: PropTypes.any,
   onTogglePaused: PropTypes.func.isRequired,

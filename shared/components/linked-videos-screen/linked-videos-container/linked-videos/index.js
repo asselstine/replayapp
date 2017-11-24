@@ -23,7 +23,7 @@ export class LinkedVideos extends Component {
   }
 
   componentWillMount () {
-    Orientation.lockToPortrait()
+    // Orientation.lockToPortrait()
   }
 
   componentDidMount () {

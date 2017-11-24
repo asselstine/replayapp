@@ -1,7 +1,7 @@
 import RNPhotosFramework from 'react-native-photos-framework'
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import { PhotosFramework } from '../../../../services/photos-framework'
+import { PhotosFramework } from '../../../services/photos-framework'
 import { RawVideoItem } from './raw-video-item'
 import Orientation from 'react-native-orientation'
 
@@ -75,7 +75,7 @@ export class RawVideoList extends PureComponent {
   }
 
   componentWillMount () {
-    Orientation.lockToPortrait()
+    // Orientation.lockToPortrait()
   }
 
   componentWillUnmount () {
