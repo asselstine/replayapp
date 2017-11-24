@@ -64,7 +64,8 @@ export class ActivityMap extends Component {
     if (this.positionCircleCoordinates) {
       var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(streamTime))
       if (this.lastAnimation) { this.lastAnimation.stop() }
-      this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 50 }))
+      this.positionCircleCoordinates
+      this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 0 }))
       this.lastAnimation.start()
     }
   }
