@@ -7,6 +7,8 @@ import {
   Animated,
   View
 } from 'react-native'
+import { ActiveRefs } from '../../../active-refs'
+import { ActiveText } from '../../active-text'
 import TimerMixin from 'react-timer-mixin'
 import reactMixin from 'react-mixin'
 import PropTypes from 'prop-types'
@@ -56,6 +58,7 @@ export class ActivityOverlay extends Component {
     this._hideOverlay = this._hideOverlay.bind(this)
     this.onActivityTimeChange = this.onActivityTimeChange.bind(this)
     this._raceOverlayRef = this._raceOverlayRef.bind(this)
+    this.activeRefs = new ActiveRefs()
   }
 
   interpolateStreams (props) {
@@ -85,12 +88,13 @@ export class ActivityOverlay extends Component {
   updateCurrentTime (currentTimeActivity) {
     this.currentTimeActivity = currentTimeActivity
     this.checkCurrentSegmentEffort()
-    if (this._velocityOverlay) {
-      this._velocityOverlay.updateCurrentTimeActivity(currentTimeActivity)
+    if (this._streamOverlay) {
+      this._streamOverlay.updateCurrentTimeActivity(currentTimeActivity)
     }
     if (this._raceOverlay) {
       this._raceOverlay.onStreamTimeProgress(currentTimeActivity)
     }
+    this.activeRefs.onStreamTimeProgress(currentTimeActivity)
   }
 
   _hideOverlay () {
@@ -212,7 +216,7 @@ export class ActivityOverlay extends Component {
   buildStreamGraph (streamOverlayStyle, overlayData, timeStream) {
     return (
       <StreamOverlay
-        ref={(ref) => { this._velocityOverlay = ref }}
+        ref={(ref) => { this._streamOverlay = ref }}
         activityStartTime={this.props.activityStartTime}
         activityEndTime={this.props.activityEndTime}
         currentTimeActivity={this.currentTimeActivity}
@@ -228,9 +232,16 @@ export class ActivityOverlay extends Component {
     this._raceOverlay = ref
   }
 
+  formatVelocity (streamTime) {
+    return `${round(Activity.velocityAt(this.props.streams, streamTime), 1)} km/h`
+  }
+
+  formatAltitude (streamTime) {
+    return `${Activity.altitudeAt(this.props.streams, streamTime)} m`
+  }
+
   render () {
-    var velocity = round(Activity.velocityAt(this.props.streams, this.currentTimeActivity), 1)
-    var altitude = `${Activity.altitudeAt(this.props.streams, this.currentTimeActivity)} m`
+    this.activeRefs.clear()
 
     var streamOverlayStyle = {
       opacity: this.state.streamOverlayProgress
@@ -289,6 +300,7 @@ export class ActivityOverlay extends Component {
               <MaterialCommunityIcon style={styles.telemetryIcon} name='clock' />
             </View>
             <VersusTime
+              ref={(ref) => this.activeRefs.add(ref)}
               positiveStyle={styles.versusDeltaTimePositive}
               negativeStyle={styles.versusDeltaTimeNegative}
               segmentEffort={this.state.segmentEffort}
@@ -341,13 +353,21 @@ export class ActivityOverlay extends Component {
               <View style={styles.telemetryIconContainer}>
                 <MaterialCommunityIcon style={styles.telemetryIcon} name='speedometer' />
               </View>
-              <Text style={styles.telemetryLabel}>{velocity} km/h</Text>
+              <ActiveText
+                style={styles.telemetryLabel}
+                ref={(ref) => this.activeRefs.add(ref)}
+                streamTime={this.currentTimeActivity}
+                format={(streamTime) => this.formatVelocity(streamTime)} />
             </TouchableOpacity>
             <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('altitude') }}>
               <View style={styles.telemetryIconContainer}>
                 <MaterialCommunityIcon style={styles.telemetryIcon} name='altimeter' />
               </View>
-              <Text style={styles.telemetryLabel}>{altitude}</Text>
+              <ActiveText
+                style={styles.telemetryLabel}
+                ref={(ref) => this.activeRefs.add(ref)}
+                streamTime={this.currentTimeActivity}
+                format={(streamTime) => this.formatAltitude(streamTime)} />
             </TouchableOpacity>
           </View>
           <View style={styles.overlayTopRight}>

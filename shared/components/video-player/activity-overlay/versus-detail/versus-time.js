@@ -12,18 +12,50 @@ import formatSplit from '../../../../format-split'
 import moment from 'moment'
 
 export class VersusTime extends Component {
-  render () {
-    var currentSplitTime = Versus.splitTimeAt(this.props.segmentEffortTimeStream, this.props.versusDeltaTimes, this.props.currentStreamTime)
-    var style = this.props.style
-    var label = '' + formatSplit(moment.duration(currentSplitTime * 1000))
-    if (currentSplitTime <= 0) {
-      style = _.merge({}, style, this.props.positiveStyle)
-    } else {
-      label = `+${label}`
-      style = _.merge({}, style, this.props.negativeStyle)
+  constructor (props) {
+    super(props)
+    this.state = this.createState(props, props.currentStreamTime)
+  }
+
+  componentWillReceiveProps (props) {
+    this.setState(this.createState(this.props, props.currentStreamTime))
+  }
+
+  onStreamTimeProgress (streamTime) {
+    this.setState(this.createState(this.props, streamTime))
+  }
+
+  createState (props, streamTime) {
+    var currentSplitTime = Versus.splitTimeAt(props.segmentEffortTimeStream, props.versusDeltaTimes, streamTime)
+    console.log('currentSplitTime: ', props.segmentEffortTimeStream, props.versusDeltaTimes, streamTime)
+    return {
+      style: this.createStyle(props, currentSplitTime),
+      label: this.formatLabel(currentSplitTime)
     }
+  }
+
+  formatLabel (splitTime) {
+    var duration = moment.duration(splitTime * 1000)
+    var label = `${formatSplit(duration)}s`
+    if (splitTime > 0) {
+      label = `+${label}`
+    }
+    return label
+  }
+
+  createStyle (props, splitTime) {
+    var style = props.style
+    if (splitTime <= 0) {
+      style = _.merge({}, style, props.positiveStyle)
+    } else {
+      style = _.merge({}, style, props.negativeStyle)
+    }
+    return style
+  }
+
+  render () {
     return (
-      <Text style={style}>{label}s</Text>
+      <Text style={this.state.style}>{this.state.label}</Text>
     )
   }
 }
