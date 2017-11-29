@@ -188,10 +188,11 @@ export class ActivityOverlay extends Component {
     var segmentId = this.state.segmentEffort.segment.id
     var segmentEffortId = this.state.segmentEffort.id
     var versusEffortId = this.state.leaderboardEntry.effort_id
+    var segmentEffort = this.state.segmentEffort
     SegmentService.retrieveEffortComparison(segmentId, segmentEffortId, versusEffortId)
                   .then(() => {
                     var versusDeltaTimes = SegmentsFinder.findDeltaTimes(store.getState(), segmentId, segmentEffortId, versusEffortId) || []
-                    var segmentEffortTimeStream = ActivitiesFinder.findSegmentEffortTimeStream(store.getState(), this.state.segmentEffort)
+                    var segmentEffortTimeStream = ActivitiesFinder.findSegmentEffortTimeStream(store.getState(), segmentEffort)
                     this.setState({
                       versusDeltaTimes,
                       segmentEffortTimeStream
