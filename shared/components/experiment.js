@@ -22,11 +22,11 @@ export class Experiment extends PureComponent {
   }
 
   _onLayout (event) {
-    var width = _.get(event, 'nativeEvent.layout.width')
-    var height = _.get(event, 'nativeEvent.layout.height')
+    var width = _.get(event, 'nativeEvent.layout.width') || 1
+    var height = _.get(event, 'nativeEvent.layout.height') || 1
     this.setState({
-      width: width || 1,
-      height: height || 1
+      width,
+      height
     })
   }
 

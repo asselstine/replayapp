@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { PhotosFramework } from '../../../services/photos-framework'
 import { RawVideoItem } from './raw-video-item'
-import Orientation from 'react-native-orientation'
 
 import {
   FlatList,
@@ -72,10 +71,6 @@ export class RawVideoList extends PureComponent {
         onPressVideo={this.props.onPressVideo}
         rawVideoData={item} />
     )
-  }
-
-  componentWillMount () {
-    // Orientation.lockToPortrait()
   }
 
   componentWillUnmount () {

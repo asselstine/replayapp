@@ -80,12 +80,13 @@ export class StreamOverlay extends Component {
   }
 
   _onLayout (e) {
-    var width = _.get(e, 'nativeEvent.layout.width')
-    var height = _.get(e, 'nativeEvent.layout.height')
+    var width = _.get(e, 'nativeEvent.layout.width') || 1
+    var height = _.get(e, 'nativeEvent.layout.height') || 1
+    var transform = this.createTransform(this.props, width, height)
     this.setState({
-      width: width,
-      height: height,
-      transform: this.createTransform(this.props, width, height)
+      width,
+      height,
+      transform
     })
   }
 

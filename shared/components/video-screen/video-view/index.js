@@ -35,7 +35,6 @@ import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
-import Orientation from 'react-native-orientation'
 import { ConnectDialog } from './connect-dialog'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
@@ -67,7 +66,6 @@ export const VideoView = connect(
       locked: true,
       fullscreen: false,
       landscape: true,
-      layoutLandscape: false,
       width: 1,
       height: 1,
       showVideo: true,
@@ -83,20 +81,12 @@ export const VideoView = connect(
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
     this._onPressReset = this._onPressReset.bind(this)
     this.eventEmitter = new EventEmitter()
-    this._onOrientationChange = this._onOrientationChange.bind(this)
     this._showTimestampWarning = this._showTimestampWarning.bind(this)
     this.trackOnChangeTab = this.trackOnChangeTab.bind(this)
     this._syncDialogOnClose = this._syncDialogOnClose.bind(this)
     this.onStreamTimeChange = this.onStreamTimeChange.bind(this)
     this.onStreamTimeChangeStart = this.onStreamTimeChangeStart.bind(this)
     this.onStreamTimeChangeEnd = this.onStreamTimeChangeEnd.bind(this)
-    Orientation.getOrientation((err, orientation) => {
-      if (err) {
-        reportError(err)
-      } else {
-        this._onOrientationChange(orientation)
-      }
-    })
     this.startWarningFlash()
   }
 
@@ -128,19 +118,14 @@ export const VideoView = connect(
   }
 
   _onLayout (event) {
-    var width = _.get(event, 'nativeEvent.layout.width')
-    var height = _.get(event, 'nativeEvent.layout.height')
+    var width = _.get(event, 'nativeEvent.layout.width') || 1
+    var height = _.get(event, 'nativeEvent.layout.height') || 1
+    var landscape = width > height
     this.setState({
-      width: width,
-      height: height,
-      layoutLandscape: width > height
+      width,
+      height,
+      landscape
     })
-  }
-
-  _onOrientationChange (orientation) {
-    var landscape =
-      (orientation === 'LANDSCAPE' || (orientation === 'UNKNOWN' && this.state.landscape))
-    this.setState({ landscape: landscape })
   }
 
   onPressStravaConnect () {
@@ -178,11 +163,6 @@ export const VideoView = connect(
 
   onToggleFullscreen () {
     this.setState({ fullscreen: !this.state.fullscreen })
-    if (this.state.fullscreen) {
-      // Orientation.lockToPortrait()
-    } else {
-      Orientation.unlockAllOrientations()
-    }
     if (this.props.onToggleFullscreen) {
       this.props.onToggleFullscreen()
     }
@@ -221,7 +201,6 @@ export const VideoView = connect(
   }
 
   componentDidMount () {
-    Orientation.addOrientationListener(this._onOrientationChange)
     if (_.get(this.props, 'video.activity')) {
       ActivityService.retrieveStreams(this.props.video.activity.id)
     }
@@ -231,7 +210,6 @@ export const VideoView = connect(
 
   componentWillUnmount () {
     this._transitionEndListener.remove()
-    Orientation.removeOrientationListener(this._onOrientationChange)
   }
 
   _transitionEnd () {
@@ -323,12 +301,12 @@ export const VideoView = connect(
     var hwAspectRatio = this.props.video.rawVideoData.height / (1.0 * this.props.video.rawVideoData.width)
     var videoHeight = this.state.width * hwAspectRatio
 
-    var videoPlayerContainerStyle = {}
+    var videoPlayerContainerStyle = styles.videoPlayer
 
     if (this.state.fullscreen) {
-      videoPlayerContainerStyle = { width: '100%', height: '100%', backgroundColor: 'black' }
-    } else {
-      videoPlayerContainerStyle = { maxHeight: 210, backgroundColor: 'black'  }
+      videoPlayerContainerStyle = styles.fullscreen.videoPlayer
+    } else if (this.state.landscape) {
+      videoPlayerContainerStyle = styles.landscape.videoPlayer
     }
 
     if (this.props.video && this.state.showVideo) {
@@ -338,7 +316,6 @@ export const VideoView = connect(
             eventEmitter={this.eventEmitter}
             fullscreen={this.state.fullscreen}
             onToggleFullscreen={this.onToggleFullscreen}
-            style={styles.videoPlayer}
             ref={(ref) => { this._videoPlayer = ref }}
             hideActivityOverlay={!this.state.fullscreen}
             onProgress={this.onProgress}
@@ -464,13 +441,29 @@ export const VideoView = connect(
         </ScrollableTabView>
     }
 
+    if (this.state.landscape) {
+      var videoViewStyle = styles.landscape.videoView
+    } else {
+      videoViewStyle = styles.videoView
+    }
+
+    if (!this.state.fullscreen) {
+      var activityView =
+        <View style={styles.activityView}>
+          {header}
+          {activityInfo}
+        </View>
+    }
+
     return (
-      <View style={styles.videoView} onLayout={this._onLayout}>
+      <View style={videoViewStyle} onLayout={this._onLayout}>
         <StatusBar hidden={this.state.fullscreen} />
         {connectDialog}
+
         {videoPlayer}
-        {header}
-        {activityInfo}
+
+        {activityView}
+
         <SyncDialog isOpen={this.state.syncDialogIsOpen} onClose={this._syncDialogOnClose} />
         <StravaActivitySelectModal
           isOpen={this.state.stravaActivityModalIsOpen}
@@ -482,8 +475,34 @@ export const VideoView = connect(
 })
 
 const styles = {
+  landscape: {
+    videoView: {
+      flex: 1,
+      flexDirection: 'row'
+    },
+
+    videoPlayer: {
+      flex: 1
+    }
+  },
+  videoPlayer: {
+    maxHeight: 210,
+    backgroundColor: 'black'
+  },
+  fullscreen: {
+    videoPlayer: {
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'black'
+    }
+  },
+
   videoView: {
     flex: 1
+  },
+
+  activityView: {
+    flex: 1,
   },
 
   connectStravaButton: {
@@ -554,11 +573,6 @@ const styles = {
     top: 0,
     right: 0
   },
-
-  videoPlayer: {
-    width: '100%',
-    height: '100%'
-  }
 }
 
 VideoView.propTypes = {

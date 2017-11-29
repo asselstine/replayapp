@@ -24,6 +24,7 @@ export class StravaActivitySelectModal extends Component {
         animationType='slide'
         transparent={false}
         visible={this.props.isOpen}
+        supportedOrientations={['portrait', 'landscape']}
         onRequestClose={this.props.onClose}>
         <View style={ModalStyle.header}>
           <Text style={ModalStyle.title}>Attach Activity</Text>

@@ -224,16 +224,13 @@ export class ActivityStreams extends PureComponent {
   }
 
   _onLayout (event) {
-    var resize = this.state.width === 1
     this.setState({
       width: _.get(event, 'nativeEvent.layout.width') || 1,
       height: _.get(event, 'nativeEvent.layout.height') || 1
     }, () => {
-      if (resize) { // then it hasn't been initialized
-        this.initStreamPaths()
-        this.updateCursorLocation()
-        this.resizeToVideo(this.props)
-      }
+      this.initStreamPaths()
+      this.updateCursorLocation()
+      this.resizeToVideo(this.props)
     })
   }
 
@@ -302,7 +299,7 @@ export class ActivityStreams extends PureComponent {
     var newVelocity = interpolate({ times: timeData, values: velocityData })
     var newAltitude = interpolate({ times: timeData, values: altitudeData })
 
-    var height = 80
+    var height = (this.state.height / 2) - 20
 
     var velocityPoints = streamToPoints(height, this.state.width, newVelocity.times, newVelocity.values)
     velocityPoints.unshift([0, height])
@@ -319,6 +316,9 @@ export class ActivityStreams extends PureComponent {
   }
 
   render () {
+
+    var eachHeight = this.state.height / 2
+
     var y = 0
 
     var streamFillColour = 'pink'
@@ -336,7 +336,7 @@ export class ActivityStreams extends PureComponent {
           y={y + 20}
           d={velocityPath}
           fill={activeStreamFillColour} />
-      y += 100
+      y += eachHeight
     }
 
     var altitudeStreamPath, altitudeStreamCurrentTimePath
@@ -404,15 +404,15 @@ export class ActivityStreams extends PureComponent {
         <View
           ref={(ref) => { this.transformView = ref }}>
           <Svg
-            height='200'
-            width='100%'>
+            height={this.state.height.toString()}
+            width={this.state.width.toString()}>
             <ClipPath id='timeClip'>
               <Rect
                 ref={(ref) => { this._timeClippingRect = ref }}
                 x={clipStart.toString()}
                 y={0}
                 width={clipWidth}
-                height='200' />
+                height={this.state.height.toString()} />
             </ClipPath>
             <G>
               {velocityStreamPath}
@@ -426,8 +426,8 @@ export class ActivityStreams extends PureComponent {
         </View>
         <Svg
           style={{position: 'absolute', left: 0, top: 0, bottom: 0, right: 0}}
-          height='200'
-          width='100%'>
+          height={this.state.height.toString()}
+          width={this.state.width.toString()}>
           {videoStartTime}
           {videoEndTime}
           {currentTimeLine}
@@ -436,7 +436,7 @@ export class ActivityStreams extends PureComponent {
             velocityText='0 Km/h'
             altitudeText='0m'
             velocityY={0}
-            altitudeY={100} />
+            altitudeY={eachHeight} />
         </Svg>
       </View>
     )

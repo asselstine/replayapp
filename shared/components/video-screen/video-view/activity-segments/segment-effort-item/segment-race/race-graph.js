@@ -212,16 +212,13 @@ export class RaceGraph extends Component {
   }
 
   _onLayout (event) {
-    var resize = this.state.width === 1
     var width = _.get(event, 'nativeEvent.layout.width') || 1
     var height = _.get(event, 'nativeEvent.layout.height') || 1
     this.setState({
-      width: width,
-      height: height,
+      width,
+      height
     }, () => {
-      if (resize) {
-        this.initStreamPaths(this.props)
-      }
+      this.initStreamPaths(this.props)
     })
   }
 

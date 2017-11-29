@@ -225,13 +225,6 @@ export class VideoPlayer extends Component {
       opacity: this.state.playerOverlayProgress
     }
 
-    var activityOverlayStyle = {
-      opacity: this.state.playerOverlayProgress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [1, 0]
-      })
-    }
-
     // if (this.state.showPlayerOverlay) {
       var playerOverlayPointerEvents = 'auto'
     // } else {

@@ -57,7 +57,7 @@ export class Timeline extends Component {
     this.setState({
       currentTime: currentTime
     })
-    var progress = currentTime / this.props.duration
+    var progress = currentTime / this.props.duration || 1
     this.state.progress.setValue(progress)
   }
 
