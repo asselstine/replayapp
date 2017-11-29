@@ -482,7 +482,7 @@ const styles = {
     },
 
     videoPlayer: {
-      flex: 1
+      flex: 1,
     }
   },
   videoPlayer: {
