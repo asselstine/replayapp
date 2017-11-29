@@ -57,7 +57,6 @@ export class ActivityOverlay extends Component {
     this.updateLeaderboardData = this.updateLeaderboardData.bind(this)
     this._hideOverlay = this._hideOverlay.bind(this)
     this.onActivityTimeChange = this.onActivityTimeChange.bind(this)
-    this._raceOverlayRef = this._raceOverlayRef.bind(this)
     this.activeRefs = new ActiveRefs()
   }
 
@@ -88,12 +87,6 @@ export class ActivityOverlay extends Component {
   updateCurrentTime (currentTimeActivity) {
     this.currentTimeActivity = currentTimeActivity
     this.checkCurrentSegmentEffort()
-    if (this._streamOverlay) {
-      this._streamOverlay.updateCurrentTimeActivity(currentTimeActivity)
-    }
-    if (this._raceOverlay) {
-      this._raceOverlay.onStreamTimeProgress(currentTimeActivity)
-    }
     this.activeRefs.onStreamTimeProgress(currentTimeActivity)
   }
 
@@ -217,7 +210,7 @@ export class ActivityOverlay extends Component {
   buildStreamGraph (streamOverlayStyle, overlayData, timeStream) {
     return (
       <StreamOverlay
-        ref={(ref) => { this._streamOverlay = ref }}
+        ref={(ref) => this.activeRefs.add(ref)}
         activityStartTime={this.props.activityStartTime}
         activityEndTime={this.props.activityEndTime}
         currentTimeActivity={this.currentTimeActivity}
@@ -227,10 +220,6 @@ export class ActivityOverlay extends Component {
         onActivityTimeChangeStart={this.props.onActivityTimeChangeStart}
         onActivityTimeChangeEnd={this.props.onActivityTimeChangeEnd} />
     )
-  }
-
-  _raceOverlayRef (ref) {
-    this._raceOverlay = ref
   }
 
   formatVelocity (streamTime) {
@@ -264,7 +253,7 @@ export class ActivityOverlay extends Component {
       case 'leaderboardComparison':
         streamGraphOverlay =
           <RaceGraph
-            ref={this._raceOverlayRef}
+            ref={(ref) => this.activeRefs.add(ref)}
             timeStream={this.state.segmentEffortTimeStream}
             deltaTimeStream={this.state.versusDeltaTimes}
             width='100%'

@@ -94,7 +94,7 @@ export class StreamOverlay extends Component {
     return MatrixMath.multiplyVectorByMatrix([x, y, 0, 1], transform)
   }
 
-  updateCurrentTimeActivity (currentTimeActivity) {
+  onStreamTimeProgress (currentTimeActivity) {
     this._timeClippingRect.setNativeProps({
       width: this.transform(currentTimeActivity, 0)[0].toString()
     })
