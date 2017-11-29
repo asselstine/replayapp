@@ -4,6 +4,9 @@ import React, {
 } from 'react'
 import TimerMixin from 'react-timer-mixin'
 import reactMixin from 'react-mixin'
+import formatSplit from '../../../../../../format-split'
+import { ActiveText } from '../../../../../active-text'
+import { ActiveRefs } from '../../../../../../active-refs'
 import {
   Svg,
   ClipPath,
@@ -24,9 +27,8 @@ import {
   transformPoints
 } from '../../../../../../svg'
 import {
-  interpolate
-} from '../../../../../../streams'
-import {
+  interpolate,
+  linear,
   linearIndex,
   minValueIndex,
   maxValueIndex,
@@ -52,6 +54,8 @@ export class RaceGraph extends Component {
       boundsTransform: IDENTITY,
     }
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
+    this.activeRefs = new ActiveRefs()
+    this.streamTime = 0
   }
 
   componentWillMount () {
@@ -156,6 +160,7 @@ export class RaceGraph extends Component {
   onStreamTimeProgress (streamTime) {
     this.streamTime = streamTime
     var v = this.streamTimeToLocationX(streamTime)
+    this.activeRefs.onStreamTimeProgress(streamTime)
     if (this._timeline) {
       this._timeline.setNativeProps({
         x1: v.toString(),
@@ -236,9 +241,7 @@ export class RaceGraph extends Component {
     var scale = MatrixMath.createIdentityMatrix()
     scale[0] = bestScale
     MatrixMath.multiplyInto(translate, scale, translate)
-    // this.moveTransform = IDENTITY
-    // MatrixBounds.applyBoundaryTransformX(0, this.state.width, translate, translate)
-    // return translate
+
     return translate
   }
 
@@ -264,10 +267,10 @@ export class RaceGraph extends Component {
       boundsTransform
     }
     if (transform) {
-      console.log('Made transform')
+      // console.log('Made transform')
       result.transform = transform
     } else {
-      console.log('Transform not possible')
+      // console.log('Transform not possible')
     }
     return result
   }
@@ -328,6 +331,7 @@ export class RaceGraph extends Component {
   }
 
   render () {
+    this.activeRefs.clear()
     if (this.state.deltaTimePoints && this.state.transform) {
       var points = transformPoints(this.state.deltaTimePoints, this.state.transform)
       var videoStartX = this.videoStartX()
@@ -439,6 +443,11 @@ export class RaceGraph extends Component {
             strokeDasharray={[5, 5]}
             strokeWidth='1' />
         </Svg>
+        <ActiveText
+          ref={(ref) => this.activeRefs.add(ref)}
+          style={styles.label}
+          streamTime={this.streamTime}
+          format={(streamTime) => formatSplit(linear(streamTime, this.props.timeStream, this.props.deltaTimeStream) * 1000)} />
       </View>
     )
   }
@@ -473,3 +482,14 @@ RaceGraph.propTypes = {
 }
 
 reactMixin(RaceGraph.prototype, TimerMixin)
+
+const styles = {
+  label: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    color: 'black',
+    fontSize: 14,
+    fontWeight: '700'
+  }
+}

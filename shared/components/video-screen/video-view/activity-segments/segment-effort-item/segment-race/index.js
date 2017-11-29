@@ -128,7 +128,7 @@ export class SegmentRace extends Component {
         onClose={() => { this.onCloseSegmentEffortModal() }} />
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, paddingLeft: 10, paddingRight: 10}}>
         {versusTitle}
         {versusDeltaTimes}
         {modal}
@@ -149,7 +149,8 @@ SegmentRace.propTypes = {
 const styles = {
   title: {
     flexDirection: 'row',
-    flex: 1
+    flex: 1,
+    // marginLeft: 10
   },
   opponentButton: {
     flex: 1,

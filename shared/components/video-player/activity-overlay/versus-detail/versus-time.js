@@ -27,7 +27,7 @@ export class VersusTime extends Component {
 
   createState (props, streamTime) {
     var currentSplitTime = Versus.splitTimeAt(props.segmentEffortTimeStream, props.versusDeltaTimes, streamTime)
-    console.log('currentSplitTime: ', props.segmentEffortTimeStream, props.versusDeltaTimes, streamTime)
+    // console.log('currentSplitTime: ', props.segmentEffortTimeStream, props.versusDeltaTimes, streamTime)
     return {
       style: this.createStyle(props, currentSplitTime),
       label: this.formatLabel(currentSplitTime)
@@ -37,9 +37,6 @@ export class VersusTime extends Component {
   formatLabel (splitTime) {
     var duration = moment.duration(splitTime * 1000)
     var label = `${formatSplit(duration)}s`
-    if (splitTime > 0) {
-      label = `+${label}`
-    }
     return label
   }
 

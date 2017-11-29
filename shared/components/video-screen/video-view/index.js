@@ -160,9 +160,7 @@ export const VideoView = connect(
                   }
                 })
                 this.setState({ stravaActivityModalIsOpen: true })
-            }).catch((error) => {
-              console.log('ERROR: ', error)
-            })
+            }).catch(reportError)
           })
           .catch(reportError)
   }

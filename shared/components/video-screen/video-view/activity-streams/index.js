@@ -40,7 +40,6 @@ export class ActivityStreams extends PureComponent {
     this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
     this.streamTime = 0
     this.newTransform = MatrixMath.createIdentityMatrix()
-    this.resizeToVideo = this.resizeToVideo.bind(this)
     this.moveCursor = _.throttle(this.moveCursor.bind(this), 20)
     this.setTransform = _.throttle(this.setTransform.bind(this), 20)
     this._onLayout = this._onLayout.bind(this)
