@@ -28,6 +28,10 @@ export class RawVideoList extends PureComponent {
       startIndex: currentIndex,
       endIndex: currentIndex + pageSize,
       includeMetadata: true,
+      prepareForSizeDisplay: {
+        width: 640,
+        height: 360,
+      },
       fetchOptions: {
         mediaTypes: ['video'],
         sortDescriptors: [

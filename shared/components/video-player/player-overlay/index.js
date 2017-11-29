@@ -116,7 +116,6 @@ const styles = {
     position: 'absolute',
     top: 0,
     left: 0,
-    // backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
 
   overlayBody: {

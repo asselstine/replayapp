@@ -281,7 +281,7 @@ export class ActivityOverlay extends Component {
 
     if (this.state.segmentEffort) {
       var segmentEffortTitle =
-        <View style={styles.titleContainer}>
+        <View>
           <Text style={{...styles.segmentName, ...styles.overlayBottomItem}}>
             <FontAwesome style={styles.telemetryIcon} name='flag-checkered' />
             <Text> {this.state.segmentEffort.name} {rank} | {total}</Text>
@@ -349,6 +349,9 @@ export class ActivityOverlay extends Component {
         >
         <View style={styles.overlayTop}>
           <View style={styles.overlayTopLeft}>
+            <View style={styles.titleContainer}>
+              <Text style={{...styles.activityName}}>{this.props.activity.name}</Text>
+            </View>
             <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('velocity') }}>
               <View style={styles.telemetryIconContainer}>
                 <MaterialCommunityIcon style={styles.telemetryIcon} name='speedometer' />
@@ -380,9 +383,6 @@ export class ActivityOverlay extends Component {
           </Animated.View>
         </View>
         <View style={styles.overlayBottom}>
-          <View style={styles.titleContainer}>
-            <Text style={{...styles.activityName, ...styles.overlayBottomItem}}>{this.props.activity.name}</Text>
-          </View>
           {segmentEffortTitle}
           <View style={{...styles.overlayBottomItem, ...styles.versusTelemetryContainer}}>
             {versusSelect}
@@ -401,6 +401,10 @@ const styles = {
     top: 0,
     left: 0,
     flexDirection: 'column',
+  },
+
+  titleContainer: {
+    marginBottom: 5,
   },
 
   map: {
@@ -482,14 +486,14 @@ const styles = {
   activityName: {
     color: 'white',
     backgroundColor: 'transparent',
-    padding: 4,
     textShadowColor: 'black',
     textShadowOffset: {
       width: 1,
       height: 1
     },
     textShadowRadius: 10,
-    fontWeight: '700'
+    fontWeight: '700',
+    fontSize: 16,
   },
 
   segmentName: {

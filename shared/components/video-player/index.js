@@ -225,25 +225,18 @@ export class VideoPlayer extends Component {
       opacity: this.state.playerOverlayProgress
     }
 
-    // if (this.state.showPlayerOverlay) {
-      var playerOverlayPointerEvents = 'auto'
-    // } else {
-    //   playerOverlayPointerEvents = 'none'
-    // }
-    //
-    // if (!this.state.showPlayerOverlay && !this.props.hideActivityOverlay) {
-      var activityOverlayPointerEvents = 'auto'
-    // } else {
-    //   activityOverlayPointerEvents = 'none'
-    // }
-
     var duration = this.props.video.rawVideoData.duration
 
     if (this.props.video.activity && this.props.fullscreen /* !this.props.hideActivityOverlay */ ) {
+      var activityOverlayStyle = _.merge({}, {
+        opacity: this.state.playerOverlayProgress
+      }, styles.activityOverlay)
+      var activityOverlayPointerEvents = 'auto'
       var activityStartTime = Video.videoTimeToStreamTime(this.props.video, 0)
       var activityEndTime = Video.videoTimeToStreamTime(this.props.video, duration)
       var activityOverlay =
         <ActivityOverlayContainer
+          style={activityOverlayStyle}
           eventEmitter={this.props.eventEmitter}
           activity={this.props.video.activity}
           currentTimeActivity={this.getCurrentTimeActivity()}
@@ -255,6 +248,8 @@ export class VideoPlayer extends Component {
           activityEndTime={activityEndTime}
           video={this.props.video} />
     }
+
+    var playerOverlayPointerEvents = 'auto'
 
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo} style={this.props.style}>
@@ -289,7 +284,7 @@ export class VideoPlayer extends Component {
             onVideoTimeChangeEnd={this.seekEnd}
             onClose={this.onClose}
             style={playerOverlayStyle}
-            pointerEvents={playerOverlayPointerEvents}>
+            pointerEvents={playerOverlayPointerEvents} >
             {activityOverlay}
           </PlayerOverlay>
         </View>
@@ -321,5 +316,7 @@ const styles = {
   videoStyle: {
     width: '100%',
     height: '100%',
+  },
+  activityOverlay: {
   }
 }

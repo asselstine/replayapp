@@ -65,7 +65,7 @@ export const VideoView = connect(
       stravaActivityModalIsOpen: false,
       locked: true,
       fullscreen: false,
-      landscape: true,
+      landscape: false,
       width: 1,
       height: 1,
       showVideo: true,
