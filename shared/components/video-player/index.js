@@ -227,11 +227,16 @@ export class VideoPlayer extends Component {
 
     var duration = this.props.video.rawVideoData.duration
 
+    if (this.state.showPlayerOverlay) {
+      var pointerEvents = 'auto'
+    } else {
+      pointerEvents = 'none'
+    }
+
     if (this.props.video.activity && this.props.fullscreen /* !this.props.hideActivityOverlay */ ) {
       var activityOverlayStyle = _.merge({}, {
         opacity: this.state.playerOverlayProgress
       }, styles.activityOverlay)
-      var activityOverlayPointerEvents = 'auto'
       var activityStartTime = Video.videoTimeToStreamTime(this.props.video, 0)
       var activityEndTime = Video.videoTimeToStreamTime(this.props.video, duration)
       var activityOverlay =
@@ -243,13 +248,11 @@ export class VideoPlayer extends Component {
           onActivityTimeChange={this._onActivityTimeChange}
           onActivityTimeChangeStart={this.seekStart}
           onActivityTimeChangeEnd={this.seekEnd}
-          pointerEvents={activityOverlayPointerEvents}
+          pointerEvents={pointerEvents}
           activityStartTime={activityStartTime}
           activityEndTime={activityEndTime}
           video={this.props.video} />
     }
-
-    var playerOverlayPointerEvents = 'auto'
 
     return (
       <TouchableWithoutFeedback onPress={this.onPressVideo} style={this.props.style}>
@@ -284,7 +287,7 @@ export class VideoPlayer extends Component {
             onVideoTimeChangeEnd={this.seekEnd}
             onClose={this.onClose}
             style={playerOverlayStyle}
-            pointerEvents={playerOverlayPointerEvents} >
+            pointerEvents={pointerEvents} >
             {activityOverlay}
           </PlayerOverlay>
         </View>

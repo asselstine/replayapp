@@ -3,6 +3,7 @@ import React, {
 } from 'react'
 import {
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Text,
   Animated,
   View
@@ -207,7 +208,7 @@ export class ActivityOverlay extends Component {
     }
   }
 
-  buildStreamGraph (streamOverlayStyle, overlayData, timeStream) {
+  buildStreamGraph (overlayData, timeStream) {
     return (
       <StreamOverlay
         ref={(ref) => this.activeRefs.add(ref)}
@@ -233,22 +234,16 @@ export class ActivityOverlay extends Component {
   render () {
     this.activeRefs.clear()
 
-    var streamOverlayStyle = {
-      opacity: this.state.streamOverlayProgress
-    }
-
     switch (this.state.streamOverlay) {
       case 'velocity':
         var streams = this.interpolateStreams(this.props)
-        var streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
-                                                streams.velocityStream,
-                                                streams.timeStream)
+        var streamGraphOverlay = this.buildStreamGraph(streams.velocityStream,
+                                                       streams.timeStream)
         break
       case 'altitude':
         streams = this.interpolateStreams(this.props)
-        streamGraphOverlay = this.buildStreamGraph(streamOverlayStyle,
-                                                streams.altitudeStream,
-                                                streams.timeStream)
+        streamGraphOverlay = this.buildStreamGraph(streams.altitudeStream,
+                                                   streams.timeStream)
         break
       case 'leaderboardComparison':
         streamGraphOverlay =
@@ -264,6 +259,18 @@ export class ActivityOverlay extends Component {
             videoStreamStartTime={Video.streamStartAt(this.props.video)}
             videoStreamEndTime={Video.streamEndAt(this.props.video)} />
         break
+    }
+
+    if (streamGraphOverlay) {
+      var graphStyle = _.merge({}, styles.graphStyle, {
+        opacity: this.state.streamOverlayProgress
+      })
+      var graph =
+        <TouchableWithoutFeedback onPress={() => this._hideOverlay()}>
+          <Animated.View style={graphStyle}>
+            {streamGraphOverlay}
+          </Animated.View>
+        </TouchableWithoutFeedback>
     }
 
     var rank = _.get(this.state, 'athleteLeaderboardEntry.rank', '?')
@@ -368,9 +375,6 @@ export class ActivityOverlay extends Component {
           </View>
         </View>
         <View style={styles.overlayMiddle}>
-          <Animated.View style={streamOverlayStyle}>
-            {streamGraphOverlay}
-          </Animated.View>
         </View>
         <View style={styles.overlayBottom}>
           {segmentEffortTitle}
@@ -378,6 +382,7 @@ export class ActivityOverlay extends Component {
             {versusSelect}
           </View>
         </View>
+        {graph}
       </Animated.View>
     )
   }
@@ -453,6 +458,20 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  graphStyle: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+  },
+
+  graphItem: {
+    flex: 1,
   },
 
   telemetryIcon: {
