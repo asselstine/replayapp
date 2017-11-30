@@ -5,7 +5,18 @@ export default {
   },
 
   content: {
-    padding: 20
+    padding: 20,
+  },
+
+  header: {
+    textAlign: 'left',
+    fontSize: 32,
+    fontWeight: '600',
+  },
+
+  headerBox: {
+    paddingTop: 40,
+    paddingBottom: 40,
   },
 
   flexCol: {

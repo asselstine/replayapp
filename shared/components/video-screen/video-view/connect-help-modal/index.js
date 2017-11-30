@@ -15,7 +15,7 @@ import { HelpService } from '../../../../services/help-service'
 
 import { connectWithStrava } from '../../../../images'
 
-export class ConnectDialog extends Component {
+export class ConnectHelpModal extends Component {
   _onDone() {
     HelpService.seen('connectVideoToStrava')
   }
@@ -25,14 +25,17 @@ export class ConnectDialog extends Component {
       <HelpModal helpKey='connectVideoToStrava'>
         <View style={[HelpStyles.content, HelpStyles.flexCol]}>
           <View>
-            <Text style={HelpStyles.explain}>To attach the video to a Strava activity, use the connect button:</Text>
+            <View style={HelpStyles.headerBox}>
+              <Text style={HelpStyles.header}>Connect Strava</Text>
+            </View>
+            <Text style={[HelpStyles.block, HelpStyles.explain]}>To attach the video to a Strava activity, use the connect button:</Text>
             <View style={HelpStyles.block}>
               <Image
                 resizeMode='contain'
                 style={styles.connectStravaButton}
                 source={connectWithStrava} />
             </View>
-            <Text style={HelpStyles.explain}>The activity should overlap with the video.</Text>
+            <Text style={[HelpStyles.block, HelpStyles.explain]}>The video should have been taken during the activity.</Text>
             <Text style={[HelpStyles.block, HelpStyles.explain]}>If you haven’t authorized with Strava yet, you will be asked to authorize this app.</Text>
           </View>
           <View style={HelpStyles.block}>

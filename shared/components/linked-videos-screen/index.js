@@ -16,7 +16,7 @@ import dispatchTrack from '../../store/dispatch-track'
 import videoProperties from '../../analytics/video-properties'
 import rawVideoDataProperties from '../../analytics/raw-video-data-properties'
 import { newVideo, removeVideo } from '../../actions/video-actions'
-import { WelcomeDialog } from './welcome-dialog'
+import { WelcomeModal } from './welcome-modal'
 import { AddButton } from './add-button'
 import _ from 'lodash'
 
@@ -52,7 +52,7 @@ export class LinkedVideosScreen extends Component {
         <LinkedVideosContainer
           onPressVideo={this.onPressVideo}
           onLongPressVideo={this.onLongPressVideo} />
-        <WelcomeDialog />
+        <WelcomeModal />
       </View>
     )
   }

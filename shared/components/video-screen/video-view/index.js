@@ -36,7 +36,7 @@ import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
-import { ConnectDialog } from './connect-dialog'
+import { ConnectHelpModal } from './connect-help-modal'
 import * as colours from '../../../colours'
 import { Video } from '../../../video'
 import { Activity } from '../../../activity'
@@ -328,7 +328,7 @@ export const VideoView = connect(
     }
 
     if (this.props.video && !activity) {
-      var connectDialog = <ConnectDialog />
+      var connectHelpModal = <ConnectHelpModal />
     }
 
     if (activity) {
@@ -460,7 +460,7 @@ export const VideoView = connect(
     return (
       <View style={videoViewStyle} onLayout={this._onLayout}>
         <StatusBar hidden={this.state.fullscreen} />
-        {connectDialog}
+        {connectHelpModal}
 
         {videoPlayer}
 

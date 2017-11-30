@@ -21,7 +21,7 @@ import {
   overlayImage
 } from '../../images'
 
-export class WelcomeDialog extends Component {
+export class WelcomeModal extends Component {
   constructor (props) {
     super(props)
     this._onDone = this._onDone.bind(this)
@@ -41,7 +41,7 @@ export class WelcomeDialog extends Component {
           tabBarActiveTextColor={colours.STRAVA_BRAND_COLOUR}
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}>
           <View tabLabel='intro' style={HelpStyles.content}>
-            <View style={[HelpStyles.block, styles.logos]}>
+            <View style={[HelpStyles.headerBox, styles.logos]}>
               <Image style={styles.logo} source={replayRedLogo} resizeMode='contain' />
               <Image style={styles.poweredByStrava} source={poweredByStrava} resizeMode='contain' />
             </View>
@@ -62,6 +62,9 @@ export class WelcomeDialog extends Component {
           </View>
           <View tabLabel='activity' style={[HelpStyles.flexCol, HelpStyles.content]}>
             <View>
+              <View style={[HelpStyles.headerBox]}>
+                <Text style={[HelpStyles.header]}>Add Video</Text>
+              </View>
               <View>
                 <Text style={[HelpStyles.block, HelpStyles.explain]}>Select a video in your library using the add button:</Text>
               </View>
