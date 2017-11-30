@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { VideoPlayer } from '../../video-player'
 import {
   Animated,
+  LayoutAnimation,
   View,
   Text,
   StatusBar,
@@ -162,6 +163,7 @@ export const VideoView = connect(
   }
 
   onToggleFullscreen () {
+    LayoutAnimation.easeInEaseOut()
     this.setState({ fullscreen: !this.state.fullscreen })
     if (this.props.onToggleFullscreen) {
       this.props.onToggleFullscreen()

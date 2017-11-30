@@ -141,7 +141,8 @@ const styles = {
   },
 
   overlayTop: {
-    flex: 0
+    flex: 0,
+    zIndex: 9000
   },
 
   overlayContent: {

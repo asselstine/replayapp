@@ -123,7 +123,7 @@ export class ActivityOverlay extends Component {
     if (overlay === this.state.streamOverlay) { // if same overlay
       this._hideOverlay()
     } else {
-      this.resetOverlayHideTimeout()
+      // this.resetOverlayHideTimeout()
       this._showOverlay(overlay)
     }
   }
@@ -194,15 +194,15 @@ export class ActivityOverlay extends Component {
                   })
   }
 
-  resetOverlayHideTimeout () {
-    if (this.timeout) {
-      this.clearTimeout(this.timeout)
-    }
-    this.timeout = this.setTimeout(this._hideOverlay, 3000)
-  }
+  // resetOverlayHideTimeout () {
+  //   if (this.timeout) {
+  //     this.clearTimeout(this.timeout)
+  //   }
+  //   this.timeout = this.setTimeout(this._hideOverlay, 3000)
+  // }
 
   onActivityTimeChange (time) {
-    this.resetOverlayHideTimeout()
+    // this.resetOverlayHideTimeout()
     if (this.props.onActivityTimeChange) {
       this.props.onActivityTimeChange(time)
     }
@@ -263,14 +263,20 @@ export class ActivityOverlay extends Component {
     }
 
     if (streamGraphOverlay) {
-      var graphStyle = _.merge({}, styles.graphStyle, {
+      var graphStyle = {
+        opacity: this.state.streamOverlayProgress
+      }
+      var dimissStyle = _.merge({}, styles.dismissalOverlay, {
         opacity: this.state.streamOverlayProgress
       })
       var graph =
-        <TouchableWithoutFeedback onPress={() => this._hideOverlay()}>
-          <Animated.View style={graphStyle}>
-            {streamGraphOverlay}
-          </Animated.View>
+        <Animated.View style={graphStyle}>
+          {streamGraphOverlay}
+        </Animated.View>
+      var dismissalOverlay =
+        <TouchableWithoutFeedback
+          onPress={() => { this._hideOverlay() }}>
+          <Animated.View style={dimissStyle} />
         </TouchableWithoutFeedback>
     }
 
@@ -343,47 +349,49 @@ export class ActivityOverlay extends Component {
     return (
       <Animated.View
         style={{...styles.overlay, ...this.props.style}}
-        pointerEvents={this.props.pointerEvents}
-        >
-        <View style={styles.overlayTop}>
-          <View style={styles.overlayTopLeft}>
-            <View style={styles.titleContainer}>
-              <Text style={{...styles.activityName}}>{this.props.activity.name}</Text>
+        pointerEvents='box-none'>
+        {dismissalOverlay}
+        <View style={{flex: 1}} pointerEvents='box-none'>
+          <View style={styles.overlayTop} pointerEvents='box-none'>
+            <View style={styles.overlayTopLeft}>
+              <View style={styles.titleContainer}>
+                <Text style={{...styles.activityName}}>{this.props.activity.name}</Text>
+              </View>
+              <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('velocity') }}>
+                <View style={styles.telemetryIconContainer}>
+                  <MaterialCommunityIcon style={styles.telemetryIcon} name='speedometer' />
+                </View>
+                <ActiveText
+                  style={styles.telemetryLabel}
+                  ref={(ref) => this.activeRefs.add(ref)}
+                  streamTime={this.currentTimeActivity}
+                  format={(streamTime) => this.formatVelocity(streamTime)} />
+              </TouchableOpacity>
+              <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('altitude') }}>
+                <View style={styles.telemetryIconContainer}>
+                  <MaterialCommunityIcon style={styles.telemetryIcon} name='altimeter' />
+                </View>
+                <ActiveText
+                  style={styles.telemetryLabel}
+                  ref={(ref) => this.activeRefs.add(ref)}
+                  streamTime={this.currentTimeActivity}
+                  format={(streamTime) => this.formatAltitude(streamTime)} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('velocity') }}>
-              <View style={styles.telemetryIconContainer}>
-                <MaterialCommunityIcon style={styles.telemetryIcon} name='speedometer' />
-              </View>
-              <ActiveText
-                style={styles.telemetryLabel}
-                ref={(ref) => this.activeRefs.add(ref)}
-                streamTime={this.currentTimeActivity}
-                format={(streamTime) => this.formatVelocity(streamTime)} />
-            </TouchableOpacity>
-            <TouchableOpacity style={{...styles.telemetryItem, ...styles.overlayTopItem}} onPress={() => { this._toggleOverlay('altitude') }}>
-              <View style={styles.telemetryIconContainer}>
-                <MaterialCommunityIcon style={styles.telemetryIcon} name='altimeter' />
-              </View>
-              <ActiveText
-                style={styles.telemetryLabel}
-                ref={(ref) => this.activeRefs.add(ref)}
-                streamTime={this.currentTimeActivity}
-                format={(streamTime) => this.formatAltitude(streamTime)} />
-            </TouchableOpacity>
+            <View style={styles.overlayTopRight} pointerEvents='box-none'>
+              {activityMap}
+            </View>
           </View>
-          <View style={styles.overlayTopRight}>
-            {activityMap}
+          <View style={styles.overlayMiddle} pointerEvents='box-none'>
+            {graph}
+          </View>
+          <View style={styles.overlayBottom} pointerEvents='box-none'>
+            {segmentEffortTitle}
+            <View style={{...styles.overlayBottomItem, ...styles.versusTelemetryContainer}} pointerEvents='box-none'>
+              {versusSelect}
+            </View>
           </View>
         </View>
-        <View style={styles.overlayMiddle}>
-        </View>
-        <View style={styles.overlayBottom}>
-          {segmentEffortTitle}
-          <View style={{...styles.overlayBottomItem, ...styles.versusTelemetryContainer}}>
-            {versusSelect}
-          </View>
-        </View>
-        {graph}
       </Animated.View>
     )
   }
@@ -461,12 +469,12 @@ const styles = {
     justifyContent: 'center',
   },
 
-  graphStyle: {
+  dismissalOverlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
+    top: -100,
+    left: -100,
+    width: '150%',
+    height: '200%',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'center',
   },
