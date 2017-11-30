@@ -353,7 +353,7 @@ export class ActivityOverlay extends Component {
         {dismissalOverlay}
         <View style={{flex: 1}} pointerEvents='box-none'>
           <View style={styles.overlayTop} pointerEvents='box-none'>
-            <View style={styles.overlayTopLeft}>
+            <View style={styles.overlayTopLeft} pointerEvents='box-none'>
               <View style={styles.titleContainer}>
                 <Text style={{...styles.activityName}}>{this.props.activity.name}</Text>
               </View>
