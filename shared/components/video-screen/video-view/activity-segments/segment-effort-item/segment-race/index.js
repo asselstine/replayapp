@@ -116,6 +116,7 @@ export class SegmentRace extends Component {
           onStreamTimeChangeEnd={this.props.onStreamTimeChangeEnd}
           videoStreamStartTime={Video.streamStartAt(this.props.video)}
           videoStreamEndTime={Video.streamEndAt(this.props.video)}
+          showLabel={true}
           width='100%'
           height='200' />
     }

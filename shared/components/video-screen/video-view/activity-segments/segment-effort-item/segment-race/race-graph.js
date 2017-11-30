@@ -411,6 +411,15 @@ export class RaceGraph extends Component {
         </G>
     }
 
+    if (this.props.showLabel) {
+      var label =
+        <ActiveText
+          ref={(ref) => this.activeRefs.add(ref)}
+          style={styles.label}
+          streamTime={this.streamTime}
+          format={(streamTime) => formatSplit(linear(streamTime, this.props.timeStream, this.props.deltaTimeStream) * 1000)} />
+    }
+
     return (
       <View
         {...this.handlers}
@@ -440,11 +449,7 @@ export class RaceGraph extends Component {
             strokeDasharray={[5, 5]}
             strokeWidth='1' />
         </Svg>
-        <ActiveText
-          ref={(ref) => this.activeRefs.add(ref)}
-          style={styles.label}
-          streamTime={this.streamTime}
-          format={(streamTime) => formatSplit(linear(streamTime, this.props.timeStream, this.props.deltaTimeStream) * 1000)} />
+        {label}
       </View>
     )
   }
@@ -476,6 +481,7 @@ RaceGraph.propTypes = {
   onStreamTimeChange: PropTypes.func,
   onStreamTimeChangeStart: PropTypes.func,
   onStreamTimeChangeEnd: PropTypes.func,
+  showLabel: PropTypes.bool
 }
 
 reactMixin(RaceGraph.prototype, TimerMixin)

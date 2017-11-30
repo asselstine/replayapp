@@ -251,6 +251,7 @@ export class ActivityOverlay extends Component {
             ref={(ref) => this.activeRefs.add(ref)}
             timeStream={this.state.segmentEffortTimeStream}
             deltaTimeStream={this.state.versusDeltaTimes}
+            showLabel={false}
             width='100%'
             height={100}
             onStreamTimeChange={this.onActivityTimeChange}
