@@ -1559,7 +1559,7 @@
 			baseConfigurationReference = 0C0444FB8F3FB4A7CE7B9B7B /* Pods-replayapp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				BUGSNAG_API_KEY = 8f4b4596e62cde0d92b3f7958e9b73a5;
+				BUGSNAG_API_KEY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
