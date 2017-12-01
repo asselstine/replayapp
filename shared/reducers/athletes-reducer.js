@@ -9,6 +9,11 @@ export default function (state, action) {
     }
   }
   switch (action.type) {
+    case 'RESET':
+      state = {
+        anonymousId: uuidv1()
+      }
+      break
     case 'RECEIVE_CURRENT_ATHLETE':
       var cmd = {}
       cmd['data'] = {

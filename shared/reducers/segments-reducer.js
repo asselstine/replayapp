@@ -11,6 +11,9 @@ export default function (state, action) {
     }
   }
   switch (action.type) {
+    case 'RESET':
+      state = {}
+      break
     case 'RECEIVE_LEADERBOARD':
       var cmd = {}
       cmd[action.segmentId] = {

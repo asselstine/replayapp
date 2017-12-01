@@ -22,6 +22,9 @@ export default function (state, action) {
     state = {}
   }
   switch (action.type) {
+    case 'RESET':
+      state = {}
+      break
     case 'RECEIVE_ACTIVITY':
       var cmd = {}
       cmd[action.activityId] = {

@@ -30,7 +30,14 @@ export const maxValueIndex = function (values) {
 // assume times are sorted
 export const linear = function (time, times, values, fromIndex = 0) {
   var index = valueToIndex(time, times, fromIndex)
-  return linearIndex(index, values) // index with linear interpolation
+  if (index < 0) {
+    result = values[0]
+  } else if (index > times.length - 1) {
+    result = values[values.length]
+  } else {
+    result = linearIndex(index, values) // index with linear interpolation
+  }
+  return result
 }
 
 export const interpolate = function ({times, values, density = 320}) {

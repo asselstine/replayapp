@@ -5,6 +5,9 @@ export default function (state, action) {
     state = {}
   }
   switch (action.type) {
+    case 'RESET':
+      state = {}
+      break
     case 'STRAVA_LOGIN':
       state = update(state, {
         $set: {
