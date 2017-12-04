@@ -41,28 +41,19 @@ export class ActivityMap extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (_.get(this.props, 'activity.id') !== _.get(nextProps, 'activity.id')) {
-      this.polyLine = null
-      this.videoPolyLine = null
-      this.positionCircleCoordinates = null
-      this.marker = null
-    }
-    if (_.get(this.props, 'streams') !== _.get(nextProps, 'streams')) {
-      this._latLngs = null
-      this._videoLatLngs = null
-    }
-    if (this.props.videoStreamEndTime !== nextProps.videoStreamEndTime) {
-      this._videoLatLngs = null
-      this.videoPolyLine = null
-    }
     if (this.props.streamTime !== nextProps.streamTime) {
       this.setCoordinates(nextProps.streamTime)
+    }
+    if (this.props.streams !== nextProps.streams ||
+        this.props.activity !== nextProps.activity) {
+      this.recenter()
     }
   }
 
   setCoordinates (streamTime) {
     if (this.positionCircleCoordinates) {
       var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(streamTime))
+      if (!mapCurrentLatLng) { return }
       if (this.lastAnimation) { this.lastAnimation.stop() }
       this.positionCircleCoordinates
       this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 0 }))
@@ -73,12 +64,17 @@ export class ActivityMap extends Component {
   latLngAtTime (time) {
     var data = _.get(this.props, 'streams.latlng.data', [])
     var timeData = _.get(this.props, 'streams.time.data', [])
+    if (!data.length || !timeData.length) { return null }
     var lats = _.map(data, (pair) => pair[0])
     var longs = _.map(data, (pair) => pair[1])
-    return {
-      latitude: linear(time, timeData, lats),
-      longitude: linear(time, timeData, longs)
+    var latitude = linear(time, timeData, lats)
+    var longitude = linear(time, timeData, longs)
+    if (!latitude || !longitude) { return null }
+    var result = {
+      latitude,
+      longitude
     }
+    return result
   }
 
   boundStreamTime (streamTime) {
@@ -113,8 +109,7 @@ export class ActivityMap extends Component {
   }
 
   latLngs () {
-    this._latLngs = this._latLngs || this.reshapeLatLngs( this.latLngStream() )
-    return this._latLngs
+    return this.reshapeLatLngs( this.latLngStream() )
   }
 
   reshapeLatLngs (latLngs) {
@@ -127,15 +122,17 @@ export class ActivityMap extends Component {
   }
 
   videoLatLngs () {
-    if (this._videoLatLngs) { return this._videoLatLngs }
     var startIndex = valueToIndex(this.props.videoStreamStartTime, this.timeStream())
     var endIndex = valueToIndex(this.props.videoStreamEndTime, this.timeStream())
     var latLngs = []
-    latLngs.push(this.latLngAtTime(this.props.videoStreamStartTime))
+    var start = this.latLngAtTime(this.props.videoStreamStartTime)
+    if (start) { latLngs.push(start) }
     latLngs = latLngs.concat( this.reshapeLatLngs(_.slice(this.latLngStream(), Math.ceil(startIndex), Math.ceil(endIndex))) )
-    latLngs.push(this.latLngAtTime(this.props.videoStreamEndTime))
-    this._videoLatLngs = latLngs
-    return this._videoLatLngs
+    var end = this.latLngAtTime(this.props.videoStreamEndTime)
+    if (end) { latLngs.push(end) }
+    var _videoLatLngs = latLngs
+
+    return _videoLatLngs
   }
 
   onPressMapView (event) {
@@ -158,38 +155,15 @@ export class ActivityMap extends Component {
 
   render () {
     let latLngs = this.latLngs()
-    if (latLngs.length) {
-      if (!this.positionCircleCoordinates) {
-        var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(this.props.streamTime))
-        this.positionCircleCoordinates = new MapView.AnimatedRegion(mapCurrentLatLng)
-      }
-
-      if (!this.polyLine) {
-        this.polyLine =
-          <MapView.Polyline
-            strokeColor='pink'
-            strokeWidth={2}
-            coordinates={latLngs} />
-      }
-
-      if (this.positionCircleCoordinates && !this.marker) {
-        this.marker =
-          <MapView.Marker.Animated
-            coordinate={this.positionCircleCoordinates} />
-      }
-    }
-
     var videoLatLngs = this.videoLatLngs()
-    if (videoLatLngs.length && !this.videoPolyLine) {
-      this.videoPolyLine =
-        <MapView.Polyline
-          strokeColor={colours.BRAND}
-          strokeWidth={3}
-          coordinates={videoLatLngs} />
+
+    if (!this.positionCircleCoordinates) {
+      var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(this.props.streamTime))
+      this.positionCircleCoordinates = new MapView.AnimatedRegion(mapCurrentLatLng)
     }
 
-    if (this.polyLine && this.marker) {
-      var mapView =
+    return (
+      <Animated.View style={this.props.style}>
         <MapView
           onPress={(event) => { this.onPressMapView(event) }}
           pitchEnabled={false}
@@ -197,15 +171,17 @@ export class ActivityMap extends Component {
           onLayout={this.onLayout.bind(this)}
           style={styles.map}
         >
-          {this.polyLine}
-          {this.videoPolyLine}
-          {this.marker}
+          <MapView.Marker.Animated
+            coordinate={this.positionCircleCoordinates} />
+          <MapView.Polyline
+            strokeColor='pink'
+            strokeWidth={2}
+            coordinates={latLngs} />
+          <MapView.Polyline
+            strokeColor={colours.BRAND}
+            strokeWidth={3}
+            coordinates={videoLatLngs} />
         </MapView>
-    }
-
-    return (
-      <Animated.View style={this.props.style}>
-        {mapView}
       </Animated.View>
     )
   }

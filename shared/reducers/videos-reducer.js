@@ -6,6 +6,9 @@ export default function (state, action) {
     state = {}
   }
   switch (action.type) {
+    case 'RESET':
+      state = {}
+      break
     case 'NEW_VIDEO':
       if (!state[action.rawVideoData.localIdentifier]) {
         var cmd = {}

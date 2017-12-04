@@ -294,7 +294,7 @@ export const VideoView = connect(
           </Animated.View>
         </TouchableOpacity>
       var videoStreamStartTime = 0
-      var videoStreamEndTime = Activity.streamEndAt(activity)
+      var videoStreamEndTime = videoDuration
     } else {
       videoStreamStartTime = this.videoTimeToStreamTime(0)
       videoStreamEndTime = this.videoTimeToStreamTime(videoDuration)

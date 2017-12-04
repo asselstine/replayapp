@@ -7,17 +7,23 @@ import {
 } from 'react-native'
 import { store } from '../../store'
 import { resetHelp } from '../../actions/help-actions'
+import GlobalActions from '../../actions/global-actions'
 import MenuButton from '../menu-button'
 
 export class DevScreen extends Component {
-  onReset () {
+  onResetHelp () {
     store.dispatch(resetHelp())
+  }
+
+  onReset () {
+    store.dispatch(GlobalActions.reset())
   }
 
   render () {
     return (
       <View>
-        <Button title='Reset Help' onPress={this.onReset.bind(this)} />
+        <Button title='Reset Help' onPress={this.onResetHelp.bind(this)} />
+        <Button title='Reset App' onPress={this.onReset.bind(this)} />
       </View>
     )
   }
