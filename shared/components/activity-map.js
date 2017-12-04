@@ -154,8 +154,6 @@ export class ActivityMap extends Component {
   }
 
   render () {
-    console.log('RENDERRRRRRRRR', this.props.streamTime)
-
     let latLngs = this.latLngs()
     var videoLatLngs = this.videoLatLngs()
 
