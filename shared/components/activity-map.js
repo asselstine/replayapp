@@ -43,6 +43,9 @@ export class ActivityMap extends Component {
   componentWillReceiveProps (nextProps) {
     if (this.props.streamTime !== nextProps.streamTime) {
       this.setCoordinates(nextProps.streamTime)
+    }
+    if (this.props.streams !== nextProps.streams ||
+        this.props.activity !== nextProps.activity) {
       this.recenter()
     }
   }
