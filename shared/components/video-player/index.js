@@ -15,8 +15,7 @@ import { ActivityOverlayContainer } from './activity-overlay-container'
 import reportError from '../../report-error'
 import _ from 'lodash'
 
-const SEEK_THROTTLE = 30
-const PROGRESS_INTERVAL = 30
+const SEEK_THROTTLE = 50
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -37,7 +36,8 @@ export class VideoPlayer extends Component {
     this.toggleMute = this.toggleMute.bind(this)
     this.toggleFullscreen = this.toggleFullscreen.bind(this)
     this.finishHideOverlay = this.finishHideOverlay.bind(this)
-    this._fireTimeEvents = this._fireTimeEvents.bind(this)
+    this.animationFrame = this.animationFrame.bind(this)
+    this.raf = this.raf.bind(this)
     this.onClose = this.onClose.bind(this)
     this.seek = this.seek.bind(this)
     this.seekStart = this.seekStart.bind(this)
@@ -87,7 +87,6 @@ export class VideoPlayer extends Component {
     if (this.timeout) {
       this.clearTimeout(this.timeout)
     }
-    // this.timeout = this.setTimeout(this.hidePlayerOverlay, 3000)
   }
 
   onPressVideo (e) {
@@ -125,32 +124,22 @@ export class VideoPlayer extends Component {
   }
 
   componentDidMount () {
-    this._timeInterval = this.setInterval(this._fireTimeEvents, PROGRESS_INTERVAL)
-  }
-
-  componentWillUnmount () {
-    this.clearInterval(this._timeInterval)
-  }
-
-  componentWillReceiveProps ( props) {
+    this.raf()
   }
 
   togglePlay () {
     if (this.state.paused) {
-      // this.seek(this.getCurrentTime())
       if (this.props.onPlay) {
         this.props.onPlay({currentTime: this.getCurrentTime()})
       }
-      // this._fireTimeEvents()
     } else {
       this._onStop()
     }
-    this._fireTimeEvents()
+    this.animationFrame()
     this.setState({ paused: !this.state.paused })
   }
 
   _onStop () {
-    // this.clearInterval(this._timeInterval)
   }
 
   _onBuffer (event) {
@@ -159,7 +148,12 @@ export class VideoPlayer extends Component {
   _onLoadStart (event) {
   }
 
-  _fireTimeEvents () {
+  raf (hires_timestamp) {
+    this.animationFrame()
+    this.requestAnimationFrame(this.raf)
+  }
+
+  animationFrame () {
     var videoTime = this.getCurrentTime()
     if (this.props.onProgress) {
       this.props.onProgress(videoTime)
@@ -207,7 +201,7 @@ export class VideoPlayer extends Component {
     this._throttledSeek(time)
     if (this.state.paused) {
       this._updateLastOnProgress(time)
-      this._fireTimeEvents()
+      this.animationFrame()
     }
   }
 
@@ -262,7 +256,7 @@ export class VideoPlayer extends Component {
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
             onLoadStart={this._onLoadStart}
-            onLoad={(arg) => { this._fireTimeEvents() }}
+            onLoad={(arg) => { this.animationFrame() }}
             onProgress={(arg) => { this._onProgress(arg) }}
             onEnd={(arg) => { this._onEnd(arg) }}
             onError={(arg) => { this._onError(arg) }}
