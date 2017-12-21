@@ -417,7 +417,10 @@ export class RaceGraph extends Component {
           ref={(ref) => this.activeRefs.add(ref)}
           style={styles.label}
           streamTime={this.streamTime}
-          format={(streamTime) => formatSplit(linear(streamTime, this.props.timeStream, this.props.deltaTimeStream) * 1000)} />
+          format={(streamTime) => {
+            var interp = linear(streamTime, this.props.timeStream, this.props.deltaTimeStream) * 1000
+            return formatSplit(interp)
+          }} />
     }
 
     return (

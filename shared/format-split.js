@@ -15,7 +15,7 @@ export default function (duration) {
   if (duration.asHours() >= 1) {
     hours = `${Math.abs(duration.hours())}:`
     minutes = `${pad2(Math.abs(duration.minutes()))}:`
-  } else if (duration.minutes() > 0) {
+  } else if (duration.minutes() != 0) {
     minutes = `${Math.abs(duration.minutes())}:`
   }
   if (duration.milliseconds() < 0) {
