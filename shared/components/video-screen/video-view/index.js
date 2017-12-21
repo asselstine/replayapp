@@ -12,6 +12,7 @@ import {
   Alert,
   Image
 } from 'react-native'
+import { UnlockModal } from './unlock-modal'
 import EventEmitter from 'EventEmitter'
 import { connect } from 'react-redux'
 import _ from 'lodash'
@@ -457,6 +458,11 @@ export const VideoView = connect(
         </View>
     }
 
+    if (!this.state.locked) {
+      var unlockModal =
+        <UnlockModal />
+    }
+
     return (
       <View style={videoViewStyle} onLayout={this._onLayout}>
         <StatusBar hidden={this.state.fullscreen} />
@@ -471,6 +477,7 @@ export const VideoView = connect(
           isOpen={this.state.stravaActivityModalIsOpen}
           onSelect={this._onSelectStravaActivity}
           onClose={this._onCloseStravaActivityModal} />
+        {unlockModal}
       </View>
     )
   }
