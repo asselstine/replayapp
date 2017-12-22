@@ -4,7 +4,6 @@ import React, {
 import {
   View,
   Image,
-  Button,
   Text
 } from 'react-native'
 import PropTypes from 'prop-types'
@@ -12,6 +11,7 @@ import PropTypes from 'prop-types'
 import { HelpModal } from '../../../help-modal'
 import HelpStyles from '../../../../styles/help'
 import { HelpService } from '../../../../services/help-service'
+import { Button } from '../../../button'
 
 import { connectWithStrava } from '../../../../images'
 

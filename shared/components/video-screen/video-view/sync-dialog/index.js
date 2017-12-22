@@ -3,7 +3,6 @@ import {
   Modal,
   View,
   Text,
-  Button
 } from 'react-native'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
@@ -11,6 +10,7 @@ import _ from 'lodash'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import HelpStyles from '../../../../styles/help'
+import { Button } from '../../../button'
 
 export class SyncDialog extends Component {
   render () {

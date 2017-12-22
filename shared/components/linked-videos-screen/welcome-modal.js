@@ -4,7 +4,6 @@ import React, {
 import {
   View,
   Text,
-  Button,
   Image
 } from 'react-native'
 import HelpStyles from '../../styles/help'
@@ -14,6 +13,7 @@ import ScrollableTabView from 'react-native-scrollable-tab-view'
 import * as colours from '../../colours'
 import { Tabs } from '../help-modal/tabs'
 import { HelpService } from '../../services/help-service'
+import { Button } from '../button'
 
 import {
   replayRedLogo,

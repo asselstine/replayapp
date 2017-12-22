@@ -4,7 +4,6 @@ import React, {
 import {
   View,
   Text,
-  Button,
   Image
 } from 'react-native'
 import HelpStyles from '../../../styles/help'
@@ -13,6 +12,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import * as colours from '../../../colours'
 import { HelpService } from '../../../services/help-service'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { Button } from '../../button'
 
 export class UnlockModal extends Component {
   constructor (props) {
@@ -41,7 +41,7 @@ export class UnlockModal extends Component {
                 style={styles.lockIcon} />
             </View>
             <View style={HelpStyles.block}>
-              <Text style={HelpStyles.explain}>Now you can change the alignment of the activity timeline to the video.</Text>
+              <Text style={HelpStyles.explain}>Now you can change the activity time independently of the video so that you can align them.</Text>
             </View>
             <View style={HelpStyles.block}>
               <Text style={HelpStyles.explain}>When you are happy with the result, you can lock it again:</Text>
