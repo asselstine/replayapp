@@ -285,11 +285,12 @@ export class ActivityOverlay extends Component {
 
     if (this.state.segmentEffort) {
       var segmentEffortTitle =
-        <View>
+        <View style={styles.segmentEffortTitleContainer}>
           <Text style={{...styles.segmentName, ...styles.overlayBottomItem}}>
             <FontAwesome style={styles.telemetryIcon} name='flag-checkered' />
-            <Text> {this.state.segmentEffort.name} {rank} | {total}</Text>
+            <Text> {this.state.segmentEffort.name}</Text>
           </Text>
+          <Text style={styles.rank}>{rank} | {total}</Text>
         </View>
     }
 
@@ -409,6 +410,18 @@ const styles = {
 
   titleContainer: {
     marginBottom: 5,
+  },
+
+  segmentEffortTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+
+  rank: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    color: 'white',
+    padding: 5,
+    fontWeight: '700'
   },
 
   map: {
