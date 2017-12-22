@@ -141,11 +141,15 @@ const styles = {
   },
 
   overlayTop: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
     flex: 0,
     zIndex: 9000
   },
 
   overlayContent: {
+    margin: 10,
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
