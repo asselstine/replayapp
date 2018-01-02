@@ -26,6 +26,7 @@ export class VideoPlayer extends Component {
       showPlayerOverlay: false,
       muted: true,
     }
+    this._onLoad = this._onLoad.bind(this)
     this._onLoadStart = this._onLoadStart.bind(this)
     this._onBuffer = this._onBuffer.bind(this)
     this._onActivityTimeChange = this._onActivityTimeChange.bind(this)
@@ -143,10 +144,16 @@ export class VideoPlayer extends Component {
   }
 
   _onBuffer (event) {
-    console.log('on BUFFER')
+    // console.log('on BUFFER', event)
+  }
+
+  _onLoad (event) {
+    // console.log('on LOAD')
+    this.animationFrame()
   }
 
   _onLoadStart (event) {
+    // console.log('on LOAD START')
   }
 
   raf (hires_timestamp) {
@@ -164,6 +171,7 @@ export class VideoPlayer extends Component {
   }
 
   _onProgress (event) {
+    // console.log('on PROGRESS')
     this.lastVideoTime = event.currentTime
     if (!this.state.paused) {
       this.lastRealTime = new Date().valueOf()
@@ -257,7 +265,7 @@ export class VideoPlayer extends Component {
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
             onLoadStart={this._onLoadStart}
-            onLoad={(arg) => { this.animationFrame() }}
+            onLoad={this._onLoad}
             onProgress={(arg) => { this._onProgress(arg) }}
             onEnd={(arg) => { this._onEnd(arg) }}
             onError={(arg) => { this._onError(arg) }}

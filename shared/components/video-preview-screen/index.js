@@ -10,8 +10,8 @@ import EventEmitter from 'EventEmitter'
 import { NavigationActions } from 'react-navigation'
 import {
   View,
-  Button
 } from 'react-native'
+import { Button } from '../button'
 
 export class VideoPreviewScreen extends Component {
   constructor (props) {
@@ -75,5 +75,6 @@ const styles = {
 
   button: {
     flex: 0,
+    padding: 20
   },
 }
