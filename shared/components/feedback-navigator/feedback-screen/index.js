@@ -41,7 +41,7 @@ export class FeedbackScreen extends Component {
     return (
       <View style={styles.view}>
         <Text style={styles.title}>Feedback</Text>
-        <Text style={styles.p}>Tell us about your suggestions, bugs or favourite things about the app!</Text>
+        <Text style={styles.p}>Tell us your suggestions, bugs or favourite things about the app!</Text>
         <MyButton
           onPress={this.sendFeedback.bind(this)}
           title='Send Feedback'

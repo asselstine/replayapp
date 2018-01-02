@@ -143,6 +143,7 @@ export class VideoPlayer extends Component {
   }
 
   _onBuffer (event) {
+    console.log('on BUFFER')
   }
 
   _onLoadStart (event) {

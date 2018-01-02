@@ -10,8 +10,14 @@ import {
   Modal
 } from 'react-native'
 import HelpStyles from '../../../../styles/help'
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Entypo from 'react-native-vector-icons/Entypo'
 import { Button } from '../../../button'
+import moment from 'moment'
 import ModalStyles from '../../../../styles/modal'
+import formatDuration from '../../../../format-duration'
+import formatDistance from '../../../../format-distance'
+import { PrRank } from '../../../pr-rank'
 
 export class SegmentModal extends Component {
   constructor (props) {
@@ -20,10 +26,32 @@ export class SegmentModal extends Component {
   }
 
   _renderItem ({ item, index, separators }) {
-    console.log(item)
+    // console.log(item)
+
+    if (item.pr_rank) {
+      var prRank = <PrRank prRank={item.pr_rank} size={20} />
+    }
+
     return (
       <TouchableOpacity onPress={() => this.props.onSelect(item)} style={styles.segment}>
-        <Text style={styles.segmentEffortLabel}>{item.name}</Text>
+        <View style={styles.segmentLeftPane}>
+          <Text style={styles.segmentEffortLabel}>{item.name}</Text>
+        </View>
+        <View style={styles.segmentRightPane}>
+          <View style={styles.activityDetails}>
+            <View style={styles.activityDetailItem}>
+              <MaterialCommunityIcon style={styles.activityDetailIcon} name='clock' />
+              <Text>{formatDuration(moment.duration(item.moving_time * 1000))}</Text>
+            </View>
+            <View style={styles.activityDetailItem}>
+              <Entypo style={styles.activityDetailIcon} name='ruler' />
+              <Text>{formatDistance(item.distance)}</Text>
+            </View>
+            <View style={styles.activityDetailItem}>
+              {prRank}
+            </View>
+          </View>
+        </View>
       </TouchableOpacity>
     )
   }
@@ -66,10 +94,42 @@ SegmentModal.propTypes = {
 
 const styles = {
   segmentEffortLabel: {
-    fontSize: 24,
+    fontSize: 22,
+    fontWeight: '300'
   },
 
   segment: {
-    paddingBottom: 10
-  }
+    paddingBottom: 20,
+    flexDirection: 'row',
+  },
+
+  segmentRightPane: {
+    width: 70,
+    flexDirection: 'column',
+    alignItems: 'flex-end'
+  },
+
+  segmentLeftPane: {
+    flex: 1,
+  },
+
+  activityName: {
+    fontSize: 24
+  },
+
+  activityDetails: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end'
+  },
+
+  activityDetailIcon: {
+    paddingRight: 4
+  },
+
+  activityDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
 }
