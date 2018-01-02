@@ -29,8 +29,8 @@ export class RawVideoList extends PureComponent {
       endIndex: currentIndex + pageSize,
       includeMetadata: true,
       prepareForSizeDisplay: {
-        width: 640,
-        height: 360,
+        width: 320,
+        height: 320,
       },
       fetchOptions: {
         mediaTypes: ['video'],
@@ -90,7 +90,6 @@ export class RawVideoList extends PureComponent {
   authorize () {
     PhotosFramework.auth().then((response) => {
       if (response.isAuthorized) {
-        this._subscription = PhotosFramework.emitter().addListener('onLibraryChange', this.refetch.bind(this))
         this.setState({ loaded: true }, this.refetch.bind(this))
       } else {
         this.requestAuthorization()
