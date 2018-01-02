@@ -27,7 +27,7 @@ export class StravaActivitySelectModal extends Component {
         supportedOrientations={['portrait', 'landscape']}
         onRequestClose={this.props.onClose}>
         <View style={ModalStyle.header}>
-          <Text style={ModalStyle.title}>Attach Activity</Text>
+          <Text style={ModalStyle.title}>Select Activity</Text>
         </View>
         <View style={ModalStyle.body}>
           <StravaActivityList onPress={this.props.onSelect} />

@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import HelpStyles from '../../../../styles/help'
 import { Button } from '../../../button'
+import ModalStyles from '../../../../styles/modal'
 
 export class SegmentModal extends Component {
   constructor (props) {
@@ -37,17 +38,19 @@ export class SegmentModal extends Component {
         animationType='slide'
         visible={this.props.isOpen}
         supportedOrientations={['portrait', 'landscape']}>
-        <View style={[HelpStyles.content, HelpStyles.flexCol]}>
+        <View style={[HelpStyles.flexCol]}>
           <View>
-            <View style={HelpStyles.headerBox}>
-              <Text style={HelpStyles.header}>Select Segment</Text>
+            <Text style={ModalStyles.title}>Select Segment</Text>
+            <View style={HelpStyles.content}>
+              <FlatList
+                data={this.props.segmentEfforts}
+                renderItem={this._renderItem}
+                keyExtractor={this._keyExtractor} />
             </View>
-            <FlatList
-              data={this.props.segmentEfforts}
-              renderItem={this._renderItem}
-              keyExtractor={this._keyExtractor} />
           </View>
-          <Button onPress={this.props.onClose} title='Cancel' />
+          <View style={ModalStyles.footer}>
+            <Button onPress={this.props.onClose} title='Cancel' />
+          </View>
         </View>
       </Modal>
     )
@@ -64,10 +67,9 @@ SegmentModal.propTypes = {
 const styles = {
   segmentEffortLabel: {
     fontSize: 24,
-    fontWeight: '400'
   },
 
   segment: {
-    marginBottom: 10
+    paddingBottom: 10
   }
 }

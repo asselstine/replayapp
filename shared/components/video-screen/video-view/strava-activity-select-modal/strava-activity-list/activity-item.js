@@ -70,7 +70,7 @@ export class ActivityItem extends Component {
 
 const styles = {
   activityItem: {
-    padding: 12
+    paddingBottom: 12,
   },
 
   activityName: {

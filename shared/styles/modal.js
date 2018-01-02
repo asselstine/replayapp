@@ -4,11 +4,11 @@ export default {
   },
 
   title: {
-    marginTop: 20,
     fontSize: 32,
     fontWeight: '200',
-    padding: 10,
-    textAlign: 'center'
+    marginTop: 30,
+    paddingBottom: 10,
+    textAlign: 'center',
   },
 
   body: {

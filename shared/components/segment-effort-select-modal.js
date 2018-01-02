@@ -15,6 +15,7 @@ import moment from 'moment'
 import Ionicon from 'react-native-vector-icons/Ionicons'
 import { Button } from './button'
 import ModalStyle from '../styles/modal'
+import { Rank } from './rank'
 
 export class SegmentEffortSelectModal extends Component {
   constructor (props) {
@@ -34,28 +35,12 @@ export class SegmentEffortSelectModal extends Component {
         genderIcon = <Text style={{...styles.genderIcon, ...styles.genderIconUnknown}}>?</Text>
     }
 
-    var trophyStyle = styles.trophy
-    if (item.rank < 10) {
-      var trophyIcon =
-        <View style={styles.rank}>
-          <Ionicon name='md-trophy' style={styles.trophy} />
-          <View style={styles.trophyRankLabelContainer}>
-            <Text style={styles.trophyRankLabel}>{item.rank}</Text>
-          </View>
-        </View>
-    } else {
-      trophyIcon =
-        <View style={styles.rank}>
-          <Text style={styles.rankLabel}>#{item.rank}</Text>
-        </View>
-    }
-
     return (
       <TouchableOpacity
         onPress={() => { this.props.onSelect(item) }}
         style={styles.leaderboardEntry}>
         <View style={styles.entrant}>
-          {trophyIcon}
+          <Rank rank={item.rank} />
           {genderIcon}
           <Text style={styles.leaderboardEntryName}>{item.athlete_name}</Text>
         </View>
@@ -106,7 +91,7 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 60,
+    height: 50,
   },
 
   entrant: {
@@ -133,42 +118,6 @@ const styles = {
     color: 'purple'
   },
 
-  rankLabel: {
-    fontSize: 18
-  },
-
-  trophy: {
-    fontSize: 48,
-    color: 'gold'
-  },
-
-  trophyRankLabelContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-    position: 'absolute',
-    top: -20,
-    right: 0,
-    left: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  rankNumberBackground: {
-    backgroundColor: 'white',
-    borderColor: 'white',
-    borderRadius: 50,
-  },
-
-  trophyRankLabel: {
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-    textAlign: 'center',
-    color: 'white',
-    lineHeight: 40,
-    width: 40,
-    height: 40,
-    fontSize: 12,
-    fontWeight: '900',
-  },
   leaderboardEntryName: {
     fontSize: 22
   },
