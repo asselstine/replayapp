@@ -18,6 +18,7 @@ import { ActivityMap } from '../../activity-map'
 import { Activity } from '../../../activity'
 import { interpolate } from '../../../streams'
 import { Video } from '../../../video'
+import { SegmentEffort } from '../../../segment-effort'
 import { ActivityService } from '../../../services/activity-service'
 import { SegmentService } from '../../../services/segment-service'
 import { SegmentsFinder } from '../../../finders/segments-finder'
@@ -33,12 +34,15 @@ import { VersusTime } from './versus-detail/versus-time'
 import { VersusSelect } from './versus-detail/versus-select'
 import { SegmentLeaderboardSelect } from './segment-leaderboard-select'
 import { RaceGraph } from '../../video-screen/video-view/activity-segments/segment-effort-item/segment-race/race-graph'
+import { SegmentModal } from './segment-modal'
 import _ from 'lodash'
 
 export class ActivityOverlay extends Component {
   constructor (props) {
     super(props)
+    var segmentEffort = _.first(props.segmentEfforts)
     this.state = _.merge({}, {
+      segmentEffort: segmentEffort,
       streamOverlay: false,
       streamOverlayProgress: new Animated.Value(0),
       leaderboardCount: 0,
@@ -49,16 +53,38 @@ export class ActivityOverlay extends Component {
       segmentEffortTimeStream: [],
       timeStream: [],
       velocityStream: [],
-      altitudeStream: []
+      altitudeStream: [],
+      segmentEffortModalOpen: false
     })
     this.currentTimeActivity = this.props.currentTimeActivity
     this.onChangeSegmentEffort = this.onChangeSegmentEffort.bind(this)
+    this.selectSegmentEffort = this.selectSegmentEffort.bind(this)
+    this.onSelectSegmentEffort = this.onSelectSegmentEffort.bind(this)
+    this.onCloseSelectSegment = this.onCloseSelectSegment.bind(this)
     this.checkCurrentSegmentEffort = this.checkCurrentSegmentEffort.bind(this)
     this.updateLeaderboardComparisonData = this.updateLeaderboardComparisonData.bind(this)
     this.updateLeaderboardData = this.updateLeaderboardData.bind(this)
     this._hideOverlay = this._hideOverlay.bind(this)
     this.onActivityTimeChange = this.onActivityTimeChange.bind(this)
     this.activeRefs = new ActiveRefs()
+    if (segmentEffort) {
+      this.onChangeSegmentEffort()
+    }
+  }
+
+  selectSegmentEffort () {
+    this.setState({ segmentEffortModalOpen: true })
+  }
+
+  onCloseSelectSegment () {
+    this.setState({ segmentEffortModalOpen: false })
+  }
+
+  onSelectSegmentEffort (segmentEffort) {
+    this.setState({
+      segmentEffort: segmentEffort,
+      segmentEffortModalOpen: false
+    }, this.onChangeSegmentEffort)
   }
 
   interpolateStreams (props) {
@@ -79,6 +105,10 @@ export class ActivityOverlay extends Component {
   }
 
   componentWillReceiveProps (props) {
+    // console.log(this.props.segmentEfforts.length, props.segmentEfforts.length)
+    if (!this.props.segmentEfforts.length && props.segmentEfforts.length) {
+      this.setState({segmentEffort: _.first(props.segmentEfforts)}, this.onChangeSegmentEffort)
+    }
   }
 
   componentWillUnmount () {
@@ -87,7 +117,7 @@ export class ActivityOverlay extends Component {
 
   updateCurrentTime (currentTimeActivity) {
     this.currentTimeActivity = currentTimeActivity
-    this.checkCurrentSegmentEffort()
+    // this.checkCurrentSegmentEffort()
     this.activeRefs.onStreamTimeProgress(currentTimeActivity)
   }
 
@@ -129,16 +159,38 @@ export class ActivityOverlay extends Component {
   }
 
   currentSegmentEffort () {
+    return _.last(this.props.segmentEfforts)
+    // return _.first(this.props.segmentEfforts.reduce((matchingSegmentEfforts, segmentEffort) => {
+    //   if (times &&
+    //       times[segmentEffort.start_index] <= currentTime &&
+    //       times[segmentEffort.end_index] >= currentTime) {
+    //         matchingSegmentEfforts.push(segmentEffort)
+    //   }
+    //   return matchingSegmentEfforts
+    // }, []))
+  }
+
+  visibleSegmentEfforts () {
+    var videoStartAt = Video.startAt(this.props.video)
+    var videoEndAt = Video.endAt(this.props.video)
+    return this.props.segmentEfforts.reduce((matching, segmentEffort) => {
+      var dates = SegmentEffort.dates(segmentEffort)
+      if (dates.start.isSameOrBefore(videoEndAt) &&
+          dates.end.isSameOrAfter(videoStartAt)) {
+        matching.push(segmentEffort)
+      }
+      return matching
+    }, [])
+  }
+
+  segmentEffortOverlapsCurrentTime (segmentEffort) {
     var currentTime = this.currentTimeActivity
     var times = _.get(this.props, 'streams.time.data')
-    return _.first(this.props.segmentEfforts.reduce((matchingSegmentEfforts, segmentEffort) => {
-      if (times &&
-          times[segmentEffort.start_index] <= currentTime &&
-          times[segmentEffort.end_index] >= currentTime) {
-            matchingSegmentEfforts.push(segmentEffort)
-      }
-      return matchingSegmentEfforts
-    }, []))
+    return (
+      times &&
+      times[segmentEffort.start_index] <= currentTime &&
+      times[segmentEffort.end_index] >= currentTime
+    )
   }
 
   checkCurrentSegmentEffort () {
@@ -284,14 +336,20 @@ export class ActivityOverlay extends Component {
     var total = _.get(this.state, 'leaderboardCount') || '?'
 
     if (this.state.segmentEffort) {
+      var overlap = this.segmentEffortOverlapsCurrentTime(this.state.segmentEffort)
+      if (overlap) {
+        var labelStyle = styles.segmentNameActive
+      } else {
+        var labelStyle = styles.segmentNameInactive
+      }
       var segmentEffortTitle =
-        <View style={styles.segmentEffortTitleContainer}>
-          <Text style={{...styles.segmentName, ...styles.overlayBottomItem}}>
+        <TouchableOpacity style={styles.segmentEffortTitleContainer} onPress={this.selectSegmentEffort}>
+          <Text style={[labelStyle, styles.segmentName, styles.overlayBottomItem]}>
             <FontAwesome style={styles.telemetryIcon} name='flag-checkered' />
             <Text> {this.state.segmentEffort.name}</Text>
           </Text>
           <Text style={styles.rank}>{rank} | {total}</Text>
-        </View>
+        </TouchableOpacity>
     }
 
     if (this.state.segmentEffort) {
@@ -392,6 +450,11 @@ export class ActivityOverlay extends Component {
               {versusSelect}
             </View>
           </View>
+          <SegmentModal
+            segmentEfforts={this.visibleSegmentEfforts()}
+            isOpen={this.state.segmentEffortModalOpen}
+            onSelect={this.onSelectSegmentEffort}
+            onClose={this.onCloseSelectSegment} />
         </View>
       </Animated.View>
     )
@@ -414,6 +477,7 @@ const styles = {
 
   segmentEffortTitleContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-end',
   },
 
@@ -527,9 +591,17 @@ const styles = {
     fontSize: 16,
   },
 
-  segmentName: {
+  segmentNameActive: {
     backgroundColor: '#ffa500',
     color: 'black',
+  },
+
+  segmentNameInactive: {
+    backgroundColor: 'gray',
+    color: 'black',
+  },
+
+  segmentName: {
     padding: 4,
     fontWeight: '700'
   },
@@ -580,7 +652,8 @@ ActivityOverlay.propTypes = {
 }
 
 ActivityOverlay.defaultProps = {
-  streams: {}
+  streams: {},
+  segmentEfforts: []
 }
 
 reactMixin(ActivityOverlay.prototype, TimerMixin)

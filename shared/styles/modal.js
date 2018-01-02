@@ -17,5 +17,6 @@ export default {
   },
 
   footer: {
+    paddingBottom: 10
   },
 }

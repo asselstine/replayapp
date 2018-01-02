@@ -6,7 +6,6 @@ import {
   FlatList,
   TouchableOpacity,
   View,
-  Button,
   Text
 } from 'react-native'
 import { Strava } from '../strava'
@@ -14,6 +13,7 @@ import PropTypes from 'prop-types'
 import formatDuration from '../format-duration'
 import moment from 'moment'
 import Ionicon from 'react-native-vector-icons/Ionicons'
+import { Button } from './button'
 import ModalStyle from '../styles/modal'
 
 export class SegmentEffortSelectModal extends Component {
