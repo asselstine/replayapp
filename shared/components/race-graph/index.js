@@ -4,9 +4,9 @@ import React, {
 } from 'react'
 import TimerMixin from 'react-timer-mixin'
 import reactMixin from 'react-mixin'
-import formatSplit from '../../../../../../format-split'
-import { ActiveText } from '../../../../../active-text'
-import { ActiveRefs } from '../../../../../../active-refs'
+import formatSplit from '../../format-split'
+import { ActiveText } from '../active-text'
+import { ActiveRefs } from '../../active-refs'
 import {
   Svg,
   ClipPath,
@@ -19,13 +19,13 @@ import _ from 'lodash'
 import PropTypes from 'prop-types'
 import MatrixMath from 'react-native/Libraries/Utilities/MatrixMath'
 import PinchZoomResponder from 'react-native-pinch-zoom-responder'
-import { MatrixBounds } from '../../../../../../matrix-bounds'
+import { MatrixBounds } from '../../matrix-bounds'
 import {
   mergeStreams,
   streamToPoints,
   pointsToPath,
   transformPoints
-} from '../../../../../../svg'
+} from '../../svg'
 import {
   interpolate,
   linear,
@@ -33,7 +33,7 @@ import {
   minValueIndex,
   maxValueIndex,
   createBoundsTransform
-} from '../../../../../../streams'
+} from '../../streams'
 import { InfoLine } from './info-line'
 import {
   View,

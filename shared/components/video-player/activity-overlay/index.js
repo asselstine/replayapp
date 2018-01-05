@@ -33,7 +33,7 @@ import { VersusTimeContainer } from './versus-detail/versus-time-container'
 import { VersusTime } from './versus-detail/versus-time'
 import { VersusSelect } from './versus-detail/versus-select'
 import { SegmentLeaderboardSelect } from './segment-leaderboard-select'
-import { RaceGraph } from '../../video-screen/video-view/activity-segments/segment-effort-item/segment-race/race-graph'
+import { RaceGraph } from '../../race-graph'
 import { SegmentModal } from './segment-modal'
 import _ from 'lodash'
 

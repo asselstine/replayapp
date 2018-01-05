@@ -4,7 +4,7 @@ import React, {
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Path } from 'react-native-svg'
-import { pointsToPath } from '../../../../../../svg'
+import { pointsToPath } from '../../svg'
 
 export class RacePath extends Component {
   render () {
