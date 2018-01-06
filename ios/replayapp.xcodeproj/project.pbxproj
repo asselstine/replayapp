@@ -1588,7 +1588,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.asselstine.$(PRODUCT_NAME:rfc1034identifier)Development";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.asselstine.$(PRODUCT_MODULE_NAME:rfc1034identifier)";
+				PRODUCT_MODULE_NAME = replay_dev;
 				PRODUCT_NAME = "Replay DEV";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1601,7 +1602,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUGSNAG_API_KEY = 8f4b4596e62cde0d92b3f7958e9b73a5;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = V42FEK2PNQ;
@@ -1629,7 +1630,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.asselstine.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.asselstine.$(PRODUCT_MODULE_NAME:rfc1034identifier)";
+				PRODUCT_MODULE_NAME = replay;
 				PRODUCT_NAME = Replay;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				VERSIONING_SYSTEM = "apple-generic";

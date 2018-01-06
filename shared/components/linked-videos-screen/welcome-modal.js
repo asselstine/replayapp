@@ -47,14 +47,13 @@ export class WelcomeModal extends Component {
             </View>
             <View style={HelpStyles.block}>
               <Text>
-                <Text style={HelpStyles.explain}>Add </Text>
+                <Text style={HelpStyles.explain}>Watch your video with </Text>
                 <Text style={HelpStyles.explainBold}>interactive telemetry</Text>
               </Text>
               <Text>
                 <Text style={HelpStyles.explain}>and </Text>
-                <Text style={HelpStyles.explainBold}>race comparisons</Text>
+                <Text style={HelpStyles.explainBold}>race results</Text>
               </Text>
-              <Text style={HelpStyles.explain}>to your videos</Text>
             </View>
             <View style={HelpStyles.block}>
               <Image style={styles.overlay} source={overlayImage} resizeMode='contain' />
