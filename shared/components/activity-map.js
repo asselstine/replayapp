@@ -17,10 +17,12 @@ import {
 import { closestPoint } from '../closest-point'
 import * as colours from '../colours'
 
+const UPDATE_PERIOD = 100
+
 export class ActivityMap extends Component {
   constructor (props) {
     super(props)
-    this.onStreamTimeProgress = this.onStreamTimeProgress.bind(this)
+    this.onStreamTimeProgress = _.throttle(this.onStreamTimeProgress.bind(this), UPDATE_PERIOD)
     this.lastPolyPressTime = 0
     this.state = {}
   }
@@ -56,7 +58,7 @@ export class ActivityMap extends Component {
       if (!mapCurrentLatLng) { return }
       if (this.lastAnimation) { this.lastAnimation.stop() }
       this.positionCircleCoordinates
-      this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: 0 }))
+      this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: UPDATE_PERIOD }))
       this.lastAnimation.start()
     }
   }

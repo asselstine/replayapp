@@ -148,7 +148,6 @@ export class VideoPlayer extends Component {
   }
 
   _onLoad (event) {
-    // console.log('on LOAD')
     this.animationFrame()
   }
 
