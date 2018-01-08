@@ -52,13 +52,13 @@
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>
-			<string></string>
+			<string/>
 		</dict>
 	</dict>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to see your videos</string>
 	<key>UIAppFonts</key>
