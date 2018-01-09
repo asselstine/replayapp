@@ -23,7 +23,7 @@ export class RawVideoList extends PureComponent {
 
   fetch () {
     var currentIndex = this.state.assets.length
-    var pageSize = 10
+    var pageSize = 6
     RNPhotosFramework.getAssets({
       startIndex: currentIndex,
       endIndex: currentIndex + pageSize,

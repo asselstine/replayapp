@@ -15,7 +15,7 @@ export default function (state, action) {
         cmd[action.rawVideoData.localIdentifier] = {
           '$set': {
             rawVideoData: action.rawVideoData,
-            videoSource: action.rawVideoData.video,
+            videoSource: action.rawVideoData.withOptions({ deliveryMode: 'fast' }).video,
             imageSource: action.rawVideoData.image,
             startAt: moment(action.rawVideoData.creationDateUTCSeconds * 1000)
           }
