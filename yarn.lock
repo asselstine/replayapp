@@ -1318,6 +1318,14 @@ create-react-class@^15.5.2, create-react-class@^15.5.3:
     loose-envify "^1.3.1"
     object-assign "^4.1.1"
 
+create-react-class@^15.6.2:
+  version "15.6.2"
+  resolved "https://registry.yarnpkg.com/create-react-class/-/create-react-class-15.6.2.tgz#cf1ed15f12aad7f14ef5f2dfe05e6c42f91ef02a"
+  dependencies:
+    fbjs "^0.8.9"
+    loose-envify "^1.3.1"
+    object-assign "^4.1.1"
+
 cross-spawn@^5.0.1, cross-spawn@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-5.1.0.tgz#e8bd0efee58fcff6f8f94510a0a554bbfa235449"
@@ -2974,9 +2982,9 @@ minimist@~0.0.1:
   dependencies:
     minimist "0.0.8"
 
-moment@^2.18.1:
-  version "2.18.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
+moment@^2.20.1:
+  version "2.20.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.20.1.tgz#d6eb1a46cbcc14a2b2f9434112c1ff8907f313fd"
 
 morgan@~1.6.1:
   version "1.6.1"
@@ -3514,13 +3522,13 @@ react-native-mail@^3.0.5:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/react-native-mail/-/react-native-mail-3.0.5.tgz#e497cb192a52102458f5e2a554dfc65d3fb635cb"
 
-react-native-maps@^0.15.3:
-  version "0.15.3"
-  resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-0.15.3.tgz#5d9e0a8e30ecc51dc755b7a3b9d6b6ed5e2dd08c"
+react-native-maps@^0.19:
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-0.19.0.tgz#ce94fad1cf360e335cb4338a68c95f791e869074"
 
-react-native-oauth@fullstackreact/react-native-oauth#master:
+"react-native-oauth@git+ssh://git@github.com/exentrich/react-native-oauth#patch-1":
   version "2.1.15"
-  resolved "https://codeload.github.com/fullstackreact/react-native-oauth/tar.gz/2f8c8d1483526bbc8a6ca72183c6d11a71538ad3"
+  resolved "git+ssh://git@github.com/exentrich/react-native-oauth#d72eaf3c023b359b0c1e6bdf877761ce94099136"
   dependencies:
     invariant "^2.2.1"
     valib "^2.0.0"
@@ -3529,23 +3537,25 @@ react-native-orientation@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/react-native-orientation/-/react-native-orientation-2.0.0.tgz#d415910d3496c57e9fc57c899cb4c8beb8be4a49"
 
-"react-native-photos-framework@git://github.com/olofd/react-native-photos-framework.git":
-  version "1.0.5"
-  resolved "git://github.com/olofd/react-native-photos-framework.git#c1b5d2e13f599f8dc062eba06f897129bc74cf86"
+"react-native-photos-framework@git://github.com/olofd/react-native-photos-framework.git#adaa91":
+  version "1.0.8"
+  resolved "git://github.com/olofd/react-native-photos-framework.git#adaa91d8bd13e93cb18c5884d9fde27228a44ebb"
 
 react-native-pinch-zoom-responder@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/react-native-pinch-zoom-responder/-/react-native-pinch-zoom-responder-0.1.1.tgz#f17f32c158eb18c29efde43b63ff2af7d56f4d05"
 
-react-native-scrollable-tab-view@^0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/react-native-scrollable-tab-view/-/react-native-scrollable-tab-view-0.6.7.tgz#3a5fe8a4bd5bc7eb023f306099323bbd9cc284a2"
+"react-native-scrollable-tab-view@git+ssh://git@github.com/skv-headless/react-native-scrollable-tab-view.git#74a0b3f":
+  version "0.8.0"
+  resolved "git+ssh://git@github.com/skv-headless/react-native-scrollable-tab-view.git#74a0b3fc3f5b69b49b93e0e5f9b0d9089da757c5"
   dependencies:
+    create-react-class "^15.6.2"
+    prop-types "^15.6.0"
     react-timer-mixin "^0.13.3"
 
-react-native-svg@^5.3.2:
-  version "5.3.2"
-  resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-5.3.2.tgz#ddb10600ac9f6a7b7ad86549c9a584f3dd838aac"
+react-native-svg@^5.5.1:
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-5.5.1.tgz#633d882077f048f05c721ebb793cd073e846ba1f"
   dependencies:
     color "^0.11.1"
     lodash "^4.16.6"
@@ -3564,11 +3574,12 @@ react-native-vector-icons@^4.2.0:
     prop-types "^15.5.8"
     yargs "^6.3.0"
 
-"react-native-video@git://github.com/olofd/react-native-video.git#react-native-photos-framework":
-  version "1.0.0"
-  resolved "git://github.com/olofd/react-native-video.git#060c2046b597d126ef55138151fc3d7e4c9c7831"
+"react-native-video@git+ssh://git@github.com/asselstine/react-native-video.git#da9980":
+  version "2.0.0"
+  resolved "git+ssh://git@github.com/asselstine/react-native-video.git#da998075a8fb6a5c6a91957c3137aab37b7d4165"
   dependencies:
     keymirror "0.1.1"
+    prop-types "^15.5.10"
 
 react-native@0.52.0:
   version "0.52.0"
