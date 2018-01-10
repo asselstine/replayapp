@@ -18,7 +18,8 @@ import { Button } from '../button'
 import {
   replayRedLogo,
   poweredByStrava,
-  overlayImage
+  overlayImage,
+  replayRedWordmark,
 } from '../../images'
 
 export class WelcomeModal extends Component {
@@ -42,12 +43,12 @@ export class WelcomeModal extends Component {
           tabBarUnderlineStyle={{backgroundColor: colours.STRAVA_BRAND_COLOUR}}>
           <View tabLabel='intro' style={HelpStyles.content}>
             <View style={[HelpStyles.headerBox, styles.logos]}>
-              <Image style={styles.logo} source={replayRedLogo} resizeMode='contain' />
+              <Image style={styles.wordmark} source={replayRedWordmark} resizeMode='contain' />
               <Image style={styles.poweredByStrava} source={poweredByStrava} resizeMode='contain' />
             </View>
             <View style={HelpStyles.block}>
               <Text>
-                <Text style={HelpStyles.explain}>Watch your video with </Text>
+                <Text style={HelpStyles.explain}>Watch your videos with </Text>
                 <Text style={HelpStyles.explainBold}>interactive telemetry</Text>
               </Text>
               <Text>
@@ -89,14 +90,25 @@ export class WelcomeModal extends Component {
 
 const styles = {
   logos: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  wordmark: {
+    width: 400,
+    height: 50,
   },
 
   logo: {
-    width: '20%',
+    width: '50%',
     aspectRatio: 0.82468,
     height: 'auto',
+  },
+
+  poweredByStrava: {
+    width: '50%',
   },
 
   overlay: {
@@ -121,8 +133,4 @@ const styles = {
     fontSize: 48,
     textAlign: 'center'
   },
-
-  poweredByStrava: {
-    width: '50%',
-  }
 }
