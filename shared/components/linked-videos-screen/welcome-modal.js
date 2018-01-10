@@ -51,9 +51,7 @@ export class WelcomeModal extends Component {
               <Text>
                 <Text style={HelpStyles.explain}>Watch your videos with </Text>
                 <Text style={HelpStyles.explainBold}>interactive telemetry</Text>
-              </Text>
-              <Text>
-                <Text style={HelpStyles.explain}>and </Text>
+                <Text style={HelpStyles.explain}> and </Text>
                 <Text style={HelpStyles.explainBold}>race results</Text>
               </Text>
             </View>
@@ -98,7 +96,7 @@ const styles = {
   },
 
   wordmark: {
-    width: 400,
+    width: 425,
     height: 50,
   },
 
@@ -109,7 +107,7 @@ const styles = {
   },
 
   poweredByStrava: {
-    width: '50%',
+    width: 200,
   },
 
   overlay: {

@@ -6,6 +6,7 @@ import {
   G
 } from 'react-native-svg'
 import PropTypes from 'prop-types'
+import dpiNormalize from '../../../../dpi-normalize'
 
 export class TextLayer extends Component {
   constructor (props) {
@@ -60,7 +61,7 @@ const styles = {
   label: {
     fill: 'black',
     stroke: 'black',
-    fontSize: '12',
+    fontSize: dpiNormalize(14) + '',
     fontWeight: '100'
   }
 }

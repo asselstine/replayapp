@@ -39,6 +39,7 @@ import {
   View,
   Animated
 } from 'react-native'
+import dpiNormalize from '../../dpi-normalize'
 
 const IDENTITY = MatrixMath.createIdentityMatrix()
 
@@ -495,7 +496,7 @@ const styles = {
     top: 0,
     left: 0,
     color: 'black',
-    fontSize: 14,
+    fontSize: dpiNormalize(14),
     fontWeight: '700'
   }
 }

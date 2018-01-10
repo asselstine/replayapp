@@ -17,6 +17,7 @@ import { Button } from './button'
 import ModalStyle from '../styles/modal'
 import { Rank } from './rank'
 import dpiNormalize from '../dpi-normalize'
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 export class SegmentEffortSelectModal extends Component {
   constructor (props) {
@@ -41,11 +42,16 @@ export class SegmentEffortSelectModal extends Component {
         onPress={() => { this.props.onSelect(item) }}
         style={styles.leaderboardEntry}>
         <View style={styles.entrant}>
-          <Rank rank={item.rank} />
+          <View style={styles.rank}>
+            <Rank rank={item.rank} />
+          </View>
           {genderIcon}
           <Text style={styles.leaderboardEntryName}>{item.athlete_name}</Text>
         </View>
-        <Text style={styles.leaderboardEntryTime}>{formatDuration(moment.duration(item.moving_time * 1000))}s</Text>
+        <View style={styles.leaderboardEntryTimeContainer}>
+          <MaterialCommunityIcon style={styles.leaderboardEntryTime} name='clock' />
+          <Text style={styles.leaderboardEntryTime}> {formatDuration(moment.duration(item.moving_time * 1000))}s</Text>
+        </View>
       </TouchableOpacity>
     )
   }
@@ -101,10 +107,17 @@ const styles = {
     alignItems: 'center',
   },
 
+  rank: {
+    flex: 0,
+    width: dpiNormalize(50),
+  },
+
   genderIcon: {
     fontSize: dpiNormalize(20),
     paddingLeft: 10,
-    paddingRight: 10
+    paddingRight: 10,
+    flex: 0,
+    width: dpiNormalize(40),
   },
 
   genderIconMale: {
@@ -121,6 +134,10 @@ const styles = {
 
   leaderboardEntryName: {
     fontSize: dpiNormalize(18),
+  },
+
+  leaderboardEntryTimeContainer: {
+    flexDirection: 'row',
   },
 
   leaderboardEntryTime: {

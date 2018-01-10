@@ -12,6 +12,7 @@ import Config from 'react-native-config'
 import { Button as MyButton } from '../../button'
 import { store } from '../../../store'
 import { resetHelp } from '../../../actions/help-actions'
+import dpiNormalize from '../../../dpi-normalize'
 
 export class FeedbackScreen extends Component {
   onResetHelp () {
@@ -75,11 +76,11 @@ const styles = {
 
   title: {
     marginTop: 20,
-    fontSize: 24,
+    fontSize: dpiNormalize(24),
   },
 
   p: {
-    fontSize: 16,
+    fontSize: dpiNormalize(20),
     marginTop: 15,
     marginBottom: 15
   }

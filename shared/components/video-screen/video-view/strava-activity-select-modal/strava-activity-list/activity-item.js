@@ -7,6 +7,7 @@ import {
 import moment from 'moment'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import formatDuration from '../../../../../format-duration'
+import dpiNormalize from '../../../../../dpi-normalize'
 
 export class ActivityItem extends Component {
   constructor (props) {
@@ -47,19 +48,15 @@ export class ActivityItem extends Component {
           <View style={styles.activityDetails}>
             <View style={styles.activityDetailItem}>
               <MaterialCommunityIcon style={styles.activityDetailIcon} name='calendar' />
-              <Text>{startAt.fromNow()}</Text>
+              <Text style={styles.activityDetailLabel}>{startAt.fromNow()}</Text>
             </View>
             <View style={styles.activityDetailItem}>
               <MaterialCommunityIcon style={styles.activityDetailIcon} name='clock' />
-              <Text>{formatDuration(moment.duration(this.props.activity.moving_time * 1000))}</Text>
+              <Text style={styles.activityDetailLabel}>{formatDuration(moment.duration(this.props.activity.moving_time * 1000))}</Text>
             </View>
             <View style={styles.activityDetailItem}>
               <MaterialCommunityIcon style={styles.activityDetailIcon} name='altimeter' />
-              <Text>{this.props.activity.total_elevation_gain}m</Text>
-            </View>
-            <View style={styles.activityDetailItem}>
-              <MaterialCommunityIcon style={styles.activityDetailIcon} name='flash' />
-              <Text>{this.props.activity.average_watts} watts</Text>
+              <Text style={styles.activityDetailLabel}>{this.props.activity.total_elevation_gain}m</Text>
             </View>
           </View>
         </View>
@@ -71,20 +68,30 @@ export class ActivityItem extends Component {
 const styles = {
   activityItem: {
     paddingBottom: 12,
+    flexDirection: 'row',
   },
 
   activityName: {
-    fontSize: 24
+    fontSize: dpiNormalize(24),
+    fontWeight: '300',
+    flex: 1,
   },
 
   activityDetails: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'flex-end',
+    flex: 0,
+    width: dpiNormalize(100)
   },
 
   activityDetailIcon: {
-    paddingRight: 4
+    paddingRight: 4,
+    fontSize: dpiNormalize(14),
+  },
+
+  activityDetailLabel: {
+    fontSize: dpiNormalize(14)
   },
 
   activityDetailItem: {

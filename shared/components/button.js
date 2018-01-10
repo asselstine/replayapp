@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import _ from 'lodash'
 import Color from 'color'
+import dpiNormalize from '../dpi-normalize'
 
 export class Button extends Component {
   componentWillMount () {
@@ -102,7 +103,7 @@ const styles = {
   label: {
     color: 'white',
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: dpiNormalize(16),
     fontWeight: '600'
   }
 }

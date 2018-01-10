@@ -45,7 +45,7 @@ import { Activity } from '../../../activity'
 import { SyncDialog } from './sync-dialog'
 import analytics from '../../../analytics'
 import reportError from '../../../report-error'
-
+import dpiNormalize from '../../../dpi-normalize'
 import connectWithStrava from '../../../../images/btn_strava_connectwith_orange2x.png'
 
 export const VideoView = connect(
@@ -580,14 +580,14 @@ const styles = {
   },
 
   activityButtonText: {
-    fontSize: 20,
+    fontSize: dpiNormalize(20),
     fontWeight: '300',
     color: 'black'
   },
 
   titleHeaderIcon: {
     color: 'black',
-    fontSize: 24,
+    fontSize: dpiNormalize(24),
     paddingTop: 10,
     paddingRight: 10
   },
@@ -609,7 +609,7 @@ const styles = {
   },
 
   tabBarTextStyle: {
-    fontSize: 18,
+    fontSize: dpiNormalize(18),
     fontWeight: '200'
   },
 

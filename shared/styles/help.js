@@ -1,11 +1,6 @@
 import dpiNormalize from '../dpi-normalize'
 
 export default {
-  header: {
-    fontSize: dpiNormalize(24),
-    textAlign: 'center'
-  },
-
   content: {
     padding: dpiNormalize(20),
   },

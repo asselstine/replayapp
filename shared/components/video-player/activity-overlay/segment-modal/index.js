@@ -42,11 +42,11 @@ export class SegmentModal extends Component {
           <View style={styles.activityDetails}>
             <View style={styles.activityDetailItem}>
               <MaterialCommunityIcon style={styles.activityDetailIcon} name='clock' />
-              <Text>{formatDuration(moment.duration(item.moving_time * 1000))}</Text>
+              <Text style={styles.activityDetailLabel}>{formatDuration(moment.duration(item.moving_time * 1000))}</Text>
             </View>
             <View style={styles.activityDetailItem}>
               <Entypo style={styles.activityDetailIcon} name='ruler' />
-              <Text>{formatDistance(item.distance)}</Text>
+              <Text style={styles.activityDetailLabel}>{formatDistance(item.distance)}</Text>
             </View>
             <View style={styles.activityDetailItem}>
               {prRank}
@@ -105,7 +105,7 @@ const styles = {
   },
 
   segmentRightPane: {
-    width: 70,
+    width: dpiNormalize(70),
     flexDirection: 'column',
     alignItems: 'flex-end'
   },
@@ -115,7 +115,7 @@ const styles = {
   },
 
   activityName: {
-    fontSize: 24
+    fontSize: dpiNormalize(24),
   },
 
   activityDetails: {
@@ -126,11 +126,16 @@ const styles = {
   },
 
   activityDetailIcon: {
-    paddingRight: 4
+    paddingRight: 4,
+    fontSize: dpiNormalize(14),
+  },
+
+  activityDetailLabel: {
+    fontSize: dpiNormalize(14),
   },
 
   activityDetailItem: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 }

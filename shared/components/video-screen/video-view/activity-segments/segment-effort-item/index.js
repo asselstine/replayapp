@@ -11,6 +11,7 @@ import _ from 'lodash'
 import { SegmentRace } from './segment-race'
 import { track } from '../../../../../analytics'
 import { PrRank } from '../../../../pr-rank'
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import segmentEffortProperties from '../../../../../analytics/segment-effort-properties'
 import formatDuration from '../../../../../format-duration'
 import formatDistance from '../../../../../format-distance'
@@ -75,7 +76,10 @@ export class SegmentEffortItem extends Component {
             </View>
             <View style={styles.rightPane}>
               <Text style={styles.headerData}>{formatDistance(_.get(this.props, 'segmentEffort.distance'))}</Text>
-              <Text style={styles.headerData}>{formatDuration(duration)}</Text>
+              <View style={styles.headerTime}>
+                <MaterialCommunityIcon style={styles.headerData} name='clock' />
+                <Text style={styles.headerData}> {formatDuration(duration)}</Text>
+              </View>
               {prRankLabel}
             </View>
           </View>
@@ -101,9 +105,13 @@ const styles = {
   },
 
   rightPane: {
-    width: 70,
+    width: dpiNormalize(70),
     flexDirection: 'column',
     alignItems: 'flex-end'
+  },
+
+  headerTime: {
+    flexDirection: 'row',
   },
 
   effortName: {
@@ -112,8 +120,9 @@ const styles = {
   },
 
   headerData: {
-    textAlign: 'right'
-  }
+    textAlign: 'right',
+    fontSize: dpiNormalize(12)
+  },
 }
 
 SegmentEffortItem.propTypes = {

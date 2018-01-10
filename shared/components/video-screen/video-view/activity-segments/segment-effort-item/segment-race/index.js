@@ -14,6 +14,7 @@ import { RaceGraph } from '../../../../../race-graph'
 import { SegmentEffortSelectModal } from '../../../../../segment-effort-select-modal'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { track } from '../../../../../../analytics'
+import dpiNormalize from '../../../../../../dpi-normalize'
 
 export class SegmentRace extends Component {
   constructor (props) {
@@ -98,7 +99,7 @@ export class SegmentRace extends Component {
     if (this.state.versusLeaderboardEntry) {
       var versusTitle =
         <View style={styles.title}>
-          <Text>You VS </Text>
+          <Text style={styles.vsText}>You VS </Text>
           <TouchableOpacity onPress={() => { this.openSegmentEffortModal() }} style={styles.opponentButton}>
             <Text style={styles.opponentTitle}>{this.state.versusLeaderboardEntry.athlete_name}</Text>
             <Icon name='md-arrow-dropdown' style={styles.opponentIcon}/>
@@ -157,11 +158,16 @@ const styles = {
     flex: 1,
     flexDirection: 'row'
   },
+  vsText: {
+    fontSize: dpiNormalize(14),
+  },
+
   opponentTitle: {
+    fontSize: dpiNormalize(14),
     fontWeight: '800',
     paddingRight: 4,
   },
   opponentIcon: {
-    fontSize: 18,
+    fontSize: dpiNormalize(16),
   }
 }
