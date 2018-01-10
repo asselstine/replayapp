@@ -300,7 +300,7 @@ export const VideoView = connect(
 
     var videoPlayerContainerStyle = styles.videoPlayer
 
-    if (this.state.aspectRatio) {
+    if (this.state.aspectRatio && !this.state.landscape && !this.state.fullscreen) {
       if (this.state.aspectRatio > 1) {
         var width = '100%'
         var height = 'auto'
@@ -525,10 +525,12 @@ const styles = {
   landscape: {
     videoView: {
       flex: 1,
+      flexDirection: 'row',
     },
 
     videoPlayer: {
       flex: 1,
+      backgroundColor: 'black',
     }
   },
   videoPlayer: {
