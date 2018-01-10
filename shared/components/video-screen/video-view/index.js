@@ -9,6 +9,7 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
+  Dimensions,
   Alert,
   Image
 } from 'react-native'
@@ -71,7 +72,7 @@ export const VideoView = connect(
       width: 1,
       height: 1,
       showVideo: true,
-      warningFlash: new Animated.Value(0)
+      warningFlash: new Animated.Value(0),
     }
     this.onProgress = this.onProgress.bind(this)
     this.onPlay = this.onPlay.bind(this)
@@ -299,6 +300,33 @@ export const VideoView = connect(
 
     var videoPlayerContainerStyle = styles.videoPlayer
 
+    if (this.state.aspectRatio && !this.state.landscape && !this.state.fullscreen) {
+      if (this.state.aspectRatio > 1) {
+        var width = '100%'
+        var height = 'auto'
+      } else {
+        var deviceHeight = Dimensions.get('window').height
+        width = 'auto'
+        if (this.state.videoHeight > deviceHeight) {
+          height = deviceHeight * 0.4
+        } else {
+          height = this.state.videoHeight
+        }
+      }
+      var videoStyle = {
+        flex: 0,
+        width: width,
+        height: height,
+        aspectRatio: this.state.aspectRatio,
+      }
+    } else {
+      videoStyle = {
+        flex: 0,
+        width: '100%',
+        height: '100%',
+      }
+    }
+
     if (this.state.fullscreen) {
       videoPlayerContainerStyle = styles.fullscreen.videoPlayer
     } else if (this.state.landscape) {
@@ -307,17 +335,28 @@ export const VideoView = connect(
 
     if (this.props.video && this.state.showVideo) {
       var videoPlayer =
-        <View style={videoPlayerContainerStyle}>
-          <VideoPlayer
-            eventEmitter={this.eventEmitter}
-            fullscreen={this.state.fullscreen}
-            onToggleFullscreen={this.onToggleFullscreen}
-            ref={(ref) => { this._videoPlayer = ref }}
-            hideActivityOverlay={!this.state.fullscreen}
-            onProgress={this.onProgress}
-            onPlay={this.onPlay}
-            onClose={this.props.onClose}
-            video={this.props.video} />
+        <View style={[styles.videoPlayerGlobalStyle, videoPlayerContainerStyle]}>
+          <View style={videoStyle}>
+            <VideoPlayer
+              eventEmitter={this.eventEmitter}
+              fullscreen={this.state.fullscreen}
+              onToggleFullscreen={this.onToggleFullscreen}
+              ref={(ref) => { this._videoPlayer = ref }}
+              onLoad={(event) => {
+                if (event.naturalSize.height && event.naturalSize.width) {
+                  this.setState({
+                    aspectRatio: (event.naturalSize.width / event.naturalSize.height),
+                    videoWidth: event.naturalSize.width,
+                    videoHeight: event.naturalSize.height,
+                  })
+                }
+              }}
+              hideActivityOverlay={!this.state.fullscreen}
+              onProgress={this.onProgress}
+              onPlay={this.onPlay}
+              onClose={this.props.onClose}
+              video={this.props.video} />
+          </View>
         </View>
     }
 
@@ -477,19 +516,26 @@ export const VideoView = connect(
 })
 
 const styles = {
+  videoPlayerGlobalStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
   landscape: {
     videoView: {
       flex: 1,
-      flexDirection: 'row'
+      flexDirection: 'row',
     },
 
     videoPlayer: {
       flex: 1,
+      backgroundColor: 'black',
     }
   },
   videoPlayer: {
-    maxHeight: 210,
-    backgroundColor: 'black'
+    flex: 0,
+    backgroundColor: 'black',
   },
   fullscreen: {
     videoPlayer: {

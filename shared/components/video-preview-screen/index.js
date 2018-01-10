@@ -36,7 +36,7 @@ export class VideoPreviewScreen extends Component {
     const { rawVideoData } = this.props.navigation.state.params
     var video = {
       rawVideoData: rawVideoData,
-      videoSource: rawVideoData.video
+      videoSource: rawVideoData.video,
     }
 
     return (

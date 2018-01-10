@@ -55,6 +55,11 @@ public class MainApplication extends Application implements ReactApplication {
             new OAuthManagerPackage()
       );
     }
+
+    @Override
+    protected String getJSMainModuleName() {
+      return "index";
+    }
   };
 
   @Override
