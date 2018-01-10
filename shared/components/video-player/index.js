@@ -15,7 +15,7 @@ import { ActivityOverlayContainer } from './activity-overlay-container'
 import reportError from '../../report-error'
 import _ from 'lodash'
 
-const SEEK_THROTTLE = 50
+const SEEK_THROTTLE = 200
 
 export class VideoPlayer extends Component {
   constructor (props) {
@@ -38,7 +38,9 @@ export class VideoPlayer extends Component {
     this.toggleFullscreen = this.toggleFullscreen.bind(this)
     this.finishHideOverlay = this.finishHideOverlay.bind(this)
     this.animationFrame = this.animationFrame.bind(this)
-    this.raf = this.raf.bind(this)
+    this.startInterval = this.startInterval.bind(this)
+    this.stopInterval = this.stopInterval.bind(this)
+    this.raf = _.throttle(this.raf.bind(this), SEEK_THROTTLE)
     this.onClose = this.onClose.bind(this)
     this.seek = this.seek.bind(this)
     this.seekStart = this.seekStart.bind(this)
@@ -125,7 +127,19 @@ export class VideoPlayer extends Component {
   }
 
   componentDidMount () {
-    this.raf()
+    // this.raf()
+    this.animationFrame()
+  }
+
+  startInterval () {
+    this.stopInterval()
+    this.rafInterval = this.setInterval(this.raf, SEEK_THROTTLE)
+  }
+
+  stopInterval () {
+    if (this.rafInterval) {
+      this.clearInterval(this.rafInterval)
+    }
   }
 
   togglePlay () {
@@ -137,7 +151,13 @@ export class VideoPlayer extends Component {
       this._onStop()
     }
     this.animationFrame()
-    this.setState({ paused: !this.state.paused })
+    this.setState({ paused: !this.state.paused }, () => {
+      if (this.state.paused) {
+        this.stopInterval()
+      } else {
+        this.startInterval()
+      }
+    })
   }
 
   _onStop () {
@@ -156,16 +176,12 @@ export class VideoPlayer extends Component {
     // console.log('on LOAD START')
   }
 
-  raf (hires_timestamp) {
+  raf () {
     this.animationFrame()
-    this.requestAnimationFrame(this.raf)
   }
 
   animationFrame () {
     var videoTime = this.getCurrentTime()
-    if (this.props.onProgress) {
-      this.props.onProgress(videoTime)
-    }
     this.props.eventEmitter.emit('progressVideoTime', videoTime)
     this.props.eventEmitter.emit('progressActivityTime', this.getCurrentTimeActivity())
   }

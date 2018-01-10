@@ -174,7 +174,7 @@ export const VideoView = connect(
   }
 
   onProgress (videoTime) {
-    this.eventEmitter.emit('onStreamTimeProgress', this.videoTimeToStreamTime(videoTime))
+    // this.eventEmitter.emit('onStreamTimeProgress', this.videoTimeToStreamTime(videoTime))
   }
 
   onPlay (event) {
@@ -234,7 +234,6 @@ export const VideoView = connect(
     if (this.state.locked) {
       this._videoPlayer.seek(this.streamTimeToVideoTime(streamTime))
     } else {
-      this.eventEmitter.emit('onStreamTimeProgress', streamTime)
       var videoStartAt = this.calculateVideoStartAt(streamTime)
       dispatchTrack(
         setVideoStartAt(this.props.video.rawVideoData, videoStartAt),
@@ -352,7 +351,6 @@ export const VideoView = connect(
                 }
               }}
               hideActivityOverlay={!this.state.fullscreen}
-              onProgress={this.onProgress}
               onPlay={this.onPlay}
               onClose={this.props.onClose}
               video={this.props.video} />
