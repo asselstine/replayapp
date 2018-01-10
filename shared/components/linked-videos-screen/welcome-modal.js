@@ -14,6 +14,7 @@ import * as colours from '../../colours'
 import { Tabs } from '../help-modal/tabs'
 import { HelpService } from '../../services/help-service'
 import { Button } from '../button'
+import dpiNormalize from '../../dpi-normalize'
 
 import {
   replayRedLogo,

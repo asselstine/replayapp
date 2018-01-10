@@ -1,22 +1,24 @@
+import dpiNormalize from '../dpi-normalize'
+
 export default {
   header: {
 
   },
 
   title: {
-    fontSize: 32,
+    fontSize: dpiNormalize(32),
     fontWeight: '200',
-    marginTop: 30,
-    paddingBottom: 10,
+    marginTop: dpiNormalize(30),
+    paddingBottom: dpiNormalize(10),
     textAlign: 'center',
   },
 
   body: {
     flex: 1,
-    padding: 10
+    padding: dpiNormalize(10)
   },
 
   footer: {
-    paddingBottom: 10
+    paddingBottom: dpiNormalize(10)
   },
 }

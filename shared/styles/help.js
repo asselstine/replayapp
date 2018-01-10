@@ -1,22 +1,24 @@
+import dpiNormalize from '../dpi-normalize'
+
 export default {
   header: {
-    fontSize: 24,
+    fontSize: dpiNormalize(24),
     textAlign: 'center'
   },
 
   content: {
-    padding: 20,
+    padding: dpiNormalize(20),
   },
 
   header: {
     textAlign: 'left',
-    fontSize: 32,
+    fontSize: dpiNormalize(32),
     fontWeight: '600',
   },
 
   headerBox: {
-    paddingTop: 40,
-    paddingBottom: 40,
+    paddingTop: dpiNormalize(20),
+    paddingBottom: dpiNormalize(20),
   },
 
   flexCol: {
@@ -34,17 +36,17 @@ export default {
   },
 
   block: {
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: dpiNormalize(10),
+    paddingBottom: dpiNormalize(10),
   },
 
   explain: {
-    fontSize: 24,
+    fontSize: dpiNormalize(20),
     fontWeight: '300',
   },
 
   explainBold: {
-    fontSize: 24,
+    fontSize: dpiNormalize(20),
     fontWeight: '700',
   },
 }
