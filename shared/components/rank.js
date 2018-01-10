@@ -7,6 +7,7 @@ import {
 } from 'react-native'
 import PropTypes from 'prop-types'
 import Ionicon from 'react-native-vector-icons/Ionicons'
+import dpiNormalize from '../dpi-normalize'
 
 export class Rank extends Component {
   render () {
@@ -37,11 +38,11 @@ Rank.propTypes = {
 const styles = {
 
   rankLabel: {
-    fontSize: 18
+    fontSize: dpiNormalize(16),
   },
 
   trophy: {
-    fontSize: 48,
+    fontSize: dpiNormalize(40),
     color: 'gold'
   },
 

@@ -14,6 +14,7 @@ import { PrRank } from '../../../../pr-rank'
 import segmentEffortProperties from '../../../../../analytics/segment-effort-properties'
 import formatDuration from '../../../../../format-duration'
 import formatDistance from '../../../../../format-distance'
+import dpiNormalize from '../../../../../dpi-normalize'
 
 export class SegmentEffortItem extends Component {
   constructor (props) {
@@ -106,7 +107,7 @@ const styles = {
   },
 
   effortName: {
-    fontSize: 22,
+    fontSize: dpiNormalize(18),
     fontWeight: '300'
   },
 

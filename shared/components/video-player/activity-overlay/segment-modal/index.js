@@ -18,6 +18,7 @@ import ModalStyles from '../../../../styles/modal'
 import formatDuration from '../../../../format-duration'
 import formatDistance from '../../../../format-distance'
 import { PrRank } from '../../../pr-rank'
+import dpiNormalize from '../../../../dpi-normalize'
 
 export class SegmentModal extends Component {
   constructor (props) {
@@ -94,7 +95,7 @@ SegmentModal.propTypes = {
 
 const styles = {
   segmentEffortLabel: {
-    fontSize: 22,
+    fontSize: dpiNormalize(18),
     fontWeight: '300'
   },
 

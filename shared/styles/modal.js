@@ -6,7 +6,7 @@ export default {
   },
 
   title: {
-    fontSize: dpiNormalize(32),
+    fontSize: dpiNormalize(28),
     fontWeight: '200',
     marginTop: dpiNormalize(30),
     paddingBottom: dpiNormalize(10),

@@ -16,6 +16,7 @@ import Ionicon from 'react-native-vector-icons/Ionicons'
 import { Button } from './button'
 import ModalStyle from '../styles/modal'
 import { Rank } from './rank'
+import dpiNormalize from '../dpi-normalize'
 
 export class SegmentEffortSelectModal extends Component {
   constructor (props) {
@@ -101,7 +102,7 @@ const styles = {
   },
 
   genderIcon: {
-    fontSize: 32,
+    fontSize: dpiNormalize(20),
     paddingLeft: 10,
     paddingRight: 10
   },
@@ -119,10 +120,11 @@ const styles = {
   },
 
   leaderboardEntryName: {
-    fontSize: 22
+    fontSize: dpiNormalize(18),
   },
+
   leaderboardEntryTime: {
-    fontSize: 24
+    fontSize: dpiNormalize(16)
   },
 
   closeButton: {
