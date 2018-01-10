@@ -149,6 +149,7 @@ export class VideoPlayer extends Component {
 
   _onLoad (event) {
     this.animationFrame()
+    this.props.onLoad(event)
   }
 
   _onLoadStart (event) {
@@ -310,11 +311,13 @@ VideoPlayer.propTypes = {
   style: PropTypes.object,
   fullscreen: PropTypes.bool,
   onToggleFullscreen: PropTypes.func,
+  onLoad: PropTypes.func,
   hideActivityOverlay: PropTypes.bool
 }
 
 VideoPlayer.defaultProps = {
   style: {},
+  onLoad: () => {},
 }
 
 const styles = {
