@@ -153,21 +153,12 @@ export class ActivityOverlay extends Component {
     if (overlay === this.state.streamOverlay) { // if same overlay
       this._hideOverlay()
     } else {
-      // this.resetOverlayHideTimeout()
       this._showOverlay(overlay)
     }
   }
 
   currentSegmentEffort () {
     return _.last(this.props.segmentEfforts)
-    // return _.first(this.props.segmentEfforts.reduce((matchingSegmentEfforts, segmentEffort) => {
-    //   if (times &&
-    //       times[segmentEffort.start_index] <= currentTime &&
-    //       times[segmentEffort.end_index] >= currentTime) {
-    //         matchingSegmentEfforts.push(segmentEffort)
-    //   }
-    //   return matchingSegmentEfforts
-    // }, []))
   }
 
   visibleSegmentEfforts () {

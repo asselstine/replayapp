@@ -13,10 +13,12 @@ import { Button as MyButton } from '../../button'
 import { store } from '../../../store'
 import { resetHelp } from '../../../actions/help-actions'
 import dpiNormalize from '../../../dpi-normalize'
+import dispatchTrack from '../../../store/dispatch-track'
+import { track } from '../../../analytics'
 
 export class FeedbackScreen extends Component {
   onResetHelp () {
-    store.dispatch(resetHelp())
+    dispatchTrack(resetHelp())
   }
 
   sendFeedback () {
@@ -26,7 +28,10 @@ export class FeedbackScreen extends Component {
       body: '',
       isHTML: false,
     }, (error, event) => {
-      if (event == 'sent') {
+      if (event === 'sent') {
+        track({
+          event: 'Feedback Sent'
+        })
         Alert.alert(
           'Feedback Sent',
           "Thanks!  We'll be in touch!",
