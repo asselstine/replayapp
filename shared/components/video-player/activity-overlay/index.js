@@ -40,7 +40,7 @@ import _ from 'lodash'
 export class ActivityOverlay extends Component {
   constructor (props) {
     super(props)
-    var segmentEffort = _.first(props.segmentEfforts)
+    var segmentEffort = _.first(this.visibleSegmentEffortsFromProps(props))
     this.state = _.merge({}, {
       segmentEffort: segmentEffort,
       streamOverlay: false,
@@ -107,7 +107,7 @@ export class ActivityOverlay extends Component {
   componentWillReceiveProps (props) {
     // console.log(this.props.segmentEfforts.length, props.segmentEfforts.length)
     if (!this.props.segmentEfforts.length && props.segmentEfforts.length) {
-      this.setState({segmentEffort: _.first(props.segmentEfforts)}, this.onChangeSegmentEffort)
+      this.setState({segmentEffort: _.first(this.visibleSegmentEffortsFromProps(props))}, this.onChangeSegmentEffort)
     }
   }
 
@@ -171,9 +171,14 @@ export class ActivityOverlay extends Component {
   }
 
   visibleSegmentEfforts () {
-    var videoStartAt = Video.startAt(this.props.video)
-    var videoEndAt = Video.endAt(this.props.video)
-    return this.props.segmentEfforts.reduce((matching, segmentEffort) => {
+    return this.visibleSegmentEffortsFromProps(this.props)
+  }
+
+  visibleSegmentEffortsFromProps (props) {
+    if (!props.video || !props.segmentEfforts.length) { return [] }
+    var videoStartAt = Video.startAt(props.video)
+    var videoEndAt = Video.endAt(props.video)
+    return props.segmentEfforts.reduce((matching, segmentEffort) => {
       var dates = SegmentEffort.dates(segmentEffort)
       if (dates.start.isSameOrBefore(videoEndAt) &&
           dates.end.isSameOrAfter(videoStartAt)) {
