@@ -10,6 +10,6 @@ export default function (cacheKey) {
     } else {
       result = moment().isAfter(moment(date).add(7, 'days'))
     }
-    console.log(`CACHE EXPIRED: ${result}: ${cacheKey}`)
+    // console.log(`CACHE EXPIRED: ${result}: ${cacheKey}`)
     return result
 }

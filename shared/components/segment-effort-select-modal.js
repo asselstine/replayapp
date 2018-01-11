@@ -8,7 +8,6 @@ import {
   View,
   Text
 } from 'react-native'
-import { Strava } from '../strava'
 import PropTypes from 'prop-types'
 import formatDuration from '../format-duration'
 import moment from 'moment'

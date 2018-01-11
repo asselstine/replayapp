@@ -7,6 +7,7 @@ import { ActivityItem } from './activity-item'
 import PropTypes from 'prop-types'
 import reportError from '../../../../../report-error'
 import _ from 'lodash'
+import alertResponseError from '../../../../../alert-response-error'
 
 export class StravaActivityList extends Component {
   constructor (props) {
@@ -27,6 +28,10 @@ export class StravaActivityList extends Component {
     Strava
       .listActivities({ page: nextPage })
       .then((response) => {
+        if (!response.ok) {
+          alertResponseError(response)
+          return
+        }
         response.json().then((activities) => {
           if (activities.length > 0) {
             this.setState({ page: nextPage, activities: this.state.activities.concat(activities) })

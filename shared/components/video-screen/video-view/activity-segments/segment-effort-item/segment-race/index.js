@@ -15,6 +15,7 @@ import { SegmentEffortSelectModal } from '../../../../../segment-effort-select-m
 import Icon from 'react-native-vector-icons/Ionicons'
 import { track } from '../../../../../../analytics'
 import dpiNormalize from '../../../../../../dpi-normalize'
+import alertResponseError from '../../../../../../alert-response-error'
 
 export class SegmentRace extends Component {
   constructor (props) {
@@ -36,6 +37,10 @@ export class SegmentRace extends Component {
     Strava
       .retrieveLeaderboard(segmentId)
       .then((response) => {
+        if (!response.ok) {
+          alertResponseError(response)
+          return
+        }
         response.json().then((json) => {
           this.setState({
             versusLeaderboardEntry: json.entries[0],
@@ -50,6 +55,10 @@ export class SegmentRace extends Component {
       Strava
         .compareEfforts(this.props.segmentEffort.segment.id, this.props.segmentEffort.id, this.state.versusLeaderboardEntry.effort_id)
         .then((response) => {
+          if (!response.ok) {
+            alertResponseError(response)
+            return
+          }
           response.json().then((json) => {
             this.setState({
               versusDeltaTimes: json.delta_time
@@ -83,6 +92,10 @@ export class SegmentRace extends Component {
 
   retrieveSegmentEffortStream () {
     Strava.retrieveSegmentEffortStream(this.props.segmentEffort.id).then((response) => {
+      if (!response.ok) {
+        alertResponseError(response)
+        return
+      }
       response.json().then((json) => {
         var streams = _.reduce(json, (map, stream) => {
           map[stream.type] = stream

@@ -7,7 +7,6 @@ import {
 } from 'react-native'
 import _ from 'lodash'
 import { SegmentEffortItem } from './segment-effort-item'
-import { Strava } from '../../../../strava'
 import { ActivityService } from '../../../../services/activity-service'
 import { Video } from '../../../../video'
 import { SegmentEffort } from '../../../../segment-effort'

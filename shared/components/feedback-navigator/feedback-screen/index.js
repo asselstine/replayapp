@@ -55,7 +55,7 @@ export class FeedbackScreen extends Component {
           backgroundColor='#ffc600'
           color='black' />
 
-        <Text style={screenStyles.title}>Help</Text>
+        <Text style={screenStyles.title}>Reset Help</Text>
         <Text style={screenStyles.p}>Reset the contextual help messages if you want to see them again.</Text>
 
         <MyButton

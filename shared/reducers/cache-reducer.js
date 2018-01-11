@@ -15,7 +15,7 @@ export default function (state, action) {
       cmd[action.key] = {
         '$set': moment()
       }
-      console.log(`SET CACHE: ${action.key}`)
+      // console.log(`SET CACHE: ${action.key}`)
       state = update(state, cmd)
       break;
   }

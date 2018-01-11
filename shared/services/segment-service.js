@@ -5,6 +5,7 @@ import {
   receiveCompareEfforts
 } from '../actions/segment-actions'
 import reportError from '../report-error'
+import alertResponseError from '../alert-response-error'
 
 export const SegmentService = {
   retrieveLeaderboard (segmentId) {
@@ -12,6 +13,10 @@ export const SegmentService = {
       Strava
         .retrieveLeaderboard(segmentId)
         .then((response) => {
+          if (!response.ok) {
+            alertResponseError(response)
+            return
+          }
           response.json()
                   .then((json) => {
                     store.dispatch(receiveLeaderboard(segmentId, json))
@@ -31,6 +36,10 @@ export const SegmentService = {
       Strava
         .compareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id)
         .then((response) => {
+          if (!response.ok) {
+            alertResponseError(response)
+            return
+          }
           response.json()
                   .then((json) => {
                     store.dispatch(receiveCompareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id, json))
