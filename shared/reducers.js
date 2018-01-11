@@ -3,6 +3,7 @@ import strava from './reducers/strava-reducer'
 import activities from './reducers/activity-reducer'
 import segments from './reducers/segments-reducer'
 import athletes from './reducers/athletes-reducer'
+import cache from './reducers/cache-reducer'
 import help from './reducers/help-reducer'
 
 export default {
@@ -11,5 +12,6 @@ export default {
   activities,
   segments,
   athletes,
+  cache,
   help
 }

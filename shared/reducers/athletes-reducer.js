@@ -16,8 +16,10 @@ export default function (state, action) {
       break
     case 'RECEIVE_CURRENT_ATHLETE':
       var cmd = {}
-      cmd['data'] = {
-        '$set': action.data
+      cmd = {
+        data: {
+          '$set': action.data
+        }
       }
       state = update(state, cmd)
       break
