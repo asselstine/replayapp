@@ -6,6 +6,7 @@ import { Strava } from '../../../../../strava'
 import { ActivityItem } from './activity-item'
 import PropTypes from 'prop-types'
 import reportError from '../../../../../report-error'
+import _ from 'lodash'
 
 export class StravaActivityList extends Component {
   constructor (props) {
@@ -20,20 +21,25 @@ export class StravaActivityList extends Component {
   }
 
   getNextPage () {
+    if (this.fetching) { return }
+    this.fetching = true
     var nextPage = this.state.page + 1
     Strava
       .listActivities({ page: nextPage })
       .then((response) => {
         response.json().then((activities) => {
           if (activities.length > 0) {
-            this.setState({ activities: this.state.activities.concat(activities), page: nextPage })
+            this.setState({ page: nextPage, activities: this.state.activities.concat(activities) })
           } else {
-            this.setState({ hasMore: false })
+            this.setState({ page: nextPage, hasMore: false })
           }
         })
       })
       .catch((error) => {
         reportError(error)
+      })
+      .finally(() => {
+        this.fetching = false
       })
   }
 
@@ -42,7 +48,7 @@ export class StravaActivityList extends Component {
   }
 
   _onEndReached () {
-    if (this.state.hasMore) {
+    if (this.state.hasMore && !this.fetching) {
       this.getNextPage()
     }
   }

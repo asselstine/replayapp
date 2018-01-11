@@ -3,7 +3,6 @@ import React, { Dimensions } from 'react-native'
 var deviceHeight = Dimensions.get('window').height
 
 export default (size) => {
-  console.log(deviceHeight)
     if (deviceHeight <= 667) {
         return size
     } else if (deviceHeight < 900) {
