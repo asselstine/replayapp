@@ -28,10 +28,7 @@ export class StravaActivityList extends Component {
     Strava
       .listActivities({ page: nextPage })
       .then((response) => {
-        if (!response.ok) {
-          alertResponseError(response)
-          return
-        }
+        if (alertResponseError(response)) { return }
         response.json().then((activities) => {
           if (activities.length > 0) {
             this.setState({ page: nextPage, activities: this.state.activities.concat(activities) })

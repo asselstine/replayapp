@@ -21,10 +21,7 @@ export const ActivityService = {
     }
     return (
       Strava.retrieveActivity(activityId).then((response) => {
-        if (!response.ok) {
-          alertResponseError(response)
-          return
-        }
+        if (alertResponseError(response)) { return }
         response.json().then((json) => {
           store.dispatch(receiveActivity(activityId, json))
           store.dispatch(CacheActions.set(cacheKey))
@@ -46,10 +43,7 @@ export const ActivityService = {
       Strava
         .retrieveStreams(activityId)
         .then((response) => {
-          if (!response.ok) {
-            alertResponseError(response)
-            return
-          }
+          if (alertResponseError(response)) { return }
           response.json().then((data) => {
             store.dispatch(receiveStreams(activityId, data))
             store.dispatch(CacheActions.set(cacheKey))

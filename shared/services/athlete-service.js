@@ -16,10 +16,7 @@ export const AthleteService = {
     }
     return (
       Strava.retrieveCurrentAthlete().then((response) => {
-        if (!response.ok) {
-          alertResponseError(response)
-          return
-        }
+        if (alertResponseError(response)) { return }
         response.json().then((json) => {
           store.dispatch(receiveCurrentAthlete(json))
           store.dispatch(CacheActions.set(cacheKey))
