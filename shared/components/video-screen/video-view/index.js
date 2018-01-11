@@ -298,6 +298,10 @@ export const VideoView = connect(
     var videoHeight = this.state.width * hwAspectRatio
 
     var videoPlayerContainerStyle = styles.videoPlayer
+    var videoContainerStyle = {
+      width: '100%',
+      height: '100%',
+    }
 
     if (this.state.aspectRatio && !this.state.landscape && !this.state.fullscreen) {
       if (this.state.aspectRatio > 1) {
@@ -313,14 +317,12 @@ export const VideoView = connect(
         }
       }
       var videoStyle = {
-        flex: 0,
         width: width,
         height: height,
         aspectRatio: this.state.aspectRatio,
       }
     } else {
       videoStyle = {
-        flex: 0,
         width: '100%',
         height: '100%',
       }
@@ -335,8 +337,9 @@ export const VideoView = connect(
     if (this.props.video && this.state.showVideo) {
       var videoPlayer =
         <View style={[styles.videoPlayerGlobalStyle, videoPlayerContainerStyle]}>
-          <View style={videoStyle}>
+          <View style={videoContainerStyle}>
             <VideoPlayer
+              videoStyle={videoStyle}
               eventEmitter={this.eventEmitter}
               fullscreen={this.state.fullscreen}
               onToggleFullscreen={this.onToggleFullscreen}
@@ -528,18 +531,15 @@ const styles = {
 
     videoPlayer: {
       flex: 1,
-      backgroundColor: 'black',
     }
   },
   videoPlayer: {
     flex: 0,
-    backgroundColor: 'black',
   },
   fullscreen: {
     videoPlayer: {
       width: '100%',
       height: '100%',
-      backgroundColor: 'black'
     }
   },
 

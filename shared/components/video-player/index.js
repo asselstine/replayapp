@@ -252,10 +252,10 @@ export class VideoPlayer extends Component {
       pointerEvents = 'none'
     }
 
-    if (this.props.video.activity && this.props.fullscreen /* !this.props.hideActivityOverlay */ ) {
-      var activityOverlayStyle = _.merge({}, {
+    if (this.props.video.activity && this.props.fullscreen ) {
+      var activityOverlayStyle = {
         opacity: this.state.playerOverlayProgress
-      }, styles.activityOverlay)
+      }
       var activityStartTime = Video.videoTimeToStreamTime(this.props.video, 0)
       var activityEndTime = Video.videoTimeToStreamTime(this.props.video, duration)
       var activityOverlay =
@@ -273,11 +273,14 @@ export class VideoPlayer extends Component {
           video={this.props.video} />
     }
 
+    var videoStyle = _.merge({}, styles.video, this.props.videoStyle)
+    var videoContainerStyle = _.merge({}, styles.videoContainer, { height: videoStyle.height })
+
     return (
-      <TouchableWithoutFeedback onPress={this.onPressVideo} style={this.props.style}>
-        <View style={styles.videoStyle}>
+      <TouchableWithoutFeedback onPress={this.onPressVideo}>
+        <View style={videoContainerStyle}>
           <RNVideo
-            style={styles.videoStyle}
+            style={videoStyle}
             source={this.props.video.videoSource}
             ref={(ref) => { this.player = ref }}
             onLoadStart={this._onLoadStart}
@@ -324,23 +327,30 @@ VideoPlayer.propTypes = {
   onClose: PropTypes.func,
   onProgress: PropTypes.func,
   onPlay: PropTypes.func,
-  style: PropTypes.object,
   fullscreen: PropTypes.bool,
   onToggleFullscreen: PropTypes.func,
   onLoad: PropTypes.func,
-  hideActivityOverlay: PropTypes.bool
+  hideActivityOverlay: PropTypes.bool,
+  videoStyle: PropTypes.object,
 }
 
 VideoPlayer.defaultProps = {
-  style: {},
+  videoStyle: {},
   onLoad: () => {},
 }
 
 const styles = {
-  videoStyle: {
+  videoContainer: {
+    width: '100%',
+    backgroundColor: 'black',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  video: {
     width: '100%',
     height: '100%',
+    flex: 0,
   },
-  activityOverlay: {
-  }
 }
