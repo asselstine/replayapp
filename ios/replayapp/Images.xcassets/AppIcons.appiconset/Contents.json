@@ -3,49 +3,49 @@
     {
       "size" : "20x20",
       "idiom" : "iphone",
-      "filename" : "2x - Iphone notification.png",
+      "filename" : "2x - iPhone Notification.png",
       "scale" : "2x"
     },
     {
       "size" : "20x20",
       "idiom" : "iphone",
-      "filename" : "3x - iPhone notification.png",
+      "filename" : "3x - iPhone Notification.png",
       "scale" : "3x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "2x - iPhone settings 58x58.png",
+      "filename" : "2x - iPhone Settings.png",
       "scale" : "2x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "3x - iPhone settings 87x87.png",
+      "filename" : "3x - iPhone Settings.png",
       "scale" : "3x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "2x - iPhone Spotlight 80x80-1.png",
+      "filename" : "2x - iPhone Spotlight.png",
       "scale" : "2x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "2x - iPhone Spotlight 120x120-1.png",
+      "filename" : "3x - iPhone Spotlight.png",
       "scale" : "3x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "2x - iPhone Spotlight 120x120.png",
+      "filename" : "3x - iPhone Spotlight-1.png",
       "scale" : "2x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "3x - iPhone app 180x180.png",
+      "filename" : "3x - iPhone App.png",
       "scale" : "3x"
     },
     {
@@ -57,7 +57,7 @@
     {
       "size" : "20x20",
       "idiom" : "ipad",
-      "filename" : "2x - Iphone notification-1.png",
+      "filename" : "2x - iPhone Notification-1.png",
       "scale" : "2x"
     },
     {
@@ -69,19 +69,19 @@
     {
       "size" : "29x29",
       "idiom" : "ipad",
-      "filename" : "2x - iPhone settings 58x58-1.png",
+      "filename" : "2x - iPhone Settings-1.png",
       "scale" : "2x"
     },
     {
       "size" : "40x40",
       "idiom" : "ipad",
-      "filename" : "2x - Iphone notification-2.png",
+      "filename" : "2x - iPhone Notification-2.png",
       "scale" : "1x"
     },
     {
       "size" : "40x40",
       "idiom" : "ipad",
-      "filename" : "2x - iPhone Spotlight 80x80.png",
+      "filename" : "2x - iPhone Spotlight-1.png",
       "scale" : "2x"
     },
     {
@@ -105,7 +105,7 @@
     {
       "size" : "1024x1024",
       "idiom" : "ios-marketing",
-      "filename" : "App Store 1024x1024.png",
+      "filename" : "App Store.png",
       "scale" : "1x"
     }
   ],
