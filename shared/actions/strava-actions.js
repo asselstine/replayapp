@@ -4,3 +4,9 @@ export const login = function (stravaData) {
     data: stravaData
   }
 }
+
+export const logout = function () {
+  return {
+    type: 'STRAVA_LOGOUT',
+  }
+}

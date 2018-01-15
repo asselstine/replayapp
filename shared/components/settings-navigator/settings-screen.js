@@ -44,7 +44,7 @@ export class SettingsScreen extends Component {
           backgroundColor='green'
           color='white' />
         <Text style={screenStyles.title}>Reset App</Text>
-        <Text style={screenStyles.p}>This will remove all data from the app.</Text>
+        <Text style={screenStyles.p}>This will remove all data and reset the app.</Text>
         <MyButton
           onPress={this.onResetApp.bind(this)}
           title='Reset App'

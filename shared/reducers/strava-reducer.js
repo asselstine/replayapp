@@ -1,4 +1,5 @@
-import update from 'react-addons-update'
+import update from 'immutability-helper'
+import { Strava } from '../strava'
 
 export default function (state, action) {
   if (typeof state === 'undefined') {
@@ -14,6 +15,14 @@ export default function (state, action) {
           credentials: action.data
         }
       })
+      break
+    case 'STRAVA_LOGOUT':
+      state = update(state, {
+        $unset: [
+          'credentials'
+        ]
+      })
+      Strava.deauthorize()
       break
   }
   return state
