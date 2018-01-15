@@ -49,12 +49,13 @@ const styles = {
   trophyRankLabelContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0)',
     position: 'absolute',
-    top: dpiNormalize(-20),
+    top: dpiNormalize(-18),
     right: 0,
     left: 0,
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
+    width: dpiNormalize(32),
   },
 
   rankNumberBackground: {
@@ -67,9 +68,6 @@ const styles = {
     backgroundColor: 'rgba(0, 0, 0, 0)',
     textAlign: 'center',
     color: 'white',
-    lineHeight: dpiNormalize(40),
-    width: dpiNormalize(40),
-    height: dpiNormalize(40),
     fontSize: dpiNormalize(12),
     fontWeight: '900',
   },
