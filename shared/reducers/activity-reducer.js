@@ -1,4 +1,4 @@
-import update from 'react-addons-update'
+import update from 'immutability-helper'
 import _ from 'lodash'
 
 function initActivity (activityId, state) {
@@ -45,6 +45,11 @@ export default function (state, action) {
         }
       }
       state = updateActivity(state, action.activityId, cmd)
+      break
+    case 'REMOVE_ACTIVITY':
+      state = update(state, {
+        $unset: [action.activityId]
+      })
       break
   }
   return state

@@ -134,13 +134,12 @@ export const VideoView = connect(
   onPressStravaConnect () {
     Strava.authorize()
           .then((response) => {
-            dispatchTrack(login(response.response.credentials))
+            this.setState({ stravaActivityModalIsOpen: true })
             AthleteService.retrieveCurrentAthlete().then(() => {
                 var athlete = store.getState().athletes.data
                 analytics.identify({
                   userId: athlete.id
                 })
-                this.setState({ stravaActivityModalIsOpen: true })
             }).catch(reportError)
           })
           .catch(reportError)

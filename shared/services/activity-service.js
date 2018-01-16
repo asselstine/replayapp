@@ -2,12 +2,13 @@ import { Strava } from '../strava'
 import { store } from '../store'
 import {
   receiveActivity,
-  receiveStreams
+  receiveStreams,
+  removeActivity
 } from '../actions/activity-actions'
 import reportError from '../report-error'
 import cacheExpired from '../cache-expired'
 import CacheActions from '../actions/cache-actions'
-import alertResponseError from '../alert-response-error'
+import Alert from '../alert'
 
 function resolvedPromise() {
   return new Promise((resolve, reject) => { resolve() })
@@ -21,13 +22,14 @@ export const ActivityService = {
     }
     return (
       Strava.retrieveActivity(activityId).then((response) => {
-        if (alertResponseError(response)) { return }
-        response.json().then((json) => {
-          store.dispatch(receiveActivity(activityId, json))
-          store.dispatch(CacheActions.set(cacheKey))
-        }).catch((error) => {
-          reportError(error)
-        })
+        if (this.activityResponseOk(response, activityId)) {
+          response.json().then((json) => {
+            store.dispatch(receiveActivity(activityId, json))
+            store.dispatch(CacheActions.set(cacheKey))
+          }).catch((error) => {
+            reportError(error)
+          })
+        }
       }).catch((error) => {
         reportError(error)
       })
@@ -43,16 +45,39 @@ export const ActivityService = {
       Strava
         .retrieveStreams(activityId)
         .then((response) => {
-          if (alertResponseError(response)) { return }
-          response.json().then((data) => {
-            store.dispatch(receiveStreams(activityId, data))
-            store.dispatch(CacheActions.set(cacheKey))
-          }).catch((error) => {
-            reportError(error)
-          })
+          if (this.activityResponseOk(response, activityId)) {
+            response.json().then((data) => {
+              store.dispatch(receiveStreams(activityId, data))
+              store.dispatch(CacheActions.set(cacheKey))
+            }).catch((error) => {
+              reportError(error)
+            })
+          }
         }).catch((error) => {
           reportError(error)
         })
     )
-  }
+  },
+
+  activityResponseOk (response, activityId) {
+    var result = false
+    if (response.status === 404) {
+      Alert.activity()
+      this.removeActivity(activityId)
+    } else if (response.status === 401 || response.status === 403) {
+      Alert.permissions(() => {
+        Strava.authorize()
+      })
+    } else if (!response.ok) {
+      Alert.connection()
+      reportError(`Strava responded with ${_.get(response, 'status')}: ${_.get(response, 'url')}`)
+    } else {
+      result = true
+    }
+    return result
+  },
+
+  removeActivity (activityId) {
+    store.dispatch(removeActivity(activityId))
+  },
 }

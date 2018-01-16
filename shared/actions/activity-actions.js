@@ -13,3 +13,10 @@ export const receiveStreams = function (activityId, streams) {
     streams: streams
   }
 }
+
+export const removeActivity = function (activityId) {
+  return {
+    type: 'REMOVE_ACTIVITY',
+    activityId: activityId
+  }
+}

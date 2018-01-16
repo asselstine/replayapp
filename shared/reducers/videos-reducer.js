@@ -1,4 +1,4 @@
-import update from 'react-addons-update'
+import update from 'immutability-helper'
 import moment from 'moment'
 
 export default function (state, action) {
@@ -50,6 +50,17 @@ export default function (state, action) {
       cmd[action.rawVideoData.localIdentifier] = {
         startAt: {
           '$set': moment(action.rawVideoData.creationDateUTCSeconds * 1000)
+        }
+      }
+      state = update(state, cmd)
+      break
+    case 'REMOVE_ACTIVITY':
+      var cmd = {}
+      for (var key in state) {
+        if (state[key].activity && state[key].activity.id === action.activityId) {
+          cmd[key] = {
+            $unset: ['activity']
+          }
         }
       }
       state = update(state, cmd)

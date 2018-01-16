@@ -1,4 +1,7 @@
 import { store } from './store'
+import { login } from './actions/strava-actions'
+import Alert from './alert'
+import dispatchTrack from './store/dispatch-track'
 import _ from 'lodash'
 import reportError from './report-error'
 import { manager } from './oauth'
@@ -10,6 +13,9 @@ export const Strava = {
 
   authorize () {
     return manager.authorize('strava', { scopes: 'view_private' })
+          .then((response) => {
+            dispatchTrack(login(response.response.credentials))
+          })
   },
 
   deauthorize () {
@@ -107,4 +113,19 @@ export const Strava = {
       })
     )
   },
+
+  responseOk (response) {
+    var result = false
+    if (response.status === 401 || response.status === 403) {
+      Alert.permissions(() => {
+        Strava.authorize()
+      })
+    } else if (!response.ok) {
+      Alert.connection()
+      reportError(`Strava responded with ${_.get(response, 'status')}: ${_.get(response, 'url')}`)
+    } else {
+      result = true
+    }
+    return result
+  }
 }

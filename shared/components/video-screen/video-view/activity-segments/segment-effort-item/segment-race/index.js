@@ -15,7 +15,8 @@ import { SegmentEffortSelectModal } from '../../../../../segment-effort-select-m
 import Icon from 'react-native-vector-icons/Ionicons'
 import { track } from '../../../../../../analytics'
 import dpiNormalize from '../../../../../../dpi-normalize'
-import alertResponseError from '../../../../../../alert-response-error'
+import Alert from '../../../../../../alert'
+import { ActivityService } from '../../../../../../services/activity-service'
 
 export class SegmentRace extends Component {
   constructor (props) {
@@ -37,13 +38,14 @@ export class SegmentRace extends Component {
     Strava
       .retrieveLeaderboard(segmentId)
       .then((response) => {
-        if (alertResponseError(response)) { return }
-        response.json().then((json) => {
-          this.setState({
-            versusLeaderboardEntry: json.entries[0],
-            leaderboard: json.entries
-          }, this.updateCompareEfforts)
-        })
+        if (Strava.responseOk(response)) {
+          response.json().then((json) => {
+            this.setState({
+              versusLeaderboardEntry: json.entries[0],
+              leaderboard: json.entries
+            }, this.updateCompareEfforts)
+          })
+        }
       })
   }
 
@@ -52,12 +54,13 @@ export class SegmentRace extends Component {
       Strava
         .compareEfforts(this.props.segmentEffort.segment.id, this.props.segmentEffort.id, this.state.versusLeaderboardEntry.effort_id)
         .then((response) => {
-          if (alertResponseError(response)) { return }
-          response.json().then((json) => {
-            this.setState({
-              versusDeltaTimes: json.delta_time
+          if (!this.wasResponseError(response)) {
+            response.json().then((json) => {
+              this.setState({
+                versusDeltaTimes: json.delta_time
+              })
             })
-          })
+          }
         })
     }
   }
@@ -84,18 +87,23 @@ export class SegmentRace extends Component {
     })
   }
 
+  wasResponseError (response) {
+    return !ActivityService.activityResponseOk(response, this.props.segmentEffort.activity.id)
+  }
+
   retrieveSegmentEffortStream () {
     Strava.retrieveSegmentEffortStream(this.props.segmentEffort.id).then((response) => {
-      if (alertResponseError(response)) { return }
-      response.json().then((json) => {
-        var streams = _.reduce(json, (map, stream) => {
-          map[stream.type] = stream
-          return map
-        }, {})
-        this.setState({
-          times: streams.time.data
+      if (!this.wasResponseError(response)) {
+        response.json().then((json) => {
+          var streams = _.reduce(json, (map, stream) => {
+            map[stream.type] = stream
+            return map
+          }, {})
+          this.setState({
+            times: streams.time.data
+          })
         })
-      })
+      }
     })
   }
 
