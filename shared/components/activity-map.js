@@ -16,6 +16,8 @@ import {
 } from '../streams'
 import { closestPoint } from '../closest-point'
 import * as colours from '../colours'
+import TimerMixin from 'react-timer-mixin'
+import reactMixin from 'react-mixin'
 
 const UPDATE_PERIOD = 100
 
@@ -45,10 +47,6 @@ export class ActivityMap extends Component {
   componentWillReceiveProps (nextProps) {
     if (this.props.streamTime !== nextProps.streamTime) {
       this.setCoordinates(nextProps.streamTime)
-    }
-    if (this.props.streams !== nextProps.streams ||
-        this.props.activity !== nextProps.activity) {
-      this.recenter()
     }
   }
 
@@ -151,17 +149,17 @@ export class ActivityMap extends Component {
     }
   }
 
-  onLayout () {
-    this.recenter()
-  }
-
   render () {
     let latLngs = this.latLngs()
     var videoLatLngs = this.videoLatLngs()
 
-    if (!this.positionCircleCoordinates) {
-      var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(this.props.streamTime))
+    var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(this.props.streamTime))
+    if (!this.positionCircleCoordinates && mapCurrentLatLng) {
       this.positionCircleCoordinates = new MapView.AnimatedRegion(mapCurrentLatLng)
+      var mapMarker =
+        <MapView.Marker.Animated
+          coordinate={this.positionCircleCoordinates}
+          ref={() => { this.recenter() }} />
     }
 
     return (
@@ -170,19 +168,20 @@ export class ActivityMap extends Component {
           onPress={(event) => { this.onPressMapView(event) }}
           pitchEnabled={false}
           ref={(ref) => { this.mapRef = ref }}
-          onLayout={this.onLayout.bind(this)}
+          onLayout={() => { this.recenter() }}
           style={styles.map}
         >
-          <MapView.Marker.Animated
-            coordinate={this.positionCircleCoordinates} />
+          {mapMarker}
           <MapView.Polyline
             strokeColor='pink'
             strokeWidth={2}
-            coordinates={latLngs} />
+            coordinates={latLngs}
+            ref={() => { this.recenter() }} />
           <MapView.Polyline
             strokeColor={colours.BRAND}
             strokeWidth={3}
-            coordinates={videoLatLngs} />
+            coordinates={videoLatLngs}
+            ref={() => { this.recenter() }} />
         </MapView>
       </Animated.View>
     )
@@ -204,6 +203,8 @@ ActivityMap.defaultProps = {
     flex: 1
   }
 }
+
+reactMixin(ActivityMap.prototype, TimerMixin)
 
 const styles = StyleSheet.create({
   map: {
