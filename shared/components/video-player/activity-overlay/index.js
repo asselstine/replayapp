@@ -231,23 +231,16 @@ export class ActivityOverlay extends Component {
     var segmentEffortId = this.state.segmentEffort.id
     var versusEffortId = this.state.leaderboardEntry.effort_id
     var segmentEffort = this.state.segmentEffort
-    SegmentService.retrieveEffortComparison(segmentId, segmentEffortId, versusEffortId)
-                  .then(() => {
-                    var versusDeltaTimes = SegmentsFinder.findDeltaTimes(store.getState(), segmentId, segmentEffortId, versusEffortId) || []
-                    var segmentEffortTimeStream = ActivitiesFinder.findSegmentEffortTimeStream(store.getState(), segmentEffort)
-                    this.setState({
-                      versusDeltaTimes,
-                      segmentEffortTimeStream
-                    })
-                  })
+    ActivityService.retrieveEffortComparison(this.state.segmentEffort.activity.id, segmentId, segmentEffortId, versusEffortId)
+                   .then(() => {
+                     var versusDeltaTimes = SegmentsFinder.findDeltaTimes(store.getState(), segmentId, segmentEffortId, versusEffortId) || []
+                     var segmentEffortTimeStream = ActivitiesFinder.findSegmentEffortTimeStream(store.getState(), segmentEffort)
+                     this.setState({
+                       versusDeltaTimes,
+                       segmentEffortTimeStream
+                     })
+                   })
   }
-
-  // resetOverlayHideTimeout () {
-  //   if (this.timeout) {
-  //     this.clearTimeout(this.timeout)
-  //   }
-  //   this.timeout = this.setTimeout(this._hideOverlay, 3000)
-  // }
 
   onActivityTimeChange (time) {
     // this.resetOverlayHideTimeout()

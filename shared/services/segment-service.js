@@ -27,25 +27,4 @@ export const SegmentService = {
         })
     )
   },
-
-  retrieveEffortComparison (segmentId, segmentEffort1Id, segmentEffort2Id) {
-    return (
-      Strava
-        .compareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id)
-        .then((response) => {
-          if (Strava.responseOk(response)) {
-            response.json()
-                    .then((json) => {
-                      store.dispatch(receiveCompareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id, json))
-                    })
-                    .catch((error) => {
-                      reportError(error)
-                    })
-          }
-        })
-        .catch((error) => {
-          reportError(error)
-        })
-    )
-  }
 }

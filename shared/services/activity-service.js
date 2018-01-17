@@ -59,6 +59,33 @@ export const ActivityService = {
     )
   },
 
+
+  retrieveEffortComparison (activityId, segmentId, segmentEffort1Id, segmentEffort2Id) {
+    var cacheKey = `activites[${activityId}].segmentEffort1[${segmentEffort1Id}].segmentEffort2[${segmentEffort2Id}]`
+    if (!cacheExpired(cacheKey)) {
+      return resolvedPromise()
+    }
+    return (
+      Strava
+        .compareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id)
+        .then((response) => {
+          if (this.activityResponseOk(response, activityId)) {
+            response.json()
+                    .then((json) => {
+                      store.dispatch(receiveCompareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id, json))
+                      store.dispatch(CacheActions.set(cacheKey))
+                    })
+                    .catch((error) => {
+                      reportError(error)
+                    })
+          }
+        })
+        .catch((error) => {
+          reportError(error)
+        })
+    )
+  },
+
   activityResponseOk (response, activityId) {
     var result = false
     if (response.status === 404) {
