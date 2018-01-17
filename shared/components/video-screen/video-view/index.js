@@ -177,9 +177,6 @@ export const VideoView = connect(
   }
 
   onPlay (event) {
-    if (this._activityMap) {
-      this._activityMap.recenter()
-    }
     this.eventEmitter.emit('onStreamPlay', this.videoTimeToStreamTime(event.currentTime))
   }
 
@@ -430,7 +427,6 @@ export const VideoView = connect(
       activityMap =
         <ActivityMap
           tabLabel='Map'
-          ref={(ref) => { this._activityMap = ref }}
           onStreamTimeChange={this.onStreamTimeChange}
           streamTime={this.videoTimeToStreamTime(0)}
           eventEmitter={this.eventEmitter}

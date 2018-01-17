@@ -16,8 +16,6 @@ import {
 } from '../streams'
 import { closestPoint } from '../closest-point'
 import * as colours from '../colours'
-import TimerMixin from 'react-timer-mixin'
-import reactMixin from 'react-mixin'
 
 const UPDATE_PERIOD = 100
 
@@ -45,25 +43,31 @@ export class ActivityMap extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (this.props.streamTime !== nextProps.streamTime) {
-      this.setCoordinates(nextProps.streamTime)
+    if (this.shouldComponentUpdate(nextProps)) {
+      this.recenterOnNextTime = true
+      this.setCoordinates(nextProps.streamTime, nextProps)
     }
   }
 
-  setCoordinates (streamTime) {
+  setCoordinates (streamTime, props) {
+    props = props || this.props
     if (this.positionCircleCoordinates) {
-      var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(streamTime))
+      var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(streamTime, props), props)
       if (!mapCurrentLatLng) { return }
       if (this.lastAnimation) { this.lastAnimation.stop() }
-      this.positionCircleCoordinates
       this.lastAnimation = this.positionCircleCoordinates.timing(_.merge({}, mapCurrentLatLng, { duration: UPDATE_PERIOD }))
       this.lastAnimation.start()
+      if (this.recenterOnNextTime) {
+        this.recenter()
+        this.recenterOnNextTime = false
+      }
     }
   }
 
-  latLngAtTime (time) {
-    var data = _.get(this.props, 'streams.latlng.data', [])
-    var timeData = _.get(this.props, 'streams.time.data', [])
+  latLngAtTime (time, props) {
+    props = props || this.props
+    var data = _.get(props, 'streams.latlng.data', [])
+    var timeData = _.get(props, 'streams.time.data', [])
     if (!data.length || !timeData.length) { return null }
     var lats = _.map(data, (pair) => pair[0])
     var longs = _.map(data, (pair) => pair[1])
@@ -77,13 +81,15 @@ export class ActivityMap extends Component {
     return result
   }
 
-  boundStreamTime (streamTime) {
-    var timeData = this.timeStream()
+  boundStreamTime (streamTime, props) {
+    props = props || this.props
+    var timeData = this.timeStream(props)
     return Math.max(timeData[0], Math.min(streamTime, timeData[timeData.length - 1]))
   }
 
-  timeStream () {
-    return _.get(this.props, 'streams.time.data', [])
+  timeStream (props) {
+    props = props || this.props
+    return _.get(props, 'streams.time.data', [])
   }
 
   timeOffsetFromFraction (fraction) {
@@ -149,17 +155,20 @@ export class ActivityMap extends Component {
     }
   }
 
+  shouldComponentUpdate (nextProps, nextState) {
+    return (nextProps.activity !== this.props.activity ||
+      nextProps.streams !== this.props.streams ||
+      nextProps.videoStreamStartTime !== this.props.videoStreamStartTime ||
+      nextProps.videoStreamEndTime !== this.props.videoStreamEndTime)
+  }
+
   render () {
     let latLngs = this.latLngs()
     var videoLatLngs = this.videoLatLngs()
 
-    var mapCurrentLatLng = this.latLngAtTime(this.boundStreamTime(this.props.streamTime))
-    if (!this.positionCircleCoordinates && mapCurrentLatLng) {
-      this.positionCircleCoordinates = new MapView.AnimatedRegion(mapCurrentLatLng)
-      var mapMarker =
-        <MapView.Marker.Animated
-          coordinate={this.positionCircleCoordinates}
-          ref={() => { this.recenter() }} />
+    if (!this.positionCircleCoordinates) {
+      this.positionCircleCoordinates = new MapView.AnimatedRegion()
+      this.recenterOnNextTime = true
     }
 
     return (
@@ -171,17 +180,18 @@ export class ActivityMap extends Component {
           onLayout={() => { this.recenter() }}
           style={styles.map}
         >
-          {mapMarker}
+          <MapView.Marker.Animated
+            ref={(ref) => { if (ref) { this.recenter() } }}
+            coordinate={this.positionCircleCoordinates} />
           <MapView.Polyline
             strokeColor='pink'
             strokeWidth={2}
-            coordinates={latLngs}
-            ref={() => { this.recenter() }} />
+            coordinates={latLngs} />
           <MapView.Polyline
             strokeColor={colours.BRAND}
             strokeWidth={3}
             coordinates={videoLatLngs}
-            ref={() => { this.recenter() }} />
+            ref={(ref) => { if (ref) { this.recenter() } }} />
         </MapView>
       </Animated.View>
     )
@@ -203,8 +213,6 @@ ActivityMap.defaultProps = {
     flex: 1
   }
 }
-
-reactMixin(ActivityMap.prototype, TimerMixin)
 
 const styles = StyleSheet.create({
   map: {
