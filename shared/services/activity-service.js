@@ -5,6 +5,9 @@ import {
   receiveStreams,
   removeActivity
 } from '../actions/activity-actions'
+import {
+  receiveCompareEfforts,
+} from '../actions/segment-actions'
 import reportError from '../report-error'
 import cacheExpired from '../cache-expired'
 import CacheActions from '../actions/cache-actions'

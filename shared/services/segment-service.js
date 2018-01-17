@@ -2,7 +2,6 @@ import { Strava } from '../strava'
 import { store } from '../store'
 import {
   receiveLeaderboard,
-  receiveCompareEfforts
 } from '../actions/segment-actions'
 import reportError from '../report-error'
 

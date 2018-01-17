@@ -264,12 +264,11 @@ export class RaceGraph extends Component {
       deltaTimePoints,
       boundsTransform
     }
+
     if (transform) {
-      // console.log('Made transform')
       result.transform = transform
-    } else {
-      // console.log('Transform not possible')
     }
+
     return result
   }
 
