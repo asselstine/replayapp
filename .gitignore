@@ -32,6 +32,7 @@ local.properties
 .env
 .envrc
 .ruby-version
+dist/*
 
 # node.js
 #

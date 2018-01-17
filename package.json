@@ -1,6 +1,6 @@
 {
   "name": "replayapp",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
@@ -41,7 +41,8 @@
     "babel-preset-react-native": "^2.1.0",
     "jest": "^20.0.4",
     "react-test-renderer": "16.0.0-alpha.12",
-    "regenerator-transform": "^0.9.12"
+    "regenerator-transform": "^0.9.12",
+    "bugsnag-sourcemaps": "^1.0.1"
   },
   "jest": {
     "preset": "react-native"
