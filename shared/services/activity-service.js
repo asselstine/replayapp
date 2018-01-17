@@ -66,7 +66,7 @@ export const ActivityService = {
       this.removeActivity(activityId)
     } else if (response.status === 401 || response.status === 403) {
       Alert.permissions(() => {
-        Strava.authorize()
+        Strava.reauthorize()
       })
     } else if (!response.ok) {
       Alert.connection()

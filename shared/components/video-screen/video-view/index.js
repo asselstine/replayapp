@@ -299,23 +299,27 @@ export const VideoView = connect(
       height: '100%',
     }
 
-    if (this.state.aspectRatio && !this.state.landscape && !this.state.fullscreen) {
-      if (this.state.aspectRatio > 1) {
+    var videoWidth = _.get(this.props, 'video.rawVideoData.width') || 1
+    var videoHeight = _.get(this.props, 'video.rawVideoData.height') || 1
+    var aspectRatio = videoWidth / videoHeight
+
+    if (!this.state.landscape && !this.state.fullscreen) {
+      if (aspectRatio > 1) {
         var width = '100%'
         var height = 'auto'
       } else {
         var deviceHeight = Dimensions.get('window').height
         width = 'auto'
-        if (this.state.videoHeight > deviceHeight) {
+        if (videoHeight > deviceHeight) {
           height = deviceHeight * 0.4
         } else {
-          height = this.state.videoHeight
+          height = videoHeight
         }
       }
       var videoStyle = {
         width: width,
         height: height,
-        aspectRatio: this.state.aspectRatio,
+        aspectRatio: aspectRatio,
       }
     } else {
       videoStyle = {
