@@ -41,7 +41,7 @@ export class SyncDialog extends Component {
                 style={styles.lockIcon} />
             </View>
             <View style={HelpStyles.block}>
-              <Text style={HelpStyles.explainBold}>2. Scrub the video and data separately to a common point in time.</Text>
+              <Text style={HelpStyles.explainBold}>2. Align the video and activity by changing the activity time</Text>
             </View>
             <View style={HelpStyles.block}>
               <Text style={HelpStyles.explainBold}>3. Relock the activity</Text>
@@ -71,7 +71,7 @@ const styles = {
   },
 
   lockIcon: {
-    fontSize: 24,
+    fontSize: 48,
     color: 'black',
     alignSelf: 'center'
   },
