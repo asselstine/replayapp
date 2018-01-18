@@ -7,6 +7,9 @@ export default function (state, action) {
   }
   switch (action.type) {
     case 'RESET':
+      if (state.credentials) {
+        Strava.deauthorize()
+      }
       state = {}
       break
     case 'STRAVA_LOGIN':

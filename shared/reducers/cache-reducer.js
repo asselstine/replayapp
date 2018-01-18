@@ -15,18 +15,17 @@ export default function (state, action) {
       cmd[action.key] = {
         '$set': moment()
       }
-      // console.log(`SET CACHE: ${action.key}`)
       state = update(state, cmd)
       break;
     case 'RESET_CACHE_MATCH':
       var cmd = {}
-      var remove = []
+      var removals = []
       for (var key in state) {
-        if (key.match(action.keyMatch)) {
-          remove.push(key)
+        if (key.includes(action.keyMatch)) {
+          removals.push(key)
         }
       }
-      cmd['$unset'] = remove
+      cmd['$unset'] = removals
       state = update(state, cmd)
       break
   }

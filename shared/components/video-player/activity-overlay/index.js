@@ -226,7 +226,8 @@ export class ActivityOverlay extends Component {
   }
 
   updateLeaderboardComparisonData () {
-    if (!(this.state.segmentEffort && this.state.leaderboardEntry)) { return }
+    if (!_.get(this.props, 'segmentEffort.segment.id') ||
+        !_.get(this.state, 'leaderboardEntry.effort_id')) { return }
     var segmentId = this.state.segmentEffort.segment.id
     var segmentEffortId = this.state.segmentEffort.id
     var versusEffortId = this.state.leaderboardEntry.effort_id
