@@ -91,8 +91,9 @@ export const Strava = {
   },
 
   retrieveLeaderboard (segmentId) {
+    var url = `${this.baseUrl}/segments/${segmentId}/leaderboard?&page=1&per_page=1`
     return (
-      fetch(`${this.baseUrl}/segments/${segmentId}/leaderboard?&page=1&per_page=1`, {
+      fetch(url, {
         headers: this.headers()
       }).catch((error) => {
         reportError(error)

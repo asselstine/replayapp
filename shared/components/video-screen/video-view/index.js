@@ -37,6 +37,7 @@ import { Rotator } from './rotator'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { NavigationEventEmitter } from '../../navigation-event-emitter'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import { ConnectHelpModal } from './connect-help-modal'
 import * as colours from '../../../colours'
@@ -83,6 +84,7 @@ export const VideoView = connect(
     this._onCloseStravaActivityModal = this._onCloseStravaActivityModal.bind(this)
     this._onSelectStravaActivity = this._onSelectStravaActivity.bind(this)
     this._onPressReset = this._onPressReset.bind(this)
+    this._onPressTrash = this._onPressTrash.bind(this)
     this.eventEmitter = new EventEmitter()
     this._showTimestampWarning = this._showTimestampWarning.bind(this)
     this.trackOnChangeTab = this.trackOnChangeTab.bind(this)
@@ -145,6 +147,17 @@ export const VideoView = connect(
           .catch(reportError)
   }
 
+  _onPressTrash () {
+    Alert.alert(
+      'Remove Activity?',
+      'Are you sure you would like to remove the activity?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK', onPress: () => { this.removeActivity() } }
+      ]
+    )
+  }
+
   _onPressReset () {
     Alert.alert(
       'Reset time to video creation date?',
@@ -166,6 +179,13 @@ export const VideoView = connect(
 
   resetTime () {
     dispatchTrack(resetVideoStartAt(this.props.video.rawVideoData), videoProperties(this.props.video))
+  }
+
+  removeActivity () {
+    var activityId = _.get(this.props, 'video.activity.id')
+    if (activityId) {
+      ActivityService.removeActivity(activityId)
+    }
   }
 
   onToggleLock () {
@@ -375,6 +395,13 @@ export const VideoView = connect(
           </TouchableOpacity>
         </View>
 
+      var removeActivityButton =
+        <TouchableOpacity onPress={this._onPressTrash}>
+          <FontAwesome
+            name='trash'
+            style={[styles.titleHeaderIcon, styles.titleHeaderIconTrash]} />
+        </TouchableOpacity>
+
       var lockReset =
         <TouchableOpacity onPress={this._onPressReset}>
           <MaterialCommunityIcon
@@ -402,6 +429,7 @@ export const VideoView = connect(
       var lockControls =
         <View style={styles.lockControls}>
           {warning}
+          {removeActivityButton}
           {lockReset}
           {lockToggle}
         </View>
@@ -589,6 +617,11 @@ const styles = {
     fontSize: dpiNormalize(24),
     paddingTop: 10,
     paddingRight: 10
+  },
+
+  titleHeaderIconTrash: {
+    fontSize: dpiNormalize(23),
+    paddingRight: 12,
   },
 
   titleWarningIcon: {

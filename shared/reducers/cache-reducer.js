@@ -1,5 +1,5 @@
 import moment from 'moment'
-import update from 'react-addons-update'
+import update from 'immutability-helper'
 
 export default function (state, action) {
   if (typeof state === 'undefined') {
@@ -18,6 +18,17 @@ export default function (state, action) {
       // console.log(`SET CACHE: ${action.key}`)
       state = update(state, cmd)
       break;
+    case 'RESET_CACHE_MATCH':
+      var cmd = {}
+      var remove = []
+      for (var key in state) {
+        if (key.match(action.keyMatch)) {
+          remove.push(key)
+        }
+      }
+      cmd['$unset'] = remove
+      state = update(state, cmd)
+      break
   }
 
   return state

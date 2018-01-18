@@ -35,8 +35,7 @@ export class SegmentRace extends Component {
   componentDidMount () {
     var segmentId = this.props.segmentEffort.segment.id
     this.retrieveSegmentEffortStream()
-    Strava
-      .retrieveLeaderboard(segmentId)
+    Strava.retrieveLeaderboard(segmentId)
       .then((response) => {
         if (Strava.responseOk(response)) {
           response.json().then((json) => {
@@ -50,19 +49,22 @@ export class SegmentRace extends Component {
   }
 
   updateCompareEfforts () {
-    if (this.state.versusLeaderboardEntry) {
-      Strava
-        .compareEfforts(this.props.segmentEffort.segment.id, this.props.segmentEffort.id, this.state.versusLeaderboardEntry.effort_id)
-        .then((response) => {
-          if (!this.wasResponseError(response)) {
-            response.json().then((json) => {
-              this.setState({
-                versusDeltaTimes: json.delta_time
-              })
-            })
-          }
-        })
-    }
+    if (!_.get(this.props, 'segmentEffort.segment.id') ||
+        !_.get(this.state, 'versusLeaderboardEntry.effort_id')) { return }
+    var activityId = this.props.segmentEffort.activity.id
+    var segmentId = this.props.segmentEffort.segment.id
+    var segmentEffortId = this.props.segmentEffort.id
+    var versusEffortId = this.state.versusLeaderboardEntry.effort_id
+    ActivityService.retrieveEffortComparison(activityId,
+                                             segmentId,
+                                             segmentEffortId,
+                                             versusEffortId)
+                   .then(() => {
+                     var versusDeltaTimes = SegmentsFinder.findDeltaTimes(store.getState(), segmentId, segmentEffortId, versusEffortId) || []
+                     this.setState({
+                       versusDeltaTimes,
+                     })
+                   })
   }
 
   onCloseSegmentEffortModal () {

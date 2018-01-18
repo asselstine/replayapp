@@ -1,5 +1,6 @@
 import { Strava } from '../strava'
 import { store } from '../store'
+import dispatchTrack from '../store/dispatch-track'
 import {
   receiveActivity,
   receiveStreams,
@@ -12,6 +13,7 @@ import reportError from '../report-error'
 import cacheExpired from '../cache-expired'
 import CacheActions from '../actions/cache-actions'
 import Alert from '../alert'
+import _ from 'lodash'
 
 function resolvedPromise() {
   return new Promise((resolve, reject) => { resolve() })
@@ -62,15 +64,13 @@ export const ActivityService = {
     )
   },
 
-
   retrieveEffortComparison (activityId, segmentId, segmentEffort1Id, segmentEffort2Id) {
-    var cacheKey = `activites[${activityId}].segmentEffort1[${segmentEffort1Id}].segmentEffort2[${segmentEffort2Id}]`
+    var cacheKey = `activities[${activityId}].segmentEffort1[${segmentEffort1Id}].segmentEffort2[${segmentEffort2Id}]`
     if (!cacheExpired(cacheKey)) {
       return resolvedPromise()
     }
     return (
-      Strava
-        .compareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id)
+      Strava.compareEfforts(segmentId, segmentEffort1Id, segmentEffort2Id)
         .then((response) => {
           if (this.activityResponseOk(response, activityId)) {
             response.json()
@@ -92,8 +92,8 @@ export const ActivityService = {
   activityResponseOk (response, activityId) {
     var result = false
     if (response.status === 404) {
+      console.log(`Strava responded with ${_.get(response, 'status')}: ${_.get(response, 'url')}`)
       Alert.activity()
-      this.removeActivity(activityId)
     } else if (response.status === 401 || response.status === 403) {
       Alert.permissions(() => {
         Strava.reauthorize()
@@ -108,6 +108,7 @@ export const ActivityService = {
   },
 
   removeActivity (activityId) {
-    store.dispatch(removeActivity(activityId))
+    dispatchTrack(removeActivity(activityId))
+    dispatchTrack(CacheActions.resetMatch(`activities[${activityId}]`))
   },
 }
